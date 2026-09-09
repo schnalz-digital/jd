@@ -308,12 +308,9 @@ function createListingCard(listing, stagger) {
         badges.push(`<span class="badge ${up ? 'badge-up' : 'badge-down'}">
             ${up ? '▲' : '▼'}&nbsp;${up ? 'Price up' : 'Price down'}</span>`);
     }
-    const badgesHtml = `
-        <div class="badge-row">
-            ${badges.join('')}
-            <span class="spacer"></span>
-            <span class="badge badge-src">${SOURCE_LABELS[listing.source] || listing.source}</span>
-        </div>`;
+    const badgesHtml = badges.length
+        ? `<div class="badge-row">${badges.join('')}</div>`
+        : '';
 
     const priceHtml = listing.price ? priceOverlayHtml(listing) : `
         <div class="price-overlay"><span class="price" style="font-size:1.05rem">On request</span></div>`;
