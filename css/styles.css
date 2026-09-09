@@ -593,7 +593,7 @@ input, select { font-family: inherit; }
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(12, 11, 9, 0.05) 0%, rgba(12, 11, 9, 0) 40%, rgba(12, 11, 9, 0.72) 100%);
+  background: linear-gradient(180deg, rgba(12, 11, 9, 0.05) 0%, rgba(12, 11, 9, 0) 40%, rgba(12, 11, 9, 0.82) 100%);
   pointer-events: none;
 }
 
@@ -617,6 +617,7 @@ input, select { font-family: inherit; }
   display: flex;
   gap: 0.4rem;
   pointer-events: none;
+  z-index: 2;
 }
 .badge {
   display: inline-flex;
@@ -649,7 +650,8 @@ input, select { font-family: inherit; }
   bottom: 0.85rem;
   color: #fff;
   pointer-events: none;
-  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.35);
+  z-index: 2;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.65), 0 3px 16px rgba(0, 0, 0, 0.45);
 }
 .price-overlay .price {
   font-family: var(--font-display);
