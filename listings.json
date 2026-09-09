@@ -1,17 +1,17 @@
 {
-  "last_crawl": "2026-09-09T10:22:14.758311",
+  "last_crawl": "2026-09-09T10:36:00.775729",
   "stats": {
-    "total": 147,
+    "total": 157,
     "by_source": {
-      "28hse": 147
+      "28hse": 157
     },
     "by_district": {
-      "new_territories": 59,
-      "kowloon": 51,
-      "hong_kong_island": 9
+      "new_territories": 64,
+      "kowloon": 53,
+      "hong_kong_island": 10
     },
     "new_this_crawl": 90,
-    "last_crawl": "2026-09-09T10:22:14.758108"
+    "last_crawl": "2026-09-09T10:36:00.775527"
   },
   "listings": [
     {
@@ -1626,7 +1626,7 @@
         "Home Ownership",
         "Elegant"
       ],
-      "date_crawled": "2026-09-09T10:22:08.831848",
+      "date_crawled": "2026-09-09T10:35:54.914821",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -1658,7 +1658,7 @@
         "Industrial Building",
         "24 hours Entrance"
       ],
-      "date_crawled": "2026-09-09T10:22:08.832606",
+      "date_crawled": "2026-09-09T10:35:54.915472",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -1698,7 +1698,7 @@
         "Dedicated Mailbox",
         "Independent toilet"
       ],
-      "date_crawled": "2026-09-09T10:22:08.833546",
+      "date_crawled": "2026-09-09T10:35:54.916285",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -1730,7 +1730,7 @@
         "3 Bedrooms , 2 Bathrooms",
         "Apartment"
       ],
-      "date_crawled": "2026-09-09T10:22:08.834357",
+      "date_crawled": "2026-09-09T10:35:54.916979",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -1769,7 +1769,7 @@
         "Independent toilet",
         "Independent air conditioner"
       ],
-      "date_crawled": "2026-09-09T10:22:08.835269",
+      "date_crawled": "2026-09-09T10:35:54.917775",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -1808,7 +1808,7 @@
         "All Electrical Appliance",
         "Pet friendly"
       ],
-      "date_crawled": "2026-09-09T10:22:08.836233",
+      "date_crawled": "2026-09-09T10:35:54.918603",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -1849,7 +1849,7 @@
         "Washing Machine",
         "Prepay annual: 5% Off"
       ],
-      "date_crawled": "2026-09-09T10:22:08.837231",
+      "date_crawled": "2026-09-09T10:35:54.919462",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -1889,7 +1889,7 @@
         "Dedicated Mailbox",
         "Prepay annual: 5% Off"
       ],
-      "date_crawled": "2026-09-09T10:22:08.838180",
+      "date_crawled": "2026-09-09T10:35:57.258761",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -1929,7 +1929,7 @@
         "Sea view",
         "Good view"
       ],
-      "date_crawled": "2026-09-09T10:22:10.887848",
+      "date_crawled": "2026-09-09T10:35:57.259632",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -1962,7 +1962,7 @@
         "Apartment",
         "New World"
       ],
-      "date_crawled": "2026-09-09T10:22:10.888797",
+      "date_crawled": "2026-09-09T10:35:57.260343",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -1999,7 +1999,7 @@
         "Ensuite",
         "Clubhouse"
       ],
-      "date_crawled": "2026-09-09T10:22:10.889739",
+      "date_crawled": "2026-09-09T10:35:57.261140",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -2039,7 +2039,7 @@
         "Washing Machine",
         "Water Heaters"
       ],
-      "date_crawled": "2026-09-09T10:22:10.890737",
+      "date_crawled": "2026-09-09T10:35:57.261977",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -2080,7 +2080,7 @@
         "Sea view",
         "Prepay annual: 5% Off"
       ],
-      "date_crawled": "2026-09-09T10:22:10.891759",
+      "date_crawled": "2026-09-09T10:35:57.262844",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -2120,7 +2120,7 @@
         "Refrigerator",
         "Steam Oven"
       ],
-      "date_crawled": "2026-09-09T10:22:10.892750",
+      "date_crawled": "2026-09-09T10:35:57.263715",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -2159,7 +2159,7 @@
         "Independent air conditioner",
         "Prepay annual: 5% Off"
       ],
-      "date_crawled": "2026-09-09T10:22:10.893720",
+      "date_crawled": "2026-09-09T10:35:57.264541",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -2198,7 +2198,7 @@
         "Dedicated Mailbox",
         "Independent air conditioner"
       ],
-      "date_crawled": "2026-09-09T10:22:10.894699",
+      "date_crawled": "2026-09-09T10:35:57.265349",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -2238,7 +2238,7 @@
         "Good school zone",
         "Welcome University's Student"
       ],
-      "date_crawled": "2026-09-09T10:22:10.895688",
+      "date_crawled": "2026-09-09T10:35:57.266178",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -2271,7 +2271,7 @@
         "Apartment",
         "CK Asset"
       ],
-      "date_crawled": "2026-09-09T10:22:10.896510",
+      "date_crawled": "2026-09-09T10:35:57.266884",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -2309,7 +2309,7 @@
         "Dedicated Mailbox",
         "Independent air conditioner"
       ],
-      "date_crawled": "2026-09-09T10:22:10.897412",
+      "date_crawled": "2026-09-09T10:35:57.267656",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -2349,7 +2349,7 @@
         "Balcony",
         "Welcome University's Student"
       ],
-      "date_crawled": "2026-09-09T10:22:10.898375",
+      "date_crawled": "2026-09-09T10:35:57.268483",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -2386,7 +2386,7 @@
         "Luxury",
         "Balcony"
       ],
-      "date_crawled": "2026-09-09T10:22:10.899302",
+      "date_crawled": "2026-09-09T10:35:57.269261",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -2424,7 +2424,7 @@
         "Good view",
         "Luxury"
       ],
-      "date_crawled": "2026-09-09T10:22:10.900205",
+      "date_crawled": "2026-09-09T10:35:57.270025",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -2458,7 +2458,7 @@
         "Industrial Building",
         "Luxury"
       ],
-      "date_crawled": "2026-09-09T10:22:10.901049",
+      "date_crawled": "2026-09-09T10:35:59.262084",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -2491,7 +2491,7 @@
         "Apartment",
         "New World"
       ],
-      "date_crawled": "2026-09-09T10:22:13.244463",
+      "date_crawled": "2026-09-09T10:35:59.262857",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -2531,7 +2531,7 @@
         "Air conditioner",
         "Cooker Hood"
       ],
-      "date_crawled": "2026-09-09T10:22:13.245473",
+      "date_crawled": "2026-09-09T10:35:59.263729",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -2571,7 +2571,7 @@
         "Welcome University's Student",
         "Good view"
       ],
-      "date_crawled": "2026-09-09T10:22:13.246468",
+      "date_crawled": "2026-09-09T10:35:59.264581",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -2604,7 +2604,7 @@
         "Apartment",
         "SHKP"
       ],
-      "date_crawled": "2026-09-09T10:22:13.247327",
+      "date_crawled": "2026-09-09T10:35:59.265292",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -2642,7 +2642,7 @@
         "Good school zone",
         "MTR nearby"
       ],
-      "date_crawled": "2026-09-09T10:22:13.248262",
+      "date_crawled": "2026-09-09T10:35:59.266100",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -2679,7 +2679,7 @@
         "Independent toilet",
         "Independent air conditioner"
       ],
-      "date_crawled": "2026-09-09T10:22:13.249166",
+      "date_crawled": "2026-09-09T10:35:59.266883",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -2719,7 +2719,7 @@
         "Water Heaters",
         "TV cabinet"
       ],
-      "date_crawled": "2026-09-09T10:22:13.250135",
+      "date_crawled": "2026-09-09T10:35:59.267727",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -2759,7 +2759,7 @@
         "Independent toilet",
         "Independent air conditioner"
       ],
-      "date_crawled": "2026-09-09T10:22:13.251088",
+      "date_crawled": "2026-09-09T10:35:59.268555",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -2799,7 +2799,7 @@
         "Refrigerator",
         "Wardobe"
       ],
-      "date_crawled": "2026-09-09T10:22:13.252064",
+      "date_crawled": "2026-09-09T10:35:59.269398",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -2839,7 +2839,7 @@
         "Independent toilet",
         "Independent air conditioner"
       ],
-      "date_crawled": "2026-09-09T10:22:13.253006",
+      "date_crawled": "2026-09-09T10:35:59.270436",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -2874,7 +2874,7 @@
         "Air conditioner",
         "Water Heaters"
       ],
-      "date_crawled": "2026-09-09T10:22:13.253873",
+      "date_crawled": "2026-09-09T10:35:59.271612",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -2911,7 +2911,7 @@
         "Independent toilet",
         "Independent air conditioner"
       ],
-      "date_crawled": "2026-09-09T10:22:13.254768",
+      "date_crawled": "2026-09-09T10:35:59.272778",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -2944,7 +2944,7 @@
         "Industrial Building",
         "Elegant"
       ],
-      "date_crawled": "2026-09-09T10:22:13.255586",
+      "date_crawled": "2026-09-09T10:35:59.273687",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -2984,7 +2984,7 @@
         "Dedicated Mailbox",
         "Independent air conditioner"
       ],
-      "date_crawled": "2026-09-09T10:22:13.256528",
+      "date_crawled": "2026-09-09T10:35:59.274968",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -3515,7 +3515,7 @@
         "SHKP",
         "Elegant"
       ],
-      "date_crawled": "2026-09-09T10:22:08.831028",
+      "date_crawled": "2026-09-09T10:35:54.914110",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -3548,7 +3548,7 @@
         "Apartment",
         "SHKP"
       ],
-      "date_crawled": "2026-09-09T10:22:08.830199",
+      "date_crawled": "2026-09-09T10:35:54.913397",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -3685,7 +3685,7 @@
         "Mountain view",
         "Elegant"
       ],
-      "date_crawled": "2026-09-09T10:22:06.775681",
+      "date_crawled": "2026-09-09T10:35:52.882748",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -3717,7 +3717,7 @@
         "2 Bedrooms",
         "Apartment"
       ],
-      "date_crawled": "2026-09-09T10:22:06.776478",
+      "date_crawled": "2026-09-09T10:35:52.883422",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -3752,7 +3752,7 @@
         "Mountain view",
         "Simple"
       ],
-      "date_crawled": "2026-09-09T10:22:06.777310",
+      "date_crawled": "2026-09-09T10:35:52.884146",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -3786,7 +3786,7 @@
         "Apartment",
         "SHKP"
       ],
-      "date_crawled": "2026-09-09T10:22:06.778125",
+      "date_crawled": "2026-09-09T10:35:52.884839",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -3999,7 +3999,7 @@
         "City view",
         "Elegant"
       ],
-      "date_crawled": "2026-09-09T10:22:08.829392",
+      "date_crawled": "2026-09-09T10:35:54.912694",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -4033,7 +4033,7 @@
         "Apartment",
         "CK Asset"
       ],
-      "date_crawled": "2026-09-09T10:22:03.575250",
+      "date_crawled": "2026-09-09T10:35:52.877756",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -4066,7 +4066,7 @@
         "Apartment",
         "CK Asset"
       ],
-      "date_crawled": "2026-09-09T10:22:03.576042",
+      "date_crawled": "2026-09-09T10:35:52.878440",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -4100,7 +4100,7 @@
         "Luxury",
         "Sea view"
       ],
-      "date_crawled": "2026-09-09T10:22:03.576832",
+      "date_crawled": "2026-09-09T10:35:52.879148",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -4133,7 +4133,7 @@
         "West",
         "Home Ownership"
       ],
-      "date_crawled": "2026-09-09T10:22:03.577711",
+      "date_crawled": "2026-09-09T10:35:52.879837",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -4168,7 +4168,7 @@
         "Good view",
         "Elegant"
       ],
-      "date_crawled": "2026-09-09T10:22:06.773108",
+      "date_crawled": "2026-09-09T10:35:52.880555",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -4203,7 +4203,7 @@
         "Good view",
         "Elegant"
       ],
-      "date_crawled": "2026-09-09T10:22:06.773983",
+      "date_crawled": "2026-09-09T10:35:52.881310",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -4238,7 +4238,7 @@
         "Henderson",
         "Elegant"
       ],
-      "date_crawled": "2026-09-09T10:22:06.774833",
+      "date_crawled": "2026-09-09T10:35:52.882037",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -4278,7 +4278,7 @@
         "24 hours CCTV",
         "Independent toilet"
       ],
-      "date_crawled": "2026-09-09T10:22:08.828587",
+      "date_crawled": "2026-09-09T10:35:54.911977",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -4313,7 +4313,7 @@
         "Luxury",
         "Good view"
       ],
-      "date_crawled": "2026-09-09T10:22:01.179163",
+      "date_crawled": "2026-09-09T10:35:50.841830",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -4346,7 +4346,7 @@
         "Apartment",
         "SHKP"
       ],
-      "date_crawled": "2026-09-09T10:22:01.179954",
+      "date_crawled": "2026-09-09T10:35:50.842558",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -4379,7 +4379,7 @@
         "Apartment",
         "Wheelock"
       ],
-      "date_crawled": "2026-09-09T10:22:01.180743",
+      "date_crawled": "2026-09-09T10:35:50.843242",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -4413,7 +4413,7 @@
         "Home Ownership",
         "Hong Kong Housing"
       ],
-      "date_crawled": "2026-09-09T10:22:01.181556",
+      "date_crawled": "2026-09-09T10:35:50.843952",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -4449,7 +4449,7 @@
         "Elegant",
         "Good view"
       ],
-      "date_crawled": "2026-09-09T10:22:03.566144",
+      "date_crawled": "2026-09-09T10:35:50.844681",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -4487,7 +4487,7 @@
         "Swimming Pool View",
         "Elegant"
       ],
-      "date_crawled": "2026-09-09T10:22:03.567069",
+      "date_crawled": "2026-09-09T10:35:50.845428",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -4522,7 +4522,7 @@
         "Good view",
         "City view"
       ],
-      "date_crawled": "2026-09-09T10:22:03.567897",
+      "date_crawled": "2026-09-09T10:35:50.846138",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -4556,7 +4556,7 @@
         "Apartment",
         "SHKP"
       ],
-      "date_crawled": "2026-09-09T10:22:03.568729",
+      "date_crawled": "2026-09-09T10:35:50.846835",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -4590,7 +4590,7 @@
         "SHKP",
         "Elegant"
       ],
-      "date_crawled": "2026-09-09T10:22:03.569549",
+      "date_crawled": "2026-09-09T10:35:50.847544",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -4625,7 +4625,7 @@
         "SHKP",
         "Garden view"
       ],
-      "date_crawled": "2026-09-09T10:22:03.570394",
+      "date_crawled": "2026-09-09T10:35:50.848250",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -4663,7 +4663,7 @@
         "Garden view",
         "Elegant"
       ],
-      "date_crawled": "2026-09-09T10:22:03.571272",
+      "date_crawled": "2026-09-09T10:35:50.849002",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -4697,7 +4697,7 @@
         "Apartment",
         "Henderson"
       ],
-      "date_crawled": "2026-09-09T10:22:03.572083",
+      "date_crawled": "2026-09-09T10:35:52.874877",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -4731,7 +4731,7 @@
         "Apartment",
         "New World"
       ],
-      "date_crawled": "2026-09-09T10:22:03.572876",
+      "date_crawled": "2026-09-09T10:35:52.875614",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -4764,7 +4764,7 @@
         "Apartment",
         "Henderson"
       ],
-      "date_crawled": "2026-09-09T10:22:03.573663",
+      "date_crawled": "2026-09-09T10:35:52.876311",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -4797,7 +4797,7 @@
         "Apartment",
         "CK Asset"
       ],
-      "date_crawled": "2026-09-09T10:22:03.574446",
+      "date_crawled": "2026-09-09T10:35:52.877024",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -4831,7 +4831,7 @@
         "Sino",
         "Sea view"
       ],
-      "date_crawled": "2026-09-09T10:22:08.826609",
+      "date_crawled": "2026-09-09T10:35:54.910276",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -4871,7 +4871,7 @@
         "Water Heaters",
         "Induction Hob"
       ],
-      "date_crawled": "2026-09-09T10:22:08.827615",
+      "date_crawled": "2026-09-09T10:35:54.911150",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -4907,7 +4907,7 @@
         "Good view",
         "Elegant"
       ],
-      "date_crawled": "2026-09-09T10:22:01.178320",
+      "date_crawled": "2026-09-09T10:35:50.841051",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -4946,7 +4946,7 @@
         "Dedicated Mailbox",
         "Independent air conditioner"
       ],
-      "date_crawled": "2026-09-09T10:22:08.825723",
+      "date_crawled": "2026-09-09T10:35:54.909533",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -4986,7 +4986,7 @@
         "MTR nearby",
         "Good school zone"
       ],
-      "date_crawled": "2026-09-09T10:22:01.174826",
+      "date_crawled": "2026-09-09T10:35:48.828476",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -5022,7 +5022,7 @@
         "Good view",
         "Elegant"
       ],
-      "date_crawled": "2026-09-09T10:22:01.175692",
+      "date_crawled": "2026-09-09T10:35:50.838724",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -5062,7 +5062,7 @@
         "MTR nearby",
         "Shopping Mall nearby"
       ],
-      "date_crawled": "2026-09-09T10:22:01.176622",
+      "date_crawled": "2026-09-09T10:35:50.839557",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -5098,7 +5098,7 @@
         "Elegant",
         "Good view"
       ],
-      "date_crawled": "2026-09-09T10:22:01.177472",
+      "date_crawled": "2026-09-09T10:35:50.840305",
       "date_posted": null,
       "is_new": false,
       "price_changed": false,
@@ -5107,7 +5107,7 @@
     {
       "id": "e91fa2e68e2a",
       "title": "14 Golden",
-      "price": 3980000.0,
+      "price": 4080000.0,
       "currency": "HKD",
       "transaction_type": "buy",
       "district": "new_territories",
@@ -5115,7 +5115,7 @@
       "address": "Kingswood Villas Tin Shui Wai",
       "bedrooms": 2,
       "sqft": 446.0,
-      "price_per_sqft": 8924.0,
+      "price_per_sqft": 9148.0,
       "property_type": "house",
       "floor_level": "high",
       "building_name": "Kingswood Villas",
@@ -5135,11 +5135,11 @@
         "MTR nearby",
         "Sole Agent"
       ],
-      "date_crawled": "2026-09-09T10:22:01.170250",
+      "date_crawled": "2026-09-09T10:35:48.824685",
       "date_posted": null,
-      "is_new": true,
-      "price_changed": false,
-      "previous_price": null
+      "is_new": false,
+      "price_changed": true,
+      "previous_price": 3980000.0
     },
     {
       "id": "b1421630cf1f",
@@ -5169,9 +5169,9 @@
         "Apartment",
         "Kerry"
       ],
-      "date_crawled": "2026-09-09T10:22:01.171201",
+      "date_crawled": "2026-09-09T10:35:48.825404",
       "date_posted": null,
-      "is_new": true,
+      "is_new": false,
       "price_changed": false,
       "previous_price": null
     },
@@ -5203,9 +5203,9 @@
         "Elegant",
         "Sole Agent"
       ],
-      "date_crawled": "2026-09-09T10:22:01.172048",
+      "date_crawled": "2026-09-09T10:35:48.826106",
       "date_posted": null,
-      "is_new": true,
+      "is_new": false,
       "price_changed": false,
       "previous_price": null
     },
@@ -5243,9 +5243,9 @@
         "MTR nearby",
         "Shopping Mall nearby"
       ],
-      "date_crawled": "2026-09-09T10:22:01.173011",
+      "date_crawled": "2026-09-09T10:35:48.826919",
       "date_posted": null,
-      "is_new": true,
+      "is_new": false,
       "price_changed": false,
       "previous_price": null
     },
@@ -5280,7 +5280,367 @@
         "Garden view",
         "Elegant"
       ],
-      "date_crawled": "2026-09-09T10:22:01.173882",
+      "date_crawled": "2026-09-09T10:35:48.827677",
+      "date_posted": null,
+      "is_new": false,
+      "price_changed": false,
+      "previous_price": null
+    },
+    {
+      "id": "80c29e09f79d",
+      "title": "6 Golden",
+      "price": 3650000.0,
+      "currency": "HKD",
+      "transaction_type": "buy",
+      "district": "new_territories",
+      "sub_district": "Tuen Mun",
+      "address": "The Sherwood Tuen Mun",
+      "bedrooms": 2,
+      "sqft": 396.0,
+      "price_per_sqft": 9217.0,
+      "property_type": "apartment",
+      "floor_level": "mid",
+      "building_name": "The Sherwood",
+      "source": "28hse",
+      "source_url": "https://www.28hse.com/en/buy/apartment/property-4008339",
+      "agent_company": "Centaline Property",
+      "images": [
+        "https://i1.28hse.com/2026/09/202609091829564600451_thumb.jpg"
+      ],
+      "description": "6 Golden",
+      "features": [
+        "2 Bedrooms",
+        "Apartment",
+        "Henderson",
+        "Elegant",
+        "Good view",
+        "Garden view",
+        "Mountain view"
+      ],
+      "date_crawled": "2026-09-09T10:35:48.817777",
+      "date_posted": null,
+      "is_new": true,
+      "price_changed": false,
+      "previous_price": null
+    },
+    {
+      "id": "05dc12d9ee0a",
+      "title": "5 Golden",
+      "price": 5980000.0,
+      "currency": "HKD",
+      "transaction_type": "buy",
+      "district": null,
+      "sub_district": "Ma Wan",
+      "address": "Park Island Ma Wan",
+      "bedrooms": 2,
+      "sqft": 574.0,
+      "price_per_sqft": 10418.0,
+      "property_type": "apartment",
+      "floor_level": "mid",
+      "building_name": "Park Island",
+      "source": "28hse",
+      "source_url": "https://www.28hse.com/en/buy/apartment/property-4008334",
+      "agent_company": "Midland Property",
+      "images": [
+        "https://i1.28hse.com/2026/09/202609091830144396714_thumb.jpg"
+      ],
+      "description": "5 Golden",
+      "features": [
+        "2 Bedrooms , 1 Bathroom",
+        "Apartment",
+        "SHKP",
+        "Garden view",
+        "Good view",
+        "Sea view",
+        "Sole Agent"
+      ],
+      "date_crawled": "2026-09-09T10:35:48.818656",
+      "date_posted": null,
+      "is_new": true,
+      "price_changed": false,
+      "previous_price": null
+    },
+    {
+      "id": "438a25b8b8d4",
+      "title": "9 Golden",
+      "price": 7500000.0,
+      "currency": "HKD",
+      "transaction_type": "buy",
+      "district": "new_territories",
+      "sub_district": "Tsuen Wan",
+      "address": "New Haven Tsuen Wan",
+      "bedrooms": 2,
+      "sqft": 530.0,
+      "price_per_sqft": 14151.0,
+      "property_type": "apartment",
+      "floor_level": "low",
+      "building_name": "New Haven",
+      "source": "28hse",
+      "source_url": "https://www.28hse.com/en/buy/apartment/property-4008331",
+      "agent_company": "Centaline Property Agency Limited",
+      "images": [
+        "https://i1.28hse.com/2026/09/202609091828177754865_thumb.jpg"
+      ],
+      "description": "9 Golden",
+      "features": [
+        "2 Bedrooms , 1 Bathroom",
+        "East",
+        "Apartment",
+        "Elegant",
+        "Garden view"
+      ],
+      "date_crawled": "2026-09-09T10:35:48.819411",
+      "date_posted": null,
+      "is_new": true,
+      "price_changed": false,
+      "previous_price": null
+    },
+    {
+      "id": "f07e591837b8",
+      "title": "9 Golden",
+      "price": 13300000.0,
+      "currency": "HKD",
+      "transaction_type": "buy",
+      "district": "new_territories",
+      "sub_district": "Tsuen Wan",
+      "address": "City Point Tsuen Wan",
+      "bedrooms": null,
+      "sqft": 768.0,
+      "price_per_sqft": 17318.0,
+      "property_type": "apartment",
+      "floor_level": "mid",
+      "building_name": "City Point",
+      "source": "28hse",
+      "source_url": "https://www.28hse.com/en/buy/apartment/property-4008330",
+      "agent_company": "Midland Reality",
+      "images": [
+        "https://i1.28hse.com/2026/09/202609091828438148166_thumb.jpg"
+      ],
+      "description": "9 Golden",
+      "features": [
+        "Apartment",
+        "CK Asset",
+        "Sea view"
+      ],
+      "date_crawled": "2026-09-09T10:35:48.820132",
+      "date_posted": null,
+      "is_new": true,
+      "price_changed": false,
+      "previous_price": null
+    },
+    {
+      "id": "0de7add4e093",
+      "title": "12 Golden",
+      "price": 8000000.0,
+      "currency": "HKD",
+      "transaction_type": "buy",
+      "district": "kowloon",
+      "sub_district": "To Kwa Wan",
+      "address": "Sky Tower To Kwa Wan",
+      "bedrooms": 2,
+      "sqft": 478.0,
+      "price_per_sqft": 16736.0,
+      "property_type": "house",
+      "floor_level": "low",
+      "building_name": "Sky Tower",
+      "source": "28hse",
+      "source_url": "https://www.28hse.com/en/buy/apartment/property-3921065",
+      "agent_company": "Century 21 Links Properties Agency",
+      "images": [
+        "https://i1.28hse.com/2026/07/202607061840594357281_thumb.jpg"
+      ],
+      "description": "12 Golden",
+      "features": [
+        "2 Bedrooms , 1 Bathroom",
+        "Apartment",
+        "New World",
+        "Good view",
+        "Elegant",
+        "Balcony",
+        "Clubhouse",
+        "MTR nearby",
+        "Shopping Mall nearby",
+        "Good school zone"
+      ],
+      "date_crawled": "2026-09-09T10:35:48.820948",
+      "date_posted": null,
+      "is_new": true,
+      "price_changed": false,
+      "previous_price": null
+    },
+    {
+      "id": "dc473bc2b02c",
+      "title": "11 Golden",
+      "price": 14800000.0,
+      "currency": "HKD",
+      "transaction_type": "buy",
+      "district": "new_territories",
+      "sub_district": "Tsuen Wan",
+      "address": "City Point Tsuen Wan",
+      "bedrooms": null,
+      "sqft": 913.0,
+      "price_per_sqft": 16210.0,
+      "property_type": "apartment",
+      "floor_level": "mid",
+      "building_name": "City Point",
+      "source": "28hse",
+      "source_url": "https://www.28hse.com/en/buy/apartment/property-4008328",
+      "agent_company": "Midland Reality",
+      "images": [
+        "https://i1.28hse.com/2026/09/202609091826217972824_thumb.jpg"
+      ],
+      "description": "11 Golden",
+      "features": [
+        "Apartment",
+        "CK Asset",
+        "Sea view"
+      ],
+      "date_crawled": "2026-09-09T10:35:48.821652",
+      "date_posted": null,
+      "is_new": true,
+      "price_changed": false,
+      "previous_price": null
+    },
+    {
+      "id": "af8da56d0b9c",
+      "title": "12 Golden",
+      "price": 13000000.0,
+      "currency": "HKD",
+      "transaction_type": "buy",
+      "district": "kowloon",
+      "sub_district": "Kowloon City",
+      "address": "Billionnaire Luxe Kowloon City",
+      "bedrooms": 3,
+      "sqft": 604.0,
+      "price_per_sqft": 21523.0,
+      "property_type": "apartment",
+      "floor_level": "low",
+      "building_name": "Billionnaire Luxe",
+      "source": "28hse",
+      "source_url": "https://www.28hse.com/en/buy/apartment/property-4008327",
+      "agent_company": "Midland Realty International Limited",
+      "images": [
+        "https://i1.28hse.com/2026/09/202609091825232683744_thumb.jpg"
+      ],
+      "description": "12 Golden",
+      "features": [
+        "3 Bedrooms , 2 Bathrooms",
+        "North west",
+        "Apartment",
+        "Chinachem",
+        "Good view",
+        "City view",
+        "Ensuite",
+        "Good school zone",
+        "MTR nearby",
+        "Shopping Mall nearby"
+      ],
+      "date_crawled": "2026-09-09T10:35:48.822451",
+      "date_posted": null,
+      "is_new": true,
+      "price_changed": false,
+      "previous_price": null
+    },
+    {
+      "id": "27626699017e",
+      "title": "1 Golden",
+      "price": 4300000.0,
+      "currency": "HKD",
+      "transaction_type": "buy",
+      "district": "hong_kong_island",
+      "sub_district": "Causeway Bay",
+      "address": "Lockhart House Causeway Bay",
+      "bedrooms": 0,
+      "sqft": 311.0,
+      "price_per_sqft": 13826.0,
+      "property_type": "studio",
+      "floor_level": "high",
+      "building_name": "Lockhart House",
+      "source": "28hse",
+      "source_url": "https://www.28hse.com/en/buy/apartment/property-4008325",
+      "agent_company": "Wan Chai Property Agency Limited",
+      "images": [
+        "https://i1.28hse.com/2026/09/202609091826195737549_thumb.jpg"
+      ],
+      "description": "1 Golden",
+      "features": [
+        "Studio , 1 Bathroom",
+        "Apartment",
+        "Sea view",
+        "Good view",
+        "MTR nearby",
+        "Shopping Mall nearby",
+        "Good school zone"
+      ],
+      "date_crawled": "2026-09-09T10:35:48.823228",
+      "date_posted": null,
+      "is_new": true,
+      "price_changed": false,
+      "previous_price": null
+    },
+    {
+      "id": "b22f612e610c",
+      "title": "11 Golden",
+      "price": 4680000.0,
+      "currency": "HKD",
+      "transaction_type": "buy",
+      "district": null,
+      "sub_district": "Nam Cheong",
+      "address": "Hoi Lok Court Nam Cheong",
+      "bedrooms": null,
+      "sqft": 393.0,
+      "price_per_sqft": 11908.0,
+      "property_type": "apartment",
+      "floor_level": "low",
+      "building_name": "Hoi Lok Court",
+      "source": "28hse",
+      "source_url": "https://www.28hse.com/en/buy/apartment/property-4008316",
+      "agent_company": "Midland Realty",
+      "images": [
+        "https://i1.28hse.com/2026/09/202609091819432160098_thumb.jpg"
+      ],
+      "description": "11 Golden",
+      "features": [
+        "Premium Unpaid",
+        "Home Ownership"
+      ],
+      "date_crawled": "2026-09-09T10:35:48.823919",
+      "date_posted": null,
+      "is_new": true,
+      "price_changed": false,
+      "previous_price": null
+    },
+    {
+      "id": "0f112f544bd8",
+      "title": "12 Golden",
+      "price": null,
+      "currency": "HKD",
+      "transaction_type": "rent",
+      "district": "new_territories",
+      "sub_district": "Tai Wai",
+      "address": "The Pavilia Farm Tai Wai",
+      "bedrooms": 2,
+      "sqft": 472.0,
+      "price_per_sqft": 56.0,
+      "property_type": "apartment",
+      "floor_level": "mid",
+      "building_name": "The Pavilia Farm",
+      "source": "28hse",
+      "source_url": "https://www.28hse.com/en/rent/apartment/property-4008322",
+      "agent_company": "Centaline Property",
+      "images": [
+        "https://i1.28hse.com/2026/09/202609091826411789602_thumb.jpg"
+      ],
+      "description": "12 Golden",
+      "features": [
+        "2 Bedrooms , 1 Bathroom",
+        "Apartment",
+        "Garden view",
+        "Good view",
+        "Swimming Pool View",
+        "Elegant"
+      ],
+      "date_crawled": "2026-09-09T10:35:54.908684",
       "date_posted": null,
       "is_new": true,
       "price_changed": false,
