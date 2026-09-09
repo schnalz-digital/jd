@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HK Property Listings</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1 class="logo">
+                <span class="logo-icon">🏠</span>
+                <span class="logo-text">HK Property</span>
+            </h1>
+            <div class="header-stats" id="headerStats">
+                <span class="stat-item" id="totalListings">Loading...</span>
+                <span class="stat-item" id="lastCrawl"></span>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-refresh" id="refreshBtn" onclick="refreshData()">
+                    <span class="refresh-icon">↻</span>
+                    Refresh
+                </button>
+                <button class="btn btn-export" id="exportBtn" onclick="exportCSV()">
+                    <span class="export-icon">↓</span>
+                    Export CSV
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <aside class="sidebar" id="sidebar">
+            <div class="filter-section">
+                <h3 class="filter-title">Search</h3>
+                <input type="text" class="search-input" id="searchInput" placeholder="Search properties...">
+            </div>
+
+            <div class="filter-section">
+                <h3 class="filter-title">Source</h3>
+                <div class="checkbox-group" id="sourceFilters">
+                    <label class="checkbox-label">
+                        <input type="checkbox" value="28hse" checked>
+                        <span>28Hse</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" value="spacious" checked>
+                        <span>Spacious</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" value="squarefoot" checked>
+                        <span>Squarefoot</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" value="propertyhk" checked>
+                        <span>Property.hk</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <h3 class="filter-title">District</h3>
+                <select class="filter-select" id="districtFilter">
+                    <option value="">All Districts</option>
+                    <option value="hong_kong_island">Hong Kong Island</option>
+                    <option value="kowloon">Kowloon</option>
+                    <option value="new_territories">New Territories</option>
+                    <option value="outlying_islands">Outlying Islands</option>
+                </select>
+            </div>
+
+            <div class="filter-section">
+                <h3 class="filter-title">Price Range (HKD)</h3>
+                <div class="price-inputs">
+                    <input type="number" class="price-input" id="minPrice" placeholder="Min (M)">
+                    <span class="price-separator">-</span>
+                    <input type="number" class="price-input" id="maxPrice" placeholder="Max (M)">
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <h3 class="filter-title">Bedrooms</h3>
+                <div class="bedroom-buttons" id="bedroomFilter">
+                    <button class="bedroom-btn" data-value="">Any</button>
+                    <button class="bedroom-btn" data-value="0">Studio</button>
+                    <button class="bedroom-btn" data-value="1">1</button>
+                    <button class="bedroom-btn" data-value="2">2</button>
+                    <button class="bedroom-btn" data-value="3">3</button>
+                    <button class="bedroom-btn" data-value="4">4+</button>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <h3 class="filter-title">Property Type</h3>
+                <select class="filter-select" id="typeFilter">
+                    <option value="">All Types</option>
+                    <option value="apartment">Apartment</option>
+                    <option value="house">House</option>
+                    <option value="village_house">Village House</option>
+                    <option value="studio">Studio</option>
+                    <option value="penthouse">Penthouse</option>
+                    <option value="duplex">Duplex</option>
+                </select>
+            </div>
+
+            <div class="filter-section">
+                <h3 class="filter-title">Sort By</h3>
+                <select class="filter-select" id="sortFilter">
+                    <option value="date_crawled">Newest First</option>
+                    <option value="price_asc">Price: Low to High</option>
+                    <option value="price_desc">Price: High to Low</option>
+                    <option value="sqft_desc">Size: Largest</option>
+                    <option value="price_per_sqft_asc">Price/sqft: Best Value</option>
+                </select>
+            </div>
+
+            <div class="filter-section">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="newOnlyFilter">
+                    <span>New listings only (last 24h)</span>
+                </label>
+            </div>
+
+            <button class="btn btn-apply" onclick="applyFilters()">Apply Filters</button>
+            <button class="btn btn-reset" onclick="resetFilters()">Reset</button>
+        </aside>
+
+        <section class="content">
+            <div class="content-header">
+                <div class="results-count" id="resultsCount">Loading...</div>
+                <button class="btn btn-toggle-sidebar" onclick="toggleSidebar()">☰ Filters</button>
+            </div>
+            
+            <div class="listings-grid" id="listingsGrid">
+                <div class="loading">Loading listings...</div>
+            </div>
+
+            <div class="pagination" id="pagination"></div>
+        </section>
+    </main>
+
+    <div class="modal" id="propertyModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <div class="modal-body" id="modalBody">
+                <div class="loading">Loading property details...</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
