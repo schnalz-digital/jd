@@ -123,8 +123,8 @@ input, select { font-family: inherit; }
 
 .btn svg { width: 15px; height: 15px; }
 
-.btn-loader .refresh-icon { display: inline-flex; }
-.btn-loader .refresh-icon.spinning { animation: spin 0.9s linear infinite; }
+.refresh-icon { display: inline-flex; }
+.refresh-icon.spinning { animation: spin 0.9s linear infinite; }
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -436,9 +436,14 @@ input, select { font-family: inherit; }
 .filter-select:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 4px rgba(183, 139, 62, 0.14); }
 
 /* Price */
-.price-inputs { display: flex; align-items: center; gap: 0.5rem; }
+.price-inputs {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.5rem;
+}
 .price-input {
-  flex: 1;
+  width: 100%;
   min-width: 0;
   padding: 0.7rem 0.85rem;
   border: 1px solid var(--line);
@@ -1009,9 +1014,9 @@ input, select { font-family: inherit; }
 }
 
 @media (max-width: 640px) {
-  .header-content { padding: 0.75rem 1.1rem; gap: 0.8rem; }
+  .header-content { padding: 0.75rem 1.1rem; gap: 0.8rem; flex-wrap: wrap; }
   .meta-pill.hide-sm { display: none; }
-  .header-meta { margin-left: 0; }
+  .header-meta { margin-left: 0; order: 3; width: 100%; }
   .brand-name { font-size: 1.15rem; }
   .main { padding: 1.1rem 1.1rem 3rem; gap: 1.2rem; }
   .header-actions .btn { padding: 0.6rem 0.9rem; }
