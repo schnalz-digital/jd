@@ -298,7 +298,7 @@ function renderListings() {
 function createListingCard(listing, stagger) {
     const media = listing.images && listing.images.length > 0
         ? `<img src="${listing.images[0]}" alt="" loading="lazy"
-               onerror="this.outerHTML='${placeholderMediaMarkup}'">`
+               onerror="this.outerHTML='${htmlAttr(placeholderMediaMarkup)}'">`
         : placeholderMediaMarkup;
 
     const badges = [];
@@ -453,7 +453,7 @@ function openModal(listingId) {
     const hasImg = listing.images && listing.images.length > 0;
     const hero = hasImg
         ? `<img src="${listing.images[0]}" alt="${escapeHtml(listing.title)}"
-               onerror="this.closest('.modal-hero').innerHTML='${placeholderHero()}'">`
+               onerror="this.closest('.modal-hero').innerHTML='${htmlAttr(placeholderHero())}'">`
         : placeholderHero();
 
     const badges = [];
@@ -587,6 +587,10 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text ?? '';
     return div.innerHTML;
+}
+
+function htmlAttr(str) {
+    return String(str ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
 /* --------------------------------------------------------------------------
