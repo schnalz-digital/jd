@@ -21,3 +21,10 @@ pip install -q -r requirements.txt
 
 echo ""
 python crawler.py
+
+echo ""
+if command -v node >/dev/null 2>&1; then
+    node tools/version.mjs
+else
+    echo "node not found — skipping cache-bust version stamp"
+fi
