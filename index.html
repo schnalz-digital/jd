@@ -4,165 +4,226 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Latest Properties</title>
+    <meta name="description" content="Curated property listings, refreshed minute by minute.">
+    <meta name="theme-color" content="#1c1a16">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231c1a16'/%3E%3Ctext x='16' y='22' font-size='16' text-anchor='middle' fill='%23b78b3e' font-family='Georgia'%3ELP%3C/text%3E%3C/svg%3E">
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+
+    <!-- Login -->
     <div class="login-screen" id="loginScreen">
         <div class="login-card">
-            <div class="login-icon">🔒</div>
+            <div class="login-monogram">✦</div>
             <h1 class="login-title">Access Required</h1>
-            <p class="login-subtitle">Please enter your password to continue.</p>
+            <p class="login-subtitle">Enter your password to continue</p>
             <form id="loginForm" onsubmit="handleLogin(event)">
-                <input type="password" class="login-input" id="passwordInput" placeholder="Enter password" autofocus>
-                <button type="submit" class="btn btn-login">Unlock</button>
+                <div class="login-group">
+                    <svg class="login-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    <input type="password" class="login-input" id="passwordInput" placeholder="Password" autofocus autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn btn-primary btn-login">Continue</button>
             </form>
             <p class="login-error" id="loginError"></p>
         </div>
     </div>
 
+    <!-- Header -->
     <header class="header">
+        <div class="header-top"></div>
         <div class="header-content">
-            <h1 class="logo">
-                <span class="logo-icon">🏠</span>
-                <span class="logo-text">HK Property</span>
-            </h1>
-            <div class="header-stats" id="headerStats">
-                <span class="stat-item" id="totalListings">Loading...</span>
-                <span class="stat-item" id="lastCrawl"></span>
+            <div class="brand">
+                <span class="brand-mark">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h5.5v-5h3v5H19V9.5"/></svg>
+                </span>
+                <span class="brand-name">Latest Properties</span>
             </div>
+
+            <div class="header-meta">
+                <span class="meta-pill" id="totalPill">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h5.5v-5h3v5H19V9.5"/></svg>
+                    <span><strong id="totalListings">–</strong> listings</span>
+                </span>
+                <span class="meta-pill hide-sm" id="crawlPill">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+                    <span id="lastCrawl">pending</span>
+                </span>
+            </div>
+
             <div class="header-actions">
-                <button class="btn btn-refresh" id="refreshBtn" onclick="refreshData()">
-                    <span class="refresh-icon">↻</span>
-                    Refresh
+                <button class="btn btn-outline" id="exportBtn" onclick="exportCSV()" title="Export CSV">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+                    <span class="btn-label">Export</span>
                 </button>
-                <button class="btn btn-export" id="exportBtn" onclick="exportCSV()">
-                    <span class="export-icon">↓</span>
-                    Export CSV
+                <button class="btn btn-primary" id="refreshBtn" onclick="refreshData()">
+                    <span class="refresh-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/></svg>
+                    </span>
+                    <span class="btn-label">Refresh</span>
                 </button>
             </div>
         </div>
     </header>
 
+    <!-- Main -->
     <main class="main">
+
+        <!-- Filters -->
         <aside class="sidebar" id="sidebar">
-            <div class="filter-section">
-                <h3 class="filter-title">Search</h3>
-                <input type="text" class="search-input" id="searchInput" placeholder="Search properties...">
+            <div class="sidebar-head">
+                <h2 class="sidebar-title">Filters</h2>
             </div>
 
             <div class="filter-section">
-                <h3 class="filter-title">Source</h3>
-                <div class="checkbox-group" id="sourceFilters">
-                    <label class="checkbox-label">
+                <label class="filter-label" for="searchInput">Search</label>
+                <div class="search-wrap">
+                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+                    <input type="text" class="search-input" id="searchInput" placeholder="District, estate, address…">
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <label class="filter-label" for="districtFilter">District</label>
+                <div class="select-wrap">
+                    <select class="filter-select" id="districtFilter">
+                        <option value="">All districts</option>
+                        <option value="hong_kong_island">Hong Kong Island</option>
+                        <option value="kowloon">Kowloon</option>
+                        <option value="new_territories">New Territories</option>
+                        <option value="outlying_islands">Outlying Islands</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <span class="filter-label">Price range (HK$ M)</span>
+                <div class="price-inputs">
+                    <input type="number" class="price-input" id="minPrice" placeholder="Min" min="0" step="0.1">
+                    <span class="price-sep">→</span>
+                    <input type="number" class="price-input" id="maxPrice" placeholder="Max" min="0" step="0.1">
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <span class="filter-label">Bedrooms</span>
+                <div class="pill-group" id="bedroomFilter">
+                    <button class="pill active" data-value="">Any</button>
+                    <button class="pill" data-value="0">Studio</button>
+                    <button class="pill" data-value="1">1</button>
+                    <button class="pill" data-value="2">2</button>
+                    <button class="pill" data-value="3">3</button>
+                    <button class="pill" data-value="4">4+</button>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <label class="filter-label" for="typeFilter">Type</label>
+                <div class="select-wrap">
+                    <select class="filter-select" id="typeFilter">
+                        <option value="">All types</option>
+                        <option value="apartment">Apartment</option>
+                        <option value="house">House</option>
+                        <option value="village_house">Village House</option>
+                        <option value="studio">Studio</option>
+                        <option value="penthouse">Penthouse</option>
+                        <option value="duplex">Duplex</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <span class="filter-label">Sources</span>
+                <div class="filter-rows" id="sourceFilters">
+                    <label class="filter-row">
                         <input type="checkbox" value="28hse" checked>
+                        <span class="cbx"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4 10-10"/></svg></span>
                         <span>28Hse</span>
                     </label>
-                    <label class="checkbox-label">
+                    <label class="filter-row">
                         <input type="checkbox" value="spacious" checked>
+                        <span class="cbx"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4 10-10"/></svg></span>
                         <span>Spacious</span>
                     </label>
-                    <label class="checkbox-label">
+                    <label class="filter-row">
                         <input type="checkbox" value="squarefoot" checked>
+                        <span class="cbx"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4 10-10"/></svg></span>
                         <span>Squarefoot</span>
                     </label>
-                    <label class="checkbox-label">
+                    <label class="filter-row">
                         <input type="checkbox" value="propertyhk" checked>
+                        <span class="cbx"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4 10-10"/></svg></span>
                         <span>Property.hk</span>
                     </label>
                 </div>
             </div>
 
             <div class="filter-section">
-                <h3 class="filter-title">District</h3>
-                <select class="filter-select" id="districtFilter">
-                    <option value="">All Districts</option>
-                    <option value="hong_kong_island">Hong Kong Island</option>
-                    <option value="kowloon">Kowloon</option>
-                    <option value="new_territories">New Territories</option>
-                    <option value="outlying_islands">Outlying Islands</option>
-                </select>
-            </div>
-
-            <div class="filter-section">
-                <h3 class="filter-title">Price Range (HKD)</h3>
-                <div class="price-inputs">
-                    <input type="number" class="price-input" id="minPrice" placeholder="Min (M)">
-                    <span class="price-separator">-</span>
-                    <input type="number" class="price-input" id="maxPrice" placeholder="Max (M)">
-                </div>
-            </div>
-
-            <div class="filter-section">
-                <h3 class="filter-title">Bedrooms</h3>
-                <div class="bedroom-buttons" id="bedroomFilter">
-                    <button class="bedroom-btn" data-value="">Any</button>
-                    <button class="bedroom-btn" data-value="0">Studio</button>
-                    <button class="bedroom-btn" data-value="1">1</button>
-                    <button class="bedroom-btn" data-value="2">2</button>
-                    <button class="bedroom-btn" data-value="3">3</button>
-                    <button class="bedroom-btn" data-value="4">4+</button>
-                </div>
-            </div>
-
-            <div class="filter-section">
-                <h3 class="filter-title">Property Type</h3>
-                <select class="filter-select" id="typeFilter">
-                    <option value="">All Types</option>
-                    <option value="apartment">Apartment</option>
-                    <option value="house">House</option>
-                    <option value="village_house">Village House</option>
-                    <option value="studio">Studio</option>
-                    <option value="penthouse">Penthouse</option>
-                    <option value="duplex">Duplex</option>
-                </select>
-            </div>
-
-            <div class="filter-section">
-                <h3 class="filter-title">Sort By</h3>
-                <select class="filter-select" id="sortFilter">
-                    <option value="date_crawled">Newest First</option>
-                    <option value="price_asc">Price: Low to High</option>
-                    <option value="price_desc">Price: High to Low</option>
-                    <option value="sqft_desc">Size: Largest</option>
-                    <option value="price_per_sqft_asc">Price/sqft: Best Value</option>
-                </select>
-            </div>
-
-            <div class="filter-section">
-                <label class="checkbox-label">
+                <label class="filter-row">
                     <input type="checkbox" id="newOnlyFilter">
-                    <span>New listings only (last 24h)</span>
+                    <span class="cbx"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4 10-10"/></svg></span>
+                    <span>New today only</span>
                 </label>
             </div>
 
-            <button class="btn btn-apply" onclick="applyFilters()">Apply Filters</button>
-            <button class="btn btn-reset" onclick="resetFilters()">Reset</button>
+            <div class="sidebar-foot">
+                <button class="btn btn-ghost btn-reset" onclick="resetFilters()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+                    Reset filters
+                </button>
+            </div>
         </aside>
 
+        <!-- Results -->
         <section class="content">
-            <div class="content-header">
-                <div class="results-count" id="resultsCount">Loading...</div>
-                <button class="btn btn-toggle-sidebar" onclick="toggleSidebar()">☰ Filters</button>
+            <div class="toolbar">
+                <div class="toolbar-count" id="resultsCount">Loading…</div>
+                <div class="toolbar-spacer"></div>
+                <div class="toolbar-sort">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M11 5h10"/><path d="M11 9h7"/><path d="M11 13h4"/><path d="m3 17 3 3 3-3"/><path d="M6 18V4"/></svg>
+                    <div class="select-wrap">
+                        <select class="filter-select" id="sortFilter">
+                            <option value="date_crawled">Newest first</option>
+                            <option value="price_asc">Price: low → high</option>
+                            <option value="price_desc">Price: high → low</option>
+                            <option value="sqft_desc">Size: largest</option>
+                            <option value="price_per_sqft_asc">Price / sqft: best value</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn btn-outline btn-toggle-sidebar" onclick="toggleSidebar()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
+                    Filters
+                </button>
             </div>
-            
+
             <div class="listings-grid" id="listingsGrid">
-                <div class="loading">Loading listings...</div>
+                <div class="loading">
+                    <div class="loading-ring"></div>
+                    Loading listings…
+                </div>
             </div>
 
             <div class="pagination" id="pagination"></div>
         </section>
     </main>
 
-    <div class="modal" id="propertyModal">
+    <!-- Modal -->
+    <div class="modal" id="propertyModal" role="dialog" aria-modal="true">
         <div class="modal-content">
-            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <button class="modal-close" onclick="closeModal()" aria-label="Close">&times;</button>
             <div class="modal-body" id="modalBody">
-                <div class="loading">Loading property details...</div>
+                <div class="loading">
+                    <div class="loading-ring"></div>
+                    Loading…
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="toast" id="toast"></div>
+    <div class="toast" id="toast">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><path d="M12 16h.01"/></svg>
+        <span id="toastMsg"></span>
+    </div>
 
     <script src="js/config.js"></script>
     <script src="js/app.js"></script>
