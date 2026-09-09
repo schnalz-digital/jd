@@ -458,10 +458,14 @@ input, select { font-family: inherit; }
 .price-sep { color: var(--faint); font-size: 0.85rem; }
 
 /* Bedroom pills */
-.pill-group { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+.pill-group {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(88px, 1fr));
+  gap: 0.35rem;
+}
 .pill {
-  flex: 1;
-  min-width: 40px;
+  min-width: 0;
+  white-space: nowrap;
   padding: 0.5rem 0.4rem;
   border: 1px solid var(--line);
   border-radius: 999px;
