@@ -8,7 +8,7 @@ import json
 import re
 import hashlib
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import List, Dict, Optional
 
@@ -306,7 +306,7 @@ class Hse28Crawler:
             "images": images,
             "description": title,
             "features": tags,
-            "date_crawled": datetime.now().isoformat(),
+            "date_crawled": datetime.now(timezone.utc).isoformat(),
             "date_posted": date_posted,
             "is_new": True,
             "price_changed": False,
@@ -468,7 +468,7 @@ class SquarefootCrawler:
             "images": images,
             "description": description,
             "features": [unit_desc] if unit_desc else [],
-            "date_crawled": datetime.now().isoformat(),
+            "date_crawled": datetime.now(timezone.utc).isoformat(),
             "date_posted": date_posted,
             "is_new": True,
             "price_changed": False,
@@ -623,7 +623,7 @@ class PropertyHkCrawler:
             "images": images,
             "description": f"{title} {sub_district}".strip() if title and sub_district else (title or ""),
             "features": [],
-            "date_crawled": datetime.now().isoformat(),
+            "date_crawled": datetime.now(timezone.utc).isoformat(),
             "date_posted": date_posted,
             "is_new": True,
             "price_changed": False,
@@ -779,7 +779,7 @@ class OkayCrawler:
             "images": [],
             "description": f"{title} - {street}, {sub_district}" if street else title,
             "features": [],
-            "date_crawled": datetime.now().isoformat(),
+            "date_crawled": datetime.now(timezone.utc).isoformat(),
             "date_posted": date_posted,
             "is_new": True,
             "price_changed": False,
@@ -905,7 +905,7 @@ class CentalineCrawler:
             "images": [],
             "description": title,
             "features": [],
-            "date_crawled": datetime.now().isoformat(),
+            "date_crawled": datetime.now(timezone.utc).isoformat(),
             "date_posted": None,
             "is_new": True,
             "price_changed": False,
@@ -927,10 +927,34 @@ def load_existing_listings() -> Dict[str, Dict]:
 def save_listings(listings: List[Dict], stats: Dict):
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         json.dump({
-            "last_crawl": datetime.now().isoformat(),
+            "last_crawl": datetime.now(timezone.utc).isoformat(),
             "stats": stats,
             "listings": listings
         }, f, indent=2, ensure_ascii=False)
+
+
+def strip_region_from_title(title: str, sub_district: Optional[str]) -> str:
+    """Remove the region/sub-district name from a title when it appears as a
+    standalone token (never inside a CJK compound word, e.g. the Chinese
+    property names where the area is part of the name)."""
+    if not title or not sub_district:
+        return title
+    region = sub_district.strip()
+    if not region:
+        return title
+    pattern = re.compile(
+        r'(?<![\u4e00-\u9fffA-Za-z])'          # not preceded by a CJK/letter character
+        + re.escape(region)
+        + r'(?![\u4e00-\u9fffA-Za-z])',        # not followed by a CJK/letter character
+        re.IGNORECASE,
+    )
+    stripped = pattern.sub('', title, count=1)
+    if stripped == title:
+        return title
+    stripped = re.sub(r'\s+', ' ', stripped)
+    stripped = re.sub(r'^[\s\u3000・•|\-,–—，,:，]+', '', stripped)
+    stripped = re.sub(r'[\s\u3000・•|\-,–—，,:，]+$', '', stripped)
+    return stripped or title
 
 
 def merge_listings(existing: Dict[str, Dict], new_listings: List[Dict]) -> List[Dict]:
@@ -942,6 +966,7 @@ def merge_listings(existing: Dict[str, Dict], new_listings: List[Dict]) -> List[
                 listing["price_changed"] = True
                 listing["previous_price"] = old["price"]
             listing["is_new"] = False
+        listing["title"] = strip_region_from_title(listing["title"], listing.get("sub_district"))
         existing[lid] = listing
     return list(existing.values())
 
@@ -981,7 +1006,7 @@ def main():
         "by_source": by_source,
         "by_district": by_district,
         "new_this_crawl": len(all_listings),
-        "last_crawl": datetime.now().isoformat(),
+        "last_crawl": datetime.now(timezone.utc).isoformat(),
     }
 
     save_listings(merged, stats)

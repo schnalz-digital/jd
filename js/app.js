@@ -12,6 +12,13 @@ let debounceTimer = null;
 const sessionKey = 'hk_property_unlocked';
 const FAV_REGION_KEY = 'fav_region';
 
+function parseUtcIso(value) {
+    if (!value) return null;
+    let s = String(value);
+    if (!/[zZ]|[+-]\d{2}:\d{2}$/.test(s)) s += 'Z';
+    return new Date(s);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     if (sessionStorage.getItem(sessionKey) === '1') {
         unlockSite();
@@ -186,7 +193,7 @@ function updateStatsHeader(data) {
     const crawlEl = document.getElementById('lastCrawl');
     if (crawlEl) {
         if (data.last_crawl) {
-            const d = new Date(data.last_crawl);
+            const d = parseUtcIso(data.last_crawl);
             const mins = Math.floor((Date.now() - d.getTime()) / 60000);
             if (mins < 1) crawlEl.textContent = 'just now';
             else if (mins < 60) crawlEl.textContent = `${mins}m ago`;
