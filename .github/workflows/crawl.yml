@@ -48,5 +48,10 @@ jobs:
             echo "No changes to commit"
           else
             git commit -m "Update data [skip ci]"
+            git pull --rebase origin main --no-edit || {
+              git checkout --theirs listings.json index.html
+              git add listings.json index.html
+              git -c core.editor=true rebase --continue || git rebase --abort
+            }
             git push
           fi
