@@ -7,7 +7,7 @@
     <meta name="description" content="Curated property listings, refreshed minute by minute.">
     <meta name="theme-color" content="#1c1a16">
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231c1a16'/%3E%3Ctext x='16' y='22' font-size='16' text-anchor='middle' fill='%23b78b3e' font-family='Georgia'%3ELP%3C/text%3E%3C/svg%3E">
-    <link rel="stylesheet" href="css/styles.css?v=1dbb8b29">
+    <link rel="stylesheet" href="css/styles.css?v=848f654c">
 </head>
 <body>
 
@@ -51,7 +51,12 @@
             </div>
 
             <div class="header-actions">
-                <button class="btn btn-outline" id="exportBtn" onclick="exportCSV()" title="Export CSV">
+                <button class="btn btn-outline btn-filters-nav" id="filtersNavBtn" onclick="toggleSidebarMobile(this)" aria-expanded="false">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3Z"/></svg>
+                    <span class="btn-label">Filters</span>
+                    <span class="btn-badge" id="filterBadge" hidden></span>
+                </button>
+                <button class="btn btn-outline btn-export" id="exportBtn" onclick="exportCSV()" title="Export CSV">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
                     <span class="btn-label">Export</span>
                 </button>
@@ -235,7 +240,7 @@
         <span id="toastMsg"></span>
     </div>
 
-    <script src="js/config.js?v=1dbb8b29"></script>
-    <script src="js/app.js?v=1dbb8b29"></script>
+    <script src="js/config.js?v=848f654c"></script>
+    <script src="js/app.js?v=848f654c"></script>
 </body>
 </html>

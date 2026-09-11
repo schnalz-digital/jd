@@ -115,7 +115,10 @@ function setupEventListeners() {
     });
 
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') closeModal();
+        if (e.key === 'Escape') {
+            closeModal();
+            closeMobileSidebar();
+        }
     });
 }
 
@@ -230,6 +233,7 @@ function applyFilters() {
     sortListings();
     currentPage = 1;
     renderListings();
+    updateFilterBadges();
 }
 
 function sortListings() {
@@ -259,6 +263,38 @@ function resetFilters() {
 
 function toggleSidebar() {
     document.getElementById('sidebar').classList.toggle('hidden');
+}
+
+function toggleSidebarMobile(btn) {
+    const isOpen = document.getElementById('sidebar').classList.toggle('mobile-open');
+    btn.classList.toggle('active', isOpen);
+    btn.setAttribute('aria-expanded', String(isOpen));
+}
+
+function closeMobileSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar.classList.contains('mobile-open')) {
+        sidebar.classList.remove('mobile-open');
+        const btn = document.getElementById('filtersNavBtn');
+        btn.classList.remove('active');
+        btn.setAttribute('aria-expanded', 'false');
+    }
+}
+
+function updateFilterBadges() {
+    const badge = document.getElementById('filterBadge');
+    if (!badge) return;
+    const s = currentFilters;
+    let count = 0;
+    if (s.search) count++;
+    if (s.district) count++;
+    if (s.minPrice || s.maxPrice) count++;
+    if (s.bedrooms !== '') count++;
+    if (s.propertyType) count++;
+    if (s.sources.length < Object.keys(SOURCE_LABELS).length) count++;
+    if (s.newOnly) count++;
+    badge.textContent = count || '';
+    badge.hidden = count === 0;
 }
 
 /* --------------------------------------------------------------------------
