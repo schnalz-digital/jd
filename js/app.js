@@ -19,6 +19,15 @@ function parseUtcIso(value) {
     return new Date(s);
 }
 
+function imageProxy(url) {
+    if (!url) return url;
+    try {
+        return 'https://images.weserv.nl/?url=' + encodeURIComponent(url) + '&output=webp&w=800';
+    } catch (e) {
+        return url;
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     if (sessionStorage.getItem(sessionKey) === '1') {
         unlockSite();
@@ -432,7 +441,7 @@ function renderListings() {
 
 function createListingCard(listing, stagger) {
     const media = listing.images && listing.images.length > 0
-        ? `<img src="${listing.images[0]}" alt="" loading="lazy"
+        ? `<img src="${imageProxy(listing.images[0])}" alt="" loading="lazy"
                onerror="this.outerHTML='${htmlAttr(placeholderMediaMarkup)}'">`
         : placeholderMediaMarkup;
 
@@ -593,7 +602,7 @@ function openModal(listingId) {
 
     const hasImg = listing.images && listing.images.length > 0;
     const hero = hasImg
-        ? `<img src="${listing.images[0]}" alt="${escapeHtml(listing.title)}"
+        ? `<img src="${imageProxy(listing.images[0])}" alt="${escapeHtml(listing.title)}"
                onerror="this.closest('.modal-hero').innerHTML='${htmlAttr(placeholderHero())}'">`
         : placeholderHero();
 

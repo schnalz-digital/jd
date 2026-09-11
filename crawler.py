@@ -699,6 +699,11 @@ class OkayCrawler:
         if not title:
             return None
 
+        images = []
+        item = a.find_parent(class_="c-result__item")
+        if item:
+            images = [img["custom-img"] for img in item.select("img[custom-img]") if img.get("custom-img")]
+
         info = a.find_parent(class_=re.compile(r"c-result__info"))
         if info is None:
             info = a.parent
@@ -776,7 +781,7 @@ class OkayCrawler:
             "source": "okay",
             "source_url": full_url,
             "agent_company": None,
-            "images": [],
+            "images": images,
             "description": f"{title} - {street}, {sub_district}" if street else title,
             "features": [],
             "date_crawled": datetime.now(timezone.utc).isoformat(),
@@ -884,6 +889,10 @@ class CentalineCrawler:
         full_url = f"https://hk.centanet.com{href}" if href.startswith("/") else href
         display_title = title if title != "Discovery Bay" else f"Discovery Bay - {section}"
 
+        images = []
+        if full_url:
+            images = self._fetch_og_image(full_url)
+
         return {
             "id": generate_id(full_url),
             "title": display_title,
@@ -902,7 +911,7 @@ class CentalineCrawler:
             "source": "centaline",
             "source_url": full_url,
             "agent_company": None,
-            "images": [],
+            "images": images,
             "description": title,
             "features": [],
             "date_crawled": datetime.now(timezone.utc).isoformat(),
@@ -911,6 +920,31 @@ class CentalineCrawler:
             "price_changed": False,
             "previous_price": None,
         }
+
+    def _fetch_og_image(self, url: str) -> List[str]:
+        for attempt in (1, 2):
+            try:
+                response = self.session.get(url)
+            except Exception:
+                response = None
+            if not response or response.status_code != 200:
+                time.sleep(1.5)
+                continue
+            m = re.findall(
+                r'<meta[^>]+property=["\']og:image["\'][^>]+content=["\']([^"\']+)["\']',
+                response.text,
+            )
+            if not m:
+                m = re.findall(
+                    r'<meta[^>]+content=["\']([^"\']+)["\'][^>]*property=["\']og:image["\']',
+                    response.text,
+                )
+            candidates = [u for u in m if "/_nuxt/" not in u]
+            if candidates:
+                return [candidates[-1]]
+            break
+        return []
+
 
 
 def load_existing_listings() -> Dict[str, Dict]:
