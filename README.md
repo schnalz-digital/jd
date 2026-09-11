@@ -1,8 +1,8 @@
 # HK Property Listings
 
 Automated Hong Kong property crawler deployed as a **static site** on GitHub Pages.
-Crawls 28Hse.com (HK's largest property portal) automatically every **2 hours** via
-GitHub Actions cron, commits fresh data, and the frontend displays it.
+Crawls **28Hse.com, Squarefoot.com.hk and Property.hk** automatically every **2 hours**
+via GitHub Actions cron, commits fresh data, and the frontend displays it.
 
 ## Live Site
 
@@ -84,7 +84,8 @@ Change `*/2` to adjust (e.g. `*/1` for hourly).
 ## Files
 
 - `.github/workflows/crawl.yml` — GitHub Actions (cron + deploy)
-- `crawler.py` — crawler (28Hse source, outputs listings.json)
+- `crawler.py` — crawler (28Hse, Squarefoot, Property.hk; outputs listings.json)
+- `tools/probe_spacious.py` — Cloudflare-challenge probe for Spacious.hk (camoufox)
 - `index.html` / `css/styles.css` / `js/app.js` — frontend
 - `listings.json` — generated data (committed by workflow)
 - `crawl.sh` — local crawl helper
@@ -92,6 +93,8 @@ Change `*/2` to adjust (e.g. `*/1` for hourly).
 
 ## Adding more sources
 
-To add another source (e.g. a site that isn't bot-blocked), add a parser class in
-`crawler.py` returning dicts matching the same schema (`source` field set to a unique
-name). Merge it into `main()` similarly to the existing 28Hse crawler.
+To add another source, add a parser class in `crawler.py` returning dicts matching the
+same schema (`source` field set to a unique name — must match a value in the frontend's
+source filter checkboxes and `SOURCE_LABELS` in `js/app.js`). Merge it into `main()`
+similarly to the existing crawlers. Spacious.hk and other Cloudflare-challenged sites
+are probed via `tools/probe_spacious.py`.

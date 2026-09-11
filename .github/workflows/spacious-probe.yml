@@ -1,0 +1,37 @@
+name: Probe Spacious
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 3 * * *'
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install camoufox
+        run: |
+          pip install -q camoufox
+          python -m camoufox fetch
+
+      - name: Probe Spacious.hk
+        id: probe
+        run: python tools/probe_spacious.py || echo "probe_failed=true"
+
+      - name: Upload probe result
+        uses: actions/upload-artifact@v4
+        with:
+          name: probe-result
+          path: probe-result.json
+          if-no-files-found: warn
