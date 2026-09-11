@@ -19,7 +19,15 @@ jobs:
           python-version: '3.11'
 
       - name: Install deps
-        run: pip install -q curl_cffi
+        run: pip install -q curl_cffi playwright playwright-stealth camoufox
+
+      - name: Provision browsers
+        run: |
+          python -m playwright install chromium
+          python -m camoufox fetch
 
       - name: Probe
-        run: python tools/probe_squarefoot.py
+        run: python tools/probe_squarefoot.py || true
+
+      - name: Probe with browsers
+        run: python tools/probe_squarefoot_browser.py || true
