@@ -205,6 +205,8 @@ function updateStatsHeader(data) {
     }
 }
 
+const DEFAULT_REGION = 'discovery bay';
+
 function populateRegions() {
     const select = document.getElementById('regionFilter');
     const current = select.value;
@@ -214,35 +216,46 @@ function populateRegions() {
     select.innerHTML = '<option value="">All regions</option>' +
         regions.map(r => `<option value="${escapeHtml(r).toLowerCase()}">${escapeHtml(r)}</option>`).join('');
 
-    const fav = localStorage.getItem(FAV_REGION_KEY);
+    const savedFav = localStorage.getItem(FAV_REGION_KEY);
+    let fav = '';
+    if (savedFav && regions.some(r => r.toLowerCase() === savedFav.toLowerCase())) {
+        fav = savedFav.toLowerCase();
+    } else {
+        if (savedFav) localStorage.removeItem(FAV_REGION_KEY);
+        if (regions.some(r => r.toLowerCase() === DEFAULT_REGION)) fav = DEFAULT_REGION;
+    }
+
     const favBtn = document.getElementById('favBtn');
-    if (fav && regions.some(r => r.toLowerCase() === fav.toLowerCase())) {
-        select.value = fav.toLowerCase();
+    if (fav) {
+        select.value = fav;
         favBtn.classList.add('active');
         favBtn.setAttribute('aria-pressed', 'true');
-        favBtn.title = `Default: ${fav} — tap to clear`;
+        const label = regions.find(r => r.toLowerCase() === fav) || '';
+        favBtn.title = savedFav
+            ? `Default: ${label} — tap to clear`
+            : `Default region for everyone: ${label}`;
     } else {
-        if (fav) localStorage.removeItem(FAV_REGION_KEY);
+        if (regions.some(r => r.toLowerCase() === current)) select.value = current;
         favBtn.classList.remove('active');
         favBtn.setAttribute('aria-pressed', 'false');
         favBtn.title = 'Save selected region as default';
-        if (regions.some(r => r.toLowerCase() === current)) select.value = current;
     }
 }
 
 function toggleFavouriteRegion() {
     const select = document.getElementById('regionFilter');
     const favBtn = document.getElementById('favBtn');
-    const currentFav = localStorage.getItem(FAV_REGION_KEY);
+    const savedFav = localStorage.getItem(FAV_REGION_KEY);
 
-    if (currentFav) {
+    if (savedFav) {
         localStorage.removeItem(FAV_REGION_KEY);
-        favBtn.classList.remove('active');
-        favBtn.setAttribute('aria-pressed', 'false');
-        favBtn.title = 'Save selected region as default';
-        select.value = '';
+        const hasDefault = Array.from(select.options).some(o => o.value === DEFAULT_REGION);
+        if (hasDefault) select.value = DEFAULT_REGION;
+        favBtn.classList.add('active');
+        favBtn.setAttribute('aria-pressed', 'true');
+        favBtn.title = `Default region for everyone: Discovery Bay`;
         applyFilters();
-        showToast('Default region cleared.', 'info');
+        showToast('Discovery Bay is the default region again.', 'info');
         return;
     }
 
@@ -255,8 +268,9 @@ function toggleFavouriteRegion() {
     localStorage.setItem(FAV_REGION_KEY, region);
     favBtn.classList.add('active');
     favBtn.setAttribute('aria-pressed', 'true');
-    favBtn.title = `Default: ${region} — tap to clear`;
-    showToast(`"${region}" set as default region.`, 'success');
+    const label = Array.from(select.options).find(o => o.value === region)?.textContent || region;
+    favBtn.title = `Default: ${label} — tap to clear`;
+    showToast(`"${label}" set as your default region.`, 'success');
     applyFilters();
 }
 
