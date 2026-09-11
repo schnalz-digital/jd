@@ -372,6 +372,35 @@ input, select { font-family: inherit; }
   margin-bottom: 0.55rem;
 }
 
+.filter-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.filter-label-row .filter-label { margin-bottom: 0.55rem; }
+
+.fav-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  margin-bottom: 0.4rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--faint);
+  cursor: pointer;
+  transition: all 0.2s var(--ease-out);
+}
+.fav-btn svg { width: 14px; height: 14px; }
+.fav-btn:hover { color: var(--gold-dark); border-color: var(--gold); }
+.fav-btn.active {
+  color: var(--gold);
+  border-color: var(--gold);
+  background: var(--gold-soft);
+}
+.fav-btn.active svg { fill: var(--gold); }
+
 /* Search */
 .search-wrap { position: relative; }
 .search-input {

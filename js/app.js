@@ -10,6 +10,7 @@ let currentFilters = {};
 let debounceTimer = null;
 
 const sessionKey = 'hk_property_unlocked';
+const FAV_REGION_KEY = 'fav_region';
 
 document.addEventListener('DOMContentLoaded', () => {
     if (sessionStorage.getItem(sessionKey) === '1') {
@@ -90,7 +91,7 @@ function setupEventListeners() {
 
     document.getElementById('searchInput').addEventListener('input', () => debounced(applyFilters));
 
-    for (const id of ['districtFilter', 'typeFilter', 'sortFilter', 'minPrice', 'maxPrice']) {
+    for (const id of ['districtFilter', 'regionFilter', 'typeFilter', 'sortFilter', 'minPrice', 'maxPrice']) {
         const el = document.getElementById(id);
         if (id.includes('Price')) {
             el.addEventListener('input', () => debounced(applyFilters));
@@ -138,6 +139,7 @@ async function loadListings() {
 
         lastDataSig = dataSig(data);
         updateStatsHeader(data);
+        populateRegions();
         applyFilters();
         startAutoRefresh();
     } catch (error) {
@@ -196,6 +198,61 @@ function updateStatsHeader(data) {
     }
 }
 
+function populateRegions() {
+    const select = document.getElementById('regionFilter');
+    const current = select.value;
+    const regions = [...new Set(allListings.map(l => (l.sub_district || '').trim()).filter(Boolean))]
+        .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+
+    select.innerHTML = '<option value="">All regions</option>' +
+        regions.map(r => `<option value="${escapeHtml(r).toLowerCase()}">${escapeHtml(r)}</option>`).join('');
+
+    const fav = localStorage.getItem(FAV_REGION_KEY);
+    const favBtn = document.getElementById('favBtn');
+    if (fav && regions.some(r => r.toLowerCase() === fav.toLowerCase())) {
+        select.value = fav.toLowerCase();
+        favBtn.classList.add('active');
+        favBtn.setAttribute('aria-pressed', 'true');
+        favBtn.title = `Default: ${fav} — tap to clear`;
+    } else {
+        if (fav) localStorage.removeItem(FAV_REGION_KEY);
+        favBtn.classList.remove('active');
+        favBtn.setAttribute('aria-pressed', 'false');
+        favBtn.title = 'Save selected region as default';
+        if (regions.some(r => r.toLowerCase() === current)) select.value = current;
+    }
+}
+
+function toggleFavouriteRegion() {
+    const select = document.getElementById('regionFilter');
+    const favBtn = document.getElementById('favBtn');
+    const currentFav = localStorage.getItem(FAV_REGION_KEY);
+
+    if (currentFav) {
+        localStorage.removeItem(FAV_REGION_KEY);
+        favBtn.classList.remove('active');
+        favBtn.setAttribute('aria-pressed', 'false');
+        favBtn.title = 'Save selected region as default';
+        select.value = '';
+        applyFilters();
+        showToast('Default region cleared.', 'info');
+        return;
+    }
+
+    const region = select.value;
+    if (!region) {
+        showToast('Pick a region to set as your default.', 'info');
+        return;
+    }
+
+    localStorage.setItem(FAV_REGION_KEY, region);
+    favBtn.classList.add('active');
+    favBtn.setAttribute('aria-pressed', 'true');
+    favBtn.title = `Default: ${region} — tap to clear`;
+    showToast(`"${region}" set as default region.`, 'success');
+    applyFilters();
+}
+
 /* --------------------------------------------------------------------------
    Filtering / sorting
    -------------------------------------------------------------------------- */
@@ -204,6 +261,7 @@ function applyFilters() {
         search: document.getElementById('searchInput').value.trim().toLowerCase(),
         sources: Array.from(document.querySelectorAll('#sourceFilters input:checked')).map(cb => cb.value),
         district: document.getElementById('districtFilter').value,
+        region: document.getElementById('regionFilter').value,
         minPrice: (parseFloat(document.getElementById('minPrice').value) || null) * 1000000,
         maxPrice: (parseFloat(document.getElementById('maxPrice').value) || null) * 1000000,
         bedrooms: document.querySelector('#bedroomFilter .pill.active')?.dataset.value || '',
@@ -215,6 +273,7 @@ function applyFilters() {
     filteredListings = allListings.filter(listing => {
         if (!currentFilters.sources.includes(listing.source)) return false;
         if (currentFilters.district && listing.district !== currentFilters.district) return false;
+        if (currentFilters.region && (listing.sub_district || '').trim().toLowerCase() !== currentFilters.region) return false;
         if (currentFilters.minPrice && listing.price && listing.price < currentFilters.minPrice) return false;
         if (currentFilters.maxPrice && listing.price && listing.price > currentFilters.maxPrice) return false;
 
@@ -266,6 +325,7 @@ function sortListings() {
 function resetFilters() {
     document.getElementById('searchInput').value = '';
     document.getElementById('districtFilter').value = '';
+    document.getElementById('regionFilter').value = '';
     document.getElementById('minPrice').value = '';
     document.getElementById('maxPrice').value = '';
     document.getElementById('typeFilter').value = '';
@@ -303,6 +363,7 @@ function updateFilterBadges() {
     let count = 0;
     if (s.search) count++;
     if (s.district) count++;
+    if (s.region) count++;
     if (s.minPrice || s.maxPrice) count++;
     if (s.bedrooms !== '') count++;
     if (s.propertyType) count++;

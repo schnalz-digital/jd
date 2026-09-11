@@ -7,7 +7,7 @@
     <meta name="description" content="Curated property listings, refreshed minute by minute.">
     <meta name="theme-color" content="#1c1a16">
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231c1a16'/%3E%3Ctext x='16' y='22' font-size='16' text-anchor='middle' fill='%23b78b3e' font-family='Georgia'%3ELP%3C/text%3E%3C/svg%3E">
-    <link rel="stylesheet" href="css/styles.css?v=734cbdab">
+    <link rel="stylesheet" href="css/styles.css?v=03819797">
 </head>
 <body>
 
@@ -90,6 +90,20 @@
                         <option value="kowloon">Kowloon</option>
                         <option value="new_territories">New Territories</option>
                         <option value="outlying_islands">Outlying Islands</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <div class="filter-label-row">
+                    <label class="filter-label" for="regionFilter">Region</label>
+                    <button class="fav-btn" id="favBtn" type="button" onclick="toggleFavouriteRegion()" title="Save as default region" aria-pressed="false">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14l-5-4.87 6.91-1.01L12 2Z"/></svg>
+                    </button>
+                </div>
+                <div class="select-wrap">
+                    <select class="filter-select" id="regionFilter">
+                        <option value="">All regions</option>
                     </select>
                 </div>
             </div>
@@ -234,7 +248,7 @@
         <span id="toastMsg"></span>
     </div>
 
-    <script src="js/config.js?v=734cbdab"></script>
-    <script src="js/app.js?v=734cbdab"></script>
+    <script src="js/config.js?v=03819797"></script>
+    <script src="js/app.js?v=03819797"></script>
 </body>
 </html>
