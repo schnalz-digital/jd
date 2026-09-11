@@ -1,7 +1,7 @@
 # HK Property Listings
 
 Automated Hong Kong property crawler deployed as a **static site** on GitHub Pages.
-Crawls **28Hse.com, Squarefoot.com.hk and Property.hk** automatically every **2 hours**
+Crawls **28Hse.com, Squarefoot.com.hk, Property.hk, OKAY.com and Centaline** automatically every **2 hours**
 via GitHub Actions cron, commits fresh data, and the frontend displays it.
 
 ## Live Site
@@ -84,7 +84,7 @@ Change `*/2` to adjust (e.g. `*/1` for hourly).
 ## Files
 
 - `.github/workflows/crawl.yml` — GitHub Actions (cron + deploy)
-- `crawler.py` — crawler (28Hse, Squarefoot, Property.hk; outputs listings.json)
+- `crawler.py` — crawler (28Hse, Squarefoot, Property.hk, OKAY.com Discovery Bay, Centaline Discovery Bay; outputs listings.json)
 - `tools/probe_spacious.py` — Cloudflare-challenge probe for Spacious.hk (camoufox)
 - `index.html` / `css/styles.css` / `js/app.js` — frontend
 - `listings.json` — generated data (committed by workflow)

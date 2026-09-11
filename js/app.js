@@ -67,7 +67,9 @@ const SOURCE_LABELS = {
     '28hse': '28Hse',
     'spacious': 'Spacious',
     'squarefoot': 'Squarefoot',
-    'propertyhk': 'Property.hk'
+    'propertyhk': 'Property.hk',
+    'okay': 'OKAY.com',
+    'centaline': 'Centaline'
 };
 
 const DISTRICT_LABELS = {

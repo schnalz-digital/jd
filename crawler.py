@@ -141,6 +141,11 @@ class Hse28Crawler:
             print(f"    Error fetching {url}: {e}")
             return None
 
+    DB_PAGES = [
+        ("buy", "https://www.28hse.com/en/buy/a170/dg125/c4730"),
+        ("rent", "https://www.28hse.com/en/rent/a170/dg125/c4730"),
+    ]
+
     def crawl(self) -> List[Dict]:
         listings = []
         sections = ["buy", "rent"]
@@ -153,26 +158,32 @@ class Hse28Crawler:
                 else:
                     url = f"{BASE_URL}/{section}/page-{page}"
 
-                soup = self.fetch(url)
-                if not soup:
-                    continue
+                items = self._crawl_url(url, section)
+                listings.extend(items)
 
-                self._parse_results_count(soup)
-
-                cards = soup.select("div.property_item")
-                if not cards:
-                    print(f"    No cards on {url}")
-                    break
-
-                for card in cards:
-                    listing = self._parse_card(card, section)
-                    if listing:
-                        listings.append(listing)
-
-                print(f"    page {page}: {len(cards)} items")
-                time.sleep(1.5)
+        for section, url in self.DB_PAGES:
+            print(f"  Crawling 28Hse {section} (Discovery Bay district)...")
+            listings.extend(self._crawl_url(url, section))
 
         return listings
+
+    def _crawl_url(self, url: str, section: str) -> List[Dict]:
+        items = []
+        soup = self.fetch(url)
+        if not soup:
+            return items
+        self._parse_results_count(soup)
+        cards = soup.select("div.property_item")
+        if not cards:
+            print(f"    No cards on {url}")
+            return items
+        for card in cards:
+            listing = self._parse_card(card, section)
+            if listing:
+                items.append(listing)
+        print(f"    {url}: {len(cards)} items")
+        time.sleep(1.5)
+        return items
 
     def _parse_results_count(self, soup):
         text = soup.get_text(" ", strip=True)
@@ -629,6 +640,279 @@ def parse_num(text: Optional[str]) -> Optional[float]:
     return None
 
 
+class OkayCrawler:
+    """OKAY.com Discovery Bay listings (server-rendered HTML, no bot protection)."""
+
+    def __init__(self):
+        self.session = cffi.Session(impersonate="chrome124", timeout=25)
+
+    def close(self):
+        self.session.close()
+
+    def fetch(self, url: str) -> Optional[BeautifulSoup]:
+        try:
+            response = self.session.get(url)
+            if response.status_code != 200:
+                print(f"    HTTP {response.status_code}: {url}")
+                return None
+            return BeautifulSoup(response.text, "lxml")
+        except Exception as e:
+            print(f"    Error fetching {url}: {e}")
+            return None
+
+    def crawl(self) -> List[Dict]:
+        listings = []
+        for section in ["buy", "rent"]:
+            print(f"  Crawling OKAY {section} (Discovery Bay)...")
+            found_total = 0
+            for page in range(1, 9):
+                if page == 1:
+                    url = f"https://www.okay.com/en/property-search/{section}/discovery-bay"
+                else:
+                    url = f"https://www.okay.com/en/property-search/{section}/discovery-bay/page-{page}"
+                soup = self.fetch(url)
+                if not soup:
+                    continue
+                cards = soup.select("a.c-result__building")
+                if not cards:
+                    print(f"    no cards on {url}")
+                    break
+                count = 0
+                for a in cards:
+                    listing = self._parse_card(a, section, url)
+                    if listing:
+                        listings.append(listing)
+                        count += 1
+                found_total += count
+                print(f"    page {page}: {count} items")
+                time.sleep(1.2)
+                if len(cards) < 24:
+                    break
+            print(f"    OKAY {section} total: {found_total}")
+        return listings
+
+    def _parse_card(self, a, section: str, list_url: str) -> Optional[Dict]:
+        href = a.get("href", "").strip()
+        if not href:
+            return None
+        title = a.get_text(" ", strip=True).strip()
+        if not title:
+            return None
+
+        info = a.find_parent(class_=re.compile(r"c-result__info"))
+        if info is None:
+            info = a.parent
+        text = info.get_text(" ", strip=True)
+
+        addresses = [el.get_text(" ", strip=True).strip() for el in info.select(".c-result__address")]
+        street = addresses[0] if addresses else None
+
+        price = None
+        tokens = re.findall(r"HK\$([\d,.]+)([KM]?)", text)
+        if section == "rent":
+            for num, suffix in tokens:
+                if suffix == "K":
+                    price = float(num.replace(",", "")) * 1000
+                    break
+            if price is None:
+                for num, suffix in tokens:
+                    if not suffix and float(num.replace(",", "")) < 1000000:
+                        price = float(num.replace(",", ""))
+                        break
+        else:
+            for num, suffix in tokens:
+                if suffix == "M":
+                    price = float(num.replace(",", "")) * 1000000
+                    break
+            if price is None:
+                for num, suffix in tokens:
+                    if not suffix and float(num.replace(",", "")) > 1000000:
+                        price = float(num.replace(",", ""))
+                        break
+
+        m = re.search(r"@\s*\$?\s*([\d,]+)\s*/\s*SF", text)
+        price_per_sqft = parse_num(m.group(1)) if m else None
+
+        ms = re.search(r"([\d,]+)\s*SF\s*\(\s*S\s*\)", text)
+        sqft = parse_num(ms.group(1)) if ms else None
+        if sqft is None:
+            mg = re.search(r"([\d,]+)\s*SF\s*\(\s*G\s*\)", text)
+            sqft = parse_num(mg.group(1)) if mg else None
+
+        bedrooms = None
+        bathrooms = None
+        mb = re.search(r"(\d+)\s*BD\s*(\d+)\s*BA", text)
+        if mb:
+            bedrooms = int(mb.group(1))
+            bathrooms = int(mb.group(2))
+
+        date_posted = None
+        md = re.search(r"Updated\s*:?\s*([\d.]+)", text)
+        if md:
+            try:
+                date_posted = datetime.strptime(md.group(1), "%d.%m.%Y").strftime("%Y-%m-%d")
+            except ValueError:
+                date_posted = None
+
+        district = detect_district(f"Discovery Bay {title} {street or ''}".lower())
+        sub_district = "Discovery Bay"
+
+        full_url = href if href.startswith("http") else "https://www.okay.com" + href
+        return {
+            "id": generate_id(full_url),
+            "title": title,
+            "price": price,
+            "currency": "HKD",
+            "transaction_type": section,
+            "district": district or "new_territories",
+            "sub_district": sub_district,
+            "address": f"{street}, {sub_district}".strip(", ") if street else sub_district,
+            "bedrooms": bedrooms,
+            "sqft": sqft,
+            "price_per_sqft": price_per_sqft,
+            "property_type": "apartment",
+            "floor_level": None,
+            "building_name": title,
+            "source": "okay",
+            "source_url": full_url,
+            "agent_company": None,
+            "images": [],
+            "description": f"{title} - {street}, {sub_district}" if street else title,
+            "features": [],
+            "date_crawled": datetime.now().isoformat(),
+            "date_posted": date_posted,
+            "is_new": True,
+            "price_changed": False,
+            "previous_price": None,
+        }
+
+
+class CentalineCrawler:
+    """Centaline (hk.centanet.com) Discovery Bay listings. No bot protection; SSR Nuxt page."""
+
+    def __init__(self):
+        self.session = cffi.Session(impersonate="chrome124", timeout=25)
+        self.total_results = 0
+
+    def close(self):
+        self.session.close()
+
+    def fetch(self, url: str) -> Optional[BeautifulSoup]:
+        try:
+            response = self.session.get(url)
+            if response.status_code == 403:
+                time.sleep(3)
+                response = self.session.get(url)
+            if response.status_code != 200:
+                print(f"    HTTP {response.status_code}: {url}")
+                return None
+            return BeautifulSoup(response.text, "lxml")
+        except Exception as e:
+            print(f"    Error fetching {url}: {e}")
+            return None
+
+    def crawl(self) -> List[Dict]:
+        listings = []
+        areas = [
+            ("buy", "https://hk.centanet.com/findproperty/en/list/buy/Discovery-Bay_3-LIDHTHXXHT"),
+            ("rent", "https://hk.centanet.com/findproperty/en/list/rent/Discovery-Bay_3-LIDHTHXXHT"),
+        ]
+        for section, url in areas:
+            print(f"  Crawling Centaline {section} (Discovery Bay)...")
+            soup = self.fetch(url)
+            if not soup:
+                continue
+            cards = soup.select("div.list")
+            n = 0
+            for card in cards:
+                a = card.select_one('a[href*="/findproperty/en/detail/"]')
+                if not a:
+                    continue
+                listing = self._parse_card(card, a, section)
+                if listing:
+                    listings.append(listing)
+                    n += 1
+            print(f"    {url}: {n} items")
+            time.sleep(1.2)
+        return listings
+
+    def _parse_card(self, card, a, section: str) -> Optional[Dict]:
+        href = a.get("href", "").strip()
+        text = re.sub(r"\s+", " ", card.get_text(" "))
+
+        title_lg = card.select_one(".title-lg")
+        title_sm = card.select_one(".title-sm")
+        title = title_lg.get_text(" ", strip=True) if title_lg else "Discovery Bay"
+        sub = title_sm.get_text(" ", strip=True) if title_sm else ""
+
+        bedrooms = None
+        mr = re.search(r"(\d+)\s*Rooms?", sub or "")
+        if mr:
+            bedrooms = int(mr.group(1))
+
+        floor_level = None
+        low = (sub or "").lower()
+        if "high floor" in low:
+            floor_level = "high"
+        elif "mid floor" in low:
+            floor_level = "mid"
+        elif "low floor" in low:
+            floor_level = "low"
+
+        price = None
+        if section == "rent":
+            mp = re.search(r"Rent \$ ([\d,.]+)", text)
+            if mp:
+                price = float(mp.group(1).replace(",", ""))
+        else:
+            mp = re.search(r"Sell \$ ([\d,.]+)(?: (M|K))?", text, re.IGNORECASE)
+            if mp:
+                num = float(mp.group(1).replace(",", ""))
+                if mp.group(2) is not None:
+                    mult = {"M": 1000000, "K": 1000}.get(mp.group(2).upper(), 1)
+                    price = num * mult
+                else:
+                    price = num
+
+        ms = re.search(r"S\.A\. ([\d,]+) ft", text)
+        sqft = parse_num(ms.group(1)) if ms else None
+
+        mpf = re.search(r"S\.A\. [\d,]+ ft[^@]*@ \$?([\d,.]+) /ft", text)
+        price_per_sqft = parse_num(mpf.group(1)) if mpf else None
+
+        district = detect_district(f"Discovery Bay {title} {sub}".lower()) or "new_territories"
+        full_url = f"https://hk.centanet.com{href}" if href.startswith("/") else href
+        display_title = title if title != "Discovery Bay" else f"Discovery Bay - {section}"
+
+        return {
+            "id": generate_id(full_url),
+            "title": display_title,
+            "price": price,
+            "currency": "HKD",
+            "transaction_type": section,
+            "district": district,
+            "sub_district": "Discovery Bay",
+            "address": f"{title}, Discovery Bay",
+            "bedrooms": bedrooms,
+            "sqft": sqft,
+            "price_per_sqft": price_per_sqft,
+            "property_type": "apartment",
+            "floor_level": floor_level,
+            "building_name": title if title != "Discovery Bay" else None,
+            "source": "centaline",
+            "source_url": full_url,
+            "agent_company": None,
+            "images": [],
+            "description": title,
+            "features": [],
+            "date_crawled": datetime.now().isoformat(),
+            "date_posted": None,
+            "is_new": True,
+            "price_changed": False,
+            "previous_price": None,
+        }
+
+
 def load_existing_listings() -> Dict[str, Dict]:
     if OUTPUT_FILE.exists():
         try:
@@ -674,7 +958,7 @@ def main():
     print()
 
     all_listings = []
-    for crawler in (Hse28Crawler(), SquarefootCrawler(), PropertyHkCrawler()):
+    for crawler in (Hse28Crawler(), SquarefootCrawler(), PropertyHkCrawler(), OkayCrawler(), CentalineCrawler()):
         try:
             all_listings.extend(crawler.crawl())
         finally:
