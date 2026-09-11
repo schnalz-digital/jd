@@ -123,9 +123,6 @@ input, select { font-family: inherit; }
 
 .btn svg { width: 15px; height: 15px; }
 
-.refresh-icon { display: inline-flex; }
-.refresh-icon.spinning { animation: spin 0.9s linear infinite; }
-
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* --------------------------------------------------------------------------
@@ -1076,7 +1073,6 @@ input, select { font-family: inherit; }
 
 @media (max-width: 420px) {
   .brand-name { display: none; }
-  #refreshBtn .btn-label { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {

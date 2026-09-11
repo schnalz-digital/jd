@@ -125,19 +125,8 @@ function setupEventListeners() {
 /* --------------------------------------------------------------------------
    Data
    -------------------------------------------------------------------------- */
-async function refreshData() {
-    const btn = document.getElementById('refreshBtn');
-    const label = btn.querySelector('.btn-label');
-    const icon = btn.querySelector('.refresh-icon');
-
-    btn.disabled = true;
-    icon.classList.add('spinning');
-
-    await loadListings();
-
-    btn.disabled = false;
-    icon.classList.remove('spinning');
-}
+let autoRefreshTimer = null;
+let lastDataSig = '';
 
 async function loadListings() {
     try {
@@ -147,8 +136,10 @@ async function loadListings() {
         const data = await response.json();
         allListings = data.listings || [];
 
+        lastDataSig = dataSig(data);
         updateStatsHeader(data);
         applyFilters();
+        startAutoRefresh();
     } catch (error) {
         console.error('Error loading listings:', error);
         showToast('Listing data unavailable yet — crawler runs every 2 hours.', 'error');
@@ -160,6 +151,30 @@ async function loadListings() {
             </div>
         `;
     }
+}
+
+function dataSig(data) {
+    return `${data.stats && data.stats.total}|${data.last_crawl || ''}`;
+}
+
+function startAutoRefresh() {
+    if (autoRefreshTimer) return;
+    autoRefreshTimer = setInterval(async () => {
+        try {
+            const response = await fetch(`listings.json?t=${Date.now()}`);
+            if (!response.ok) return;
+            const data = await response.json();
+            const sig = dataSig(data);
+            if (sig === lastDataSig) return;
+            lastDataSig = sig;
+            allListings = data.listings || [];
+            updateStatsHeader(data);
+            applyFilters();
+            showToast('Listings refreshed automatically.', 'info');
+        } catch (error) {
+            console.error('Auto-refresh failed:', error);
+        }
+    }, 3 * 60 * 1000);
 }
 
 function updateStatsHeader(data) {
