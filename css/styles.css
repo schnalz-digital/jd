@@ -243,7 +243,6 @@ input, select { font-family: inherit; }
   color: #e08a76;
   letter-spacing: 0.01em;
 }
-.login-error::before { content: '\2022 '; }
 
 /* --------------------------------------------------------------------------
    Header
