@@ -966,7 +966,6 @@ def merge_listings(existing: Dict[str, Dict], new_listings: List[Dict]) -> List[
                 listing["price_changed"] = True
                 listing["previous_price"] = old["price"]
             listing["is_new"] = False
-        listing["title"] = strip_region_from_title(listing["title"], listing.get("sub_district"))
         existing[lid] = listing
     return list(existing.values())
 
@@ -992,6 +991,11 @@ def main():
     print()
     print("Merging and deduplicating...")
     merged = merge_listings(existing, all_listings)
+
+    for listing in merged:
+        listing["title"] = strip_region_from_title(listing["title"], listing.get("sub_district"))
+        if listing.get("building_name"):
+            listing["building_name"] = strip_region_from_title(listing["building_name"], listing.get("sub_district"))
 
     by_source = {}
     by_district = {}

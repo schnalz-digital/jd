@@ -467,10 +467,7 @@ function createListingCard(listing, stagger) {
         ? `<div class="card-loc">${I.pin}${locParts.join(' · ')}</div>`
         : '<div class="card-loc" style="opacity:0.35">Location unavailable</div>';
 
-    const title = listing.building_name
-        || listing.sub_district
-        || listing.title
-        || 'Property listing';
+    const title = resolveTitle(listing);
 
     const posted = listing.date_posted
         ? listing.date_posted
@@ -498,6 +495,18 @@ function createListingCard(listing, stagger) {
 }
 
 const placeholderMediaMarkup = `<div class="card-media-placeholder">${I.home}</div>`;
+
+function resolveTitle(listing) {
+    const region = (listing.sub_district || '').toLowerCase();
+    for (const c of [listing.building_name, listing.title]) {
+        if (c && c.toLowerCase() !== region) return c;
+    }
+    const bits = [];
+    if (listing.bedrooms !== null && listing.bedrooms !== undefined)
+        bits.push(listing.bedrooms === 0 ? 'Studio' : `${listing.bedrooms} bedroom`);
+    if (listing.sqft) bits.push(`${listing.sqft.toLocaleString()} sqft`);
+    return bits.join(' · ') || listing.sub_district || 'Property listing';
+}
 
 function priceOverlayHtml(listing) {
     const [value, unit] = compactPriceParts(listing.price);
@@ -621,7 +630,7 @@ function openModal(listingId) {
         <div class="modal-hero">${hero}</div>
         <div class="modal-head">
             <div class="modal-badges">${badges.join('')}</div>
-            <h2 class="modal-title">${escapeHtml(listing.title || listing.building_name || 'Listing')}</h2>
+            <h2 class="modal-title">${escapeHtml(resolveTitle(listing))}</h2>
             ${locParts.length ? `<div class="modal-loc">${I.pin}${escapeHtml(locParts.join(' · '))}</div>` : ''}
         </div>
 
