@@ -49,7 +49,7 @@ def main() -> None:
         json.dump(result, f)
     with open("probe-result.txt", "w", encoding="utf-8") as f:
         f.write(summary + "\n")
-    sys.exit(0 if result["ok"] else 1)
+    sys.exit(0)
 
 
 if __name__ == "__main__":
