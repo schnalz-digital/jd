@@ -122,11 +122,11 @@ function setupEventListeners() {
         }
     }
 
-    const sortMobile = document.getElementById('sortFilterMobile');
-    if (sortMobile) {
-        sortMobile.addEventListener('change', () => {
-            document.getElementById('sortFilter').value = sortMobile.value;
-            applyFilters();
+    const sortMenuBtn = document.getElementById('sortMenuBtn');
+    if (sortMenuBtn) {
+        document.addEventListener('click', (e) => {
+            const wrap = document.querySelector('.sort-menu-wrap');
+            if (!wrap || !wrap.contains(e.target)) hideSortMenu();
         });
     }
 
@@ -143,6 +143,7 @@ function setupEventListeners() {
 
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
+            hideSortMenu();
             closeMobileSidebar();
         }
     });
@@ -369,8 +370,7 @@ function resetFilters() {
     document.getElementById('maxPrice').value = '';
     document.getElementById('typeFilter').value = '';
     document.getElementById('sortFilter').value = 'date_crawled';
-    const sortMobile = document.getElementById('sortFilterMobile');
-    if (sortMobile) sortMobile.value = 'date_crawled';
+    refreshSortMenu();
     document.getElementById('newOnlyFilter').checked = false;
     document.querySelectorAll('#sourceFilters input').forEach(cb => cb.checked = true);
     document.querySelectorAll('#bedroomFilter .pill').forEach(b => b.classList.toggle('active', b.dataset.value === ''));
@@ -612,6 +612,42 @@ function openSource(listingId) {
         return;
     }
     window.open(listing.source_url, '_blank', 'noopener,noreferrer');
+}
+
+/* --------------------------------------------------------------------------
+   Sort menu
+   -------------------------------------------------------------------------- */
+function toggleSortMenu() {
+    const menu = document.getElementById('sortMenu');
+    const btn = document.getElementById('sortMenuBtn');
+    if (menu.hidden) {
+        refreshSortMenu();
+        menu.hidden = false;
+        btn.setAttribute('aria-expanded', 'true');
+    } else {
+        hideSortMenu();
+    }
+}
+
+function hideSortMenu() {
+    const menu = document.getElementById('sortMenu');
+    if (!menu) return;
+    menu.hidden = true;
+    document.getElementById('sortMenuBtn').setAttribute('aria-expanded', 'false');
+}
+
+function refreshSortMenu() {
+    const cur = document.getElementById('sortFilter').value;
+    document.querySelectorAll('#sortMenu .sort-menu-item').forEach(b => {
+        b.classList.toggle('active', b.dataset.sort === cur);
+    });
+}
+
+function setSort(value) {
+    document.getElementById('sortFilter').value = value;
+    refreshSortMenu();
+    hideSortMenu();
+    applyFilters();
 }
 
 /* --------------------------------------------------------------------------

@@ -565,13 +565,53 @@ input, select { font-family: inherit; }
 .toolbar-sort .filter-select { width: auto; min-width: 168px; font-size: 0.85rem; padding-top: 0.55rem; padding-bottom: 0.55rem; }
 .btn-toggle-sidebar { display: none; }
 .btn-filters-nav { display: none; }
-.header-sort { display: none; }
-.header-sort .filter-select {
-  width: auto;
-  min-width: 132px;
-  padding: 0.55rem 2rem 0.55rem 0.72rem;
-  font-size: 0.82rem;
+.btn-sort { display: none; }
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem 0.7rem;
 }
+.btn-icon svg { width: 17px; height: 17px; }
+.sort-menu-wrap { position: relative; }
+.sort-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 1200;
+  min-width: 218px;
+  padding: 0.4rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg);
+  animation: sortIn 0.18s var(--ease-out) both;
+}
+@keyframes sortIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: none; }
+}
+.sort-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.62rem 0.75rem;
+  border: none;
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--ink-2);
+  font-size: 0.86rem;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.sort-menu-item svg { width: 15px; height: 15px; color: var(--muted); flex-shrink: 0; }
+.sort-menu-item span { flex: 1; }
+.sort-menu-item .sort-check { flex: 0 0 auto; color: var(--gold); opacity: 0; transition: opacity 0.15s; }
+.sort-menu-item:hover { background: var(--surface-2); color: var(--ink); }
+.sort-menu-item.active { color: var(--ink); font-weight: 600; }
+.sort-menu-item.active .sort-check { opacity: 1; }
 .btn-filters-nav.active {
   border-color: var(--gold);
   color: var(--gold-dark);
@@ -926,7 +966,8 @@ input, select { font-family: inherit; }
   .brand-name { font-size: 1.05rem; }
   .header-meta { display: none; }
   .header-actions { margin-left: auto; gap: 0.5rem; }
-  .header-sort { display: inline-flex; }
+  .btn-sort { display: inline-flex; }
+  .btn-filters-nav .btn-label { display: none; }
   .toolbar-sort { display: none; }
   .btn-export { display: none; }
   .btn-filters-nav { display: inline-flex; }
