@@ -964,6 +964,7 @@ input, select { font-family: inherit; }
   .header-actions { margin-left: auto; gap: 0.5rem; }
   .btn-filters-nav .btn-label { display: none; }
   .btn-export { display: none; }
+  input, select, textarea { font-size: 16px !important; }
   .btn-filters-nav { display: inline-flex; }
   .btn-toggle-sidebar { display: none; }
   .sidebar { display: none; }
