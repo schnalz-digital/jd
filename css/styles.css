@@ -603,7 +603,7 @@ input, select { font-family: inherit; }
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
 }
-.sort-menu-item svg { width: 15px; height: 15px; color: var(--muted); flex-shrink: 0; }
+.sort-menu-item svg { display: none; }
 .sort-menu-item span { flex: 1; }
 .sort-menu-item .sort-check { flex: 0 0 auto; color: var(--gold); opacity: 0; transition: opacity 0.15s; }
 .sort-menu-item:hover { background: var(--surface-2); color: var(--ink); }
