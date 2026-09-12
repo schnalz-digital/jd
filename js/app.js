@@ -22,10 +22,16 @@ function parseUtcIso(value) {
 function imageProxy(url) {
     if (!url) return url;
     try {
+        const host = (url.split('/')[2] || '').toLowerCase();
+        if (host === 'i1.squarefoot.com.hk') return url;
         return 'https://images.weserv.nl/?url=' + encodeURIComponent(url) + '&output=webp&w=800';
     } catch (e) {
         return url;
     }
+}
+
+function firstImage(listing) {
+    return (listing.images || []).find(u => /^https?:\/\//i.test(u));
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -440,8 +446,9 @@ function renderListings() {
 }
 
 function createListingCard(listing, stagger) {
-    const media = listing.images && listing.images.length > 0
-        ? `<img src="${imageProxy(listing.images[0])}" alt="" loading="lazy"
+    const img0 = firstImage(listing);
+    const media = img0
+        ? `<img src="${imageProxy(img0)}" alt="" loading="lazy" referrerpolicy="no-referrer"
                onerror="this.outerHTML='${htmlAttr(placeholderMediaMarkup)}'">`
         : placeholderMediaMarkup;
 
@@ -600,9 +607,9 @@ function openModal(listingId) {
     const modal = document.getElementById('propertyModal');
     const body = document.getElementById('modalBody');
 
-    const hasImg = listing.images && listing.images.length > 0;
-    const hero = hasImg
-        ? `<img src="${imageProxy(listing.images[0])}" alt="${escapeHtml(listing.title)}"
+    const img0 = firstImage(listing);
+    const hero = img0
+        ? `<img src="${imageProxy(img0)}" alt="${escapeHtml(listing.title)}" referrerpolicy="no-referrer"
                onerror="this.closest('.modal-hero').innerHTML='${htmlAttr(placeholderHero())}'">`
         : placeholderHero();
 

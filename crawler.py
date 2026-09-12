@@ -1030,6 +1030,8 @@ def main():
         listing["title"] = strip_region_from_title(listing["title"], listing.get("sub_district"))
         if listing.get("building_name"):
             listing["building_name"] = strip_region_from_title(listing["building_name"], listing.get("sub_district"))
+        if listing.get("images"):
+            listing["images"] = [u for u in listing["images"] if isinstance(u, str) and u.startswith(("http://", "https://"))]
 
     by_source = {}
     by_district = {}
