@@ -133,13 +133,8 @@ function setupEventListeners() {
         });
     });
 
-    document.getElementById('propertyModal').addEventListener('click', (e) => {
-        if (e.target.id === 'propertyModal') closeModal();
-    });
-
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
-            closeModal();
             closeMobileSidebar();
         }
     });
@@ -492,10 +487,10 @@ function createListingCard(listing, stagger) {
     return `
         <div class="card ${listing.is_new ? 'is-new' : ''} ${listing.price_changed ? 'price-changed' : ''}"
              tabindex="0"
-             role="button"
-             aria-label="${escapeHtml(title)}"
-             onclick="openModal('${listing.id}')"
-             onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openModal('${listing.id}')}"
+             role="link"
+             aria-label="${escapeHtml(title)} — open original listing"
+             onclick="openSource('${listing.id}')"
+             onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openSource('${listing.id}')}"
              style="animation-delay:${stagger * 55}ms">
             <div class="card-media">${media}${badgesHtml}${priceHtml}</div>
             <div class="card-body">
@@ -504,7 +499,7 @@ function createListingCard(listing, stagger) {
                 <div class="card-facts">${facts.join('')}</div>
                 <div class="card-foot">
                     <span class="src">${I.src}${SOURCE_LABELS[listing.source] || listing.source}</span>
-                    <span class="view-link">Details${I.arrow}</span>
+                    <span class="view-link">View original${I.arrow}</span>
                 </div>
             </div>
         </div>`;
@@ -598,99 +593,15 @@ function goToPage(page) {
 }
 
 /* --------------------------------------------------------------------------
-   Modal
+   Open original listing
    -------------------------------------------------------------------------- */
-function openModal(listingId) {
+function openSource(listingId) {
     const listing = allListings.find(l => l.id === listingId);
-    if (!listing) return;
-
-    const modal = document.getElementById('propertyModal');
-    const body = document.getElementById('modalBody');
-
-    const img0 = firstImage(listing);
-    const hero = img0
-        ? `<img src="${imageProxy(img0)}" alt="${escapeHtml(listing.title)}" referrerpolicy="no-referrer"
-               onerror="this.closest('.modal-hero').innerHTML='${htmlAttr(placeholderHero())}'">`
-        : placeholderHero();
-
-    const badges = [];
-    if (listing.is_new) badges.push('<span class="badge badge-new">New</span>');
-    if (listing.price_changed) {
-        const up = listing.previous_price && listing.price > listing.previous_price;
-        badges.push(`<span class="badge ${up ? 'badge-up' : 'badge-down'}">${up ? '▲' : '▼'} Price ${up ? 'up' : 'down'}</span>`);
+    if (!listing || !listing.source_url) {
+        showToast('No original listing URL available.', 'error');
+        return;
     }
-    badges.push(`<span class="badge badge-src">${SOURCE_LABELS[listing.source] || listing.source}</span>`);
-
-    const locParts = [listing.sub_district, listing.address, DISTRICT_LABELS[listing.district]]
-        .filter(Boolean);
-
-    const cells = [];
-
-    if (listing.sqft) cells.push(['Size', `${listing.sqft.toLocaleString()} sqft`]);
-    if (listing.price_per_sqft) cells.push(['Price / sqft', `HK$${listing.price_per_sqft.toLocaleString()}`]);
-    if (listing.bedrooms !== null && listing.bedrooms !== undefined)
-        cells.push(['Bedrooms', listing.bedrooms === 0 ? 'Studio' : String(listing.bedrooms)]);
-    if (listing.bathrooms) cells.push(['Bathrooms', String(listing.bathrooms)]);
-    if (listing.floor_level) cells.push(['Floor', listing.floor_level.charAt(0).toUpperCase() + listing.floor_level.slice(1)]);
-    if (listing.property_type) cells.push(['Type', listing.property_type.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase())]);
-    if (listing.building_name) cells.push(['Estate', escapeHtml(listing.building_name)]);
-    if (listing.agent_company) cells.push(['Agency', escapeHtml(listing.agent_company)]);
-
-    const tags = (listing.features || [])
-        .filter((t, i, a) => a.indexOf(t) === i)
-        .slice(0, 10)
-        .map(t => `<span class="tag">${I.award}${escapeHtml(t)}</span>`)
-        .join('');
-
-    body.innerHTML = `
-        <div class="modal-hero">${hero}</div>
-        <div class="modal-head">
-            <div class="modal-badges">${badges.join('')}</div>
-            <h2 class="modal-title">${escapeHtml(resolveTitle(listing))}</h2>
-            ${locParts.length ? `<div class="modal-loc">${I.pin}${escapeHtml(locParts.join(' · '))}</div>` : ''}
-        </div>
-
-        <div class="modal-price-block">
-            <div class="modal-price">${listing.price ? fullPrice(listing.price) : 'On request'}</div>
-            ${listing.price_per_sqft ? `<div class="modal-ppsqft">HK$${listing.price_per_sqft.toLocaleString()} / sqft</div>` : ''}
-        </div>
-
-        <div class="modal-grid">
-            ${cells.map(([label, value]) => `
-                <div class="modal-cell">
-                    <div class="modal-cell-label">${label}</div>
-                    <div class="modal-cell-value">${value}</div>
-                </div>`).join('')}
-        </div>
-
-        ${listing.description && listing.description !== listing.title ? `
-            <p class="modal-desc">${escapeHtml(listing.description)}</p>` : ''}
-
-        ${tags ? `<div class="modal-tags">${tags}</div>` : ''}
-
-        <div class="modal-actions">
-            <a href="${listing.source_url}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
-                View original listing
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
-            </a>
-            ${listing.agent_company ? `
-                <button class="btn btn-outline" onclick="showToast('Listed via ${escapeHtml(listing.agent_company)} — see original listing for contact', 'info')">
-                    ${I.src} ${escapeHtml(listing.agent_company)}
-                </button>` : ''}
-        </div>
-    `;
-
-    modal.classList.add('active');
-    document.body.style.overflow = 'hidden';
-}
-
-function placeholderHero() {
-    return `<div class="modal-hero-placeholder">${I.home}</div>`;
-}
-
-function closeModal() {
-    document.getElementById('propertyModal').classList.remove('active');
-    document.body.style.overflow = '';
+    window.open(listing.source_url, '_blank', 'noopener');
 }
 
 /* --------------------------------------------------------------------------
