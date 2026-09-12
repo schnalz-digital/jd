@@ -565,6 +565,13 @@ input, select { font-family: inherit; }
 .toolbar-sort .filter-select { width: auto; min-width: 168px; font-size: 0.85rem; padding-top: 0.55rem; padding-bottom: 0.55rem; }
 .btn-toggle-sidebar { display: none; }
 .btn-filters-nav { display: none; }
+.header-sort { display: none; }
+.header-sort .filter-select {
+  width: auto;
+  min-width: 132px;
+  padding: 0.55rem 2rem 0.55rem 0.72rem;
+  font-size: 0.82rem;
+}
 .btn-filters-nav.active {
   border-color: var(--gold);
   color: var(--gold-dark);
@@ -919,6 +926,8 @@ input, select { font-family: inherit; }
   .brand-name { font-size: 1.05rem; }
   .header-meta { display: none; }
   .header-actions { margin-left: auto; gap: 0.5rem; }
+  .header-sort { display: inline-flex; }
+  .toolbar-sort { display: none; }
   .btn-export { display: none; }
   .btn-filters-nav { display: inline-flex; }
   .btn-toggle-sidebar { display: none; }

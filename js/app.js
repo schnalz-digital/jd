@@ -122,6 +122,14 @@ function setupEventListeners() {
         }
     }
 
+    const sortMobile = document.getElementById('sortFilterMobile');
+    if (sortMobile) {
+        sortMobile.addEventListener('change', () => {
+            document.getElementById('sortFilter').value = sortMobile.value;
+            applyFilters();
+        });
+    }
+
     document.getElementById('newOnlyFilter').addEventListener('change', applyFilters);
     document.getElementById('sourceFilters').addEventListener('change', applyFilters);
 
@@ -361,6 +369,8 @@ function resetFilters() {
     document.getElementById('maxPrice').value = '';
     document.getElementById('typeFilter').value = '';
     document.getElementById('sortFilter').value = 'date_crawled';
+    const sortMobile = document.getElementById('sortFilterMobile');
+    if (sortMobile) sortMobile.value = 'date_crawled';
     document.getElementById('newOnlyFilter').checked = false;
     document.querySelectorAll('#sourceFilters input').forEach(cb => cb.checked = true);
     document.querySelectorAll('#bedroomFilter .pill').forEach(b => b.classList.toggle('active', b.dataset.value === ''));
