@@ -601,7 +601,7 @@ function openSource(listingId) {
         showToast('No original listing URL available.', 'error');
         return;
     }
-    window.open(listing.source_url, '_blank', 'noopener');
+    window.open(listing.source_url, '_blank', 'noopener,noreferrer');
 }
 
 /* --------------------------------------------------------------------------
