@@ -113,7 +113,7 @@ function setupEventListeners() {
 
     document.getElementById('searchInput').addEventListener('input', () => debounced(applyFilters));
 
-    for (const id of ['districtFilter', 'regionFilter', 'typeFilter', 'sortFilter', 'minPrice', 'maxPrice']) {
+    for (const id of ['districtFilter', 'regionFilter', 'typeFilter', 'minPrice', 'maxPrice']) {
         const el = document.getElementById(id);
         if (id.includes('Price')) {
             el.addEventListener('input', () => debounced(applyFilters));
@@ -154,6 +154,7 @@ function setupEventListeners() {
    -------------------------------------------------------------------------- */
 let autoRefreshTimer = null;
 let lastDataSig = '';
+let currentSort = 'date_crawled';
 
 async function loadListings() {
     try {
@@ -306,7 +307,7 @@ function applyFilters() {
         maxPrice: (parseFloat(document.getElementById('maxPrice').value) || null) * 1000000,
         bedrooms: document.querySelector('#bedroomFilter .pill.active')?.dataset.value || '',
         propertyType: document.getElementById('typeFilter').value,
-        sortBy: document.getElementById('sortFilter').value,
+        sortBy: currentSort,
         newOnly: document.getElementById('newOnlyFilter').checked
     };
 
@@ -369,7 +370,7 @@ function resetFilters() {
     document.getElementById('minPrice').value = '';
     document.getElementById('maxPrice').value = '';
     document.getElementById('typeFilter').value = '';
-    document.getElementById('sortFilter').value = 'date_crawled';
+    currentSort = 'date_crawled';
     refreshSortMenu();
     document.getElementById('newOnlyFilter').checked = false;
     document.querySelectorAll('#sourceFilters input').forEach(cb => cb.checked = true);
@@ -637,14 +638,13 @@ function hideSortMenu() {
 }
 
 function refreshSortMenu() {
-    const cur = document.getElementById('sortFilter').value;
     document.querySelectorAll('#sortMenu .sort-menu-item').forEach(b => {
-        b.classList.toggle('active', b.dataset.sort === cur);
+        b.classList.toggle('active', b.dataset.sort === currentSort);
     });
 }
 
 function setSort(value) {
-    document.getElementById('sortFilter').value = value;
+    currentSort = value;
     refreshSortMenu();
     hideSortMenu();
     applyFilters();
