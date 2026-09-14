@@ -613,11 +613,6 @@ function createListingCard(listing, stagger) {
                     aria-label="${isSaved ? 'Remove from saved' : 'Save listing'}" title="Save">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.5-1.4 3-3.2 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.8 0-3.4 1-4.5 2.5C11 4 9.4 3 7.5 3A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.1 3 5.5l7 7Z"/></svg>
             </button>
-            ${img0 ? `
-            <button class="media-btn media-zoom" onclick="event.stopPropagation();event.preventDefault();openLightbox('${listing.id}')"
-                    aria-label="View photos" title="View photos">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/><path d="M8 11h6"/><path d="M11 8v6"/></svg>
-            </button>` : ''}
         </div>`;
 
     const facts = [];
