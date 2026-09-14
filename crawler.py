@@ -813,6 +813,37 @@ class OkayCrawler:
         }
 
 
+NON_DB_AREAS = [
+    (re.compile(r"wetland season", re.I), "Tin Shui Wai"),
+    (re.compile(r"kingswood villa", re.I), "Tin Shui Wai"),
+    (re.compile(r"lohas park|koko hills|koko mare|koko rosso", re.I), "Tseung Kwan O"),
+    (re.compile(r"pavilia", re.I), "Tai Wai"),
+    (re.compile(r"discovery park", re.I), "Tsuen Wan"),
+    (re.compile(r"caribbean coast|ocean pride|providence bay|symphony bay|villa esplanada|coastal skyline|sunshine city|greenfield garden", re.I), "Ma On Shan"),
+    (re.compile(r"park central", re.I), "Mong Kok"),
+    (re.compile(r"banyan garden|grand victoria|\bin one\b", re.I), "Cheung Sha Wan"),
+    (re.compile(r"residence bel-a?ir", re.I), "Pok Fu Lam"),
+    (re.compile(r"repulse bay|hong kong garden", re.I), "Repulse Bay"),
+    (re.compile(r"gold coast bay|fontana gardens|montego bay|regency bay", re.I), "Gold Coast"),
+    (re.compile(r"deep bay grove", re.I), "Deep Bay"),
+    (re.compile(r"the visionary", re.I), "Tai Po"),
+    (re.compile(r"laguna verde|ocean shores", re.I), "Ma Wan"),
+]
+
+
+def enforce_non_db_areas(listing: Dict) -> None:
+    """Hard-safety-net: re-tag well-known non-DB developments that creep in
+    via Centaline's contaminated 'Discovery Bay' feed (their detail pages
+    may lack a breadcrumb, or the breadcrumb fetch fails)."""
+    text = f"{listing.get('title') or ''} {listing.get('building_name') or ''}"
+    for pattern, area in NON_DB_AREAS:
+        if pattern.search(text):
+            if (listing.get("sub_district") or "") != area:
+                listing["sub_district"] = area
+                listing["district"] = detect_district(f"{area} {listing.get('title', '')}") or "new_territories"
+            return
+
+
 class CentalineCrawler:
     """Centaline (hk.centanet.com) Discovery Bay listings. No bot protection; SSR Nuxt page."""
 
@@ -1139,6 +1170,7 @@ def main():
             listing["building_name"] = strip_region_from_title(listing["building_name"], listing.get("sub_district"))
         if listing.get("images"):
             listing["images"] = [u for u in listing["images"] if isinstance(u, str) and u.startswith(("http://", "https://"))]
+        enforce_non_db_areas(listing)
 
     by_source = {}
     by_district = {}
