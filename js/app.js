@@ -588,6 +588,7 @@ function createListingCard(listing, stagger) {
     const img0 = firstImage(listing);
     const media = img0
         ? `<img src="${imageProxy(img0)}" alt="" loading="lazy" referrerpolicy="no-referrer"
+               onload="this.classList.add('loaded')"
                onclick="event.stopPropagation();event.preventDefault();openLightbox('${listing.id}')"
                onerror="this.outerHTML='${htmlAttr(placeholderMediaMarkup)}'">`
         : placeholderMediaMarkup;

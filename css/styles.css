@@ -72,7 +72,9 @@
   border-bottom-color: var(--line);
 }
 [data-theme='dark'] .card-media {
-  background: linear-gradient(135deg, #2c271f, #221e18);
+  background: linear-gradient(100deg, #2c271f 30%, #3a3325 50%, #2c271f 70%);
+  background-size: 240% 100%;
+  animation: media-shimmer 1.5s linear infinite;
 }
 [data-theme='dark'] .card-media-placeholder {
   background:
@@ -699,16 +701,25 @@ input, select { font-family: inherit; }
   position: relative;
   aspect-ratio: 16 / 10;
   overflow: hidden;
-  background: linear-gradient(135deg, #e4ddd0, #d6cebf);
+  background: linear-gradient(100deg, #e6decf 30%, #f4eee0 50%, #e6decf 70%);
+  background-size: 240% 100%;
+  animation: media-shimmer 1.5s linear infinite;
+}
+@keyframes media-shimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
 }
 .card-media img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   cursor: zoom-in;
-  transition: transform 0.7s var(--ease-out);
+  opacity: 0;
+  transition: opacity 0.55s ease, transform 0.7s var(--ease-out);
 }
+.card-media img.loaded { opacity: 1; }
 .card:hover .card-media img { transform: scale(1.06); }
+@media (prefers-reduced-motion: reduce) { .card-media { animation: none; } }
 
 .card-media::after {
   content: '';
