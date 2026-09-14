@@ -10,7 +10,7 @@ import hashlib
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Tuple
 
 import httpx
 from bs4 import BeautifulSoup
@@ -816,6 +816,15 @@ class OkayCrawler:
 class CentalineCrawler:
     """Centaline (hk.centanet.com) Discovery Bay listings. No bot protection; SSR Nuxt page."""
 
+    @staticmethod
+    def _crumb_label(crumb: str) -> str:
+        """Turn a Centaline breadcrumb slug into a display name.
+
+        'Tin-Shui-Wai_19-HMA031' -> 'Tin Shui Wai'
+        """
+        slug = crumb.split("_", 1)[0]
+        return re.sub(r"-+", " ", slug).strip()
+
     def __init__(self):
         self.session = cffi.Session(impersonate="chrome124", timeout=25)
         self.total_results = 0
@@ -920,9 +929,19 @@ class CentalineCrawler:
         full_url = f"https://hk.centanet.com{href}" if href.startswith("/") else href
         display_title = title if title != "Discovery Bay" else f"Discovery Bay - {section}"
 
-        images = []
-        if full_url:
-            images = self._fetch_og_image(full_url)
+        images, crumbs = self._fetch_detail(full_url)
+
+        if not crumbs:
+            sub_district_name = "Discovery Bay"
+        elif any("discovery" in c.lower() for c in crumbs):
+            sub_district_name = "Discovery Bay"
+        elif len(crumbs) >= 3:
+            sub_district_name = self._crumb_label(crumbs[-3])
+        else:
+            sub_district_name = None
+
+        if sub_district_name:
+            district = detect_district(f"{sub_district_name} {title} {sub}".lower()) or "new_territories"
 
         return {
             "id": generate_id(full_url),
@@ -931,8 +950,8 @@ class CentalineCrawler:
             "currency": "HKD",
             "transaction_type": section,
             "district": district,
-            "sub_district": "Discovery Bay",
-            "address": f"{title}, Discovery Bay",
+            "sub_district": sub_district_name,
+            "address": f"{title}, {sub_district_name}" if sub_district_name else title,
             "bedrooms": bedrooms,
             "sqft": sqft,
             "price_per_sqft": price_per_sqft,
@@ -952,7 +971,16 @@ class CentalineCrawler:
             "previous_price": None,
         }
 
-    def _fetch_og_image(self, url: str) -> List[str]:
+    def _fetch_detail(self, url: str) -> Tuple[List[str], List[str]]:
+        """Centaline detail page: returns (og:images, breadcrumb path slugs).
+
+        The breadcrumb encodes the location chain, e.g.
+          "New Territories West_4-NW", "Discovery Bay | Islands_23-WS055",
+          "Discovery Bay_19-HMA125", "Discovery Bay_3-LIDHTHXXHT",
+          "Discovery Bay-Phase 15 Positano_2-..."
+        A listing actually IN Discovery Bay always has "Discovery Bay" in the
+        chain; anything else (e.g. a Wetland Seasons Bay unit) does not, and we
+        use the district-level crumb to re-tag it with its real area."""
         for attempt in (1, 2):
             try:
                 response = self.session.get(url)
@@ -961,20 +989,21 @@ class CentalineCrawler:
             if not response or response.status_code != 200:
                 time.sleep(1.5)
                 continue
+            html = response.text
             m = re.findall(
                 r'<meta[^>]+property=["\']og:image["\'][^>]+content=["\']([^"\']+)["\']',
-                response.text,
+                html,
             )
             if not m:
                 m = re.findall(
                     r'<meta[^>]+content=["\']([^"\']+)["\'][^>]*property=["\']og:image["\']',
-                    response.text,
+                    html,
                 )
             candidates = [u for u in m if "/_nuxt/" not in u]
-            if candidates:
-                return [candidates[-1]]
-            break
-        return []
+            images = [candidates[-1]] if candidates else []
+            crumbs = re.findall(r'path:"([^"]+)"', html)
+            return images, crumbs
+        return [], []
 
 
 
