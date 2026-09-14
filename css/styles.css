@@ -1088,12 +1088,15 @@ input, select { font-family: inherit; }
   position: fixed;
   inset: 0;
   z-index: 4000;
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   background: rgba(10, 9, 7, 0.94);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
+}
+.lightbox.open {
+  display: flex;
   animation: lbIn 0.25s var(--ease-out) both;
 }
 @keyframes lbIn {

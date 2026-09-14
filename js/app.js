@@ -839,7 +839,7 @@ function openLightbox(listingId) {
     lightboxIndex = 0;
     lightboxItems.sort((a, b) => (a.split('/')[2] === 'i1.squarefoot.com.hk' ? 1 : 0) - (b.split('/')[2] === 'i1.squarefoot.com.hk' ? 1 : 0));
     showLightboxImage();
-    document.getElementById('lightbox').hidden = false;
+    document.getElementById('lightbox').classList.add('open');
     document.body.style.overflow = 'hidden';
 }
 
@@ -855,15 +855,15 @@ function showLightboxImage() {
 
 function lightboxStep(delta) {
     const lb = document.getElementById('lightbox');
-    if (!lb || lb.hidden || lightboxItems.length < 2) return;
+    if (!lb.classList.contains('open') || lightboxItems.length < 2) return;
     lightboxIndex = (lightboxIndex + delta + lightboxItems.length) % lightboxItems.length;
     showLightboxImage();
 }
 
 function closeLightbox() {
     const lb = document.getElementById('lightbox');
-    if (!lb || lb.hidden) return;
-    lb.hidden = true;
+    if (!lb.classList.contains('open')) return;
+    lb.classList.remove('open');
     document.body.style.overflow = '';
 }
 
