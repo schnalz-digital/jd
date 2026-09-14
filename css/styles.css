@@ -687,7 +687,6 @@ input, select { font-family: inherit; }
   border-color: var(--gold-line);
 }
 .card:focus-visible { outline: 3px solid rgba(183, 139, 62, 0.5); outline-offset: 2px; }
-.card.is-new { border-top: 3px solid var(--green); }
 .card.price-changed { border-top: 3px solid var(--gold); }
 
 @keyframes cardIn {
@@ -754,7 +753,6 @@ input, select { font-family: inherit; }
   -webkit-backdrop-filter: blur(8px);
 }
 .badge svg { width: 10px; height: 10px; }
-.badge-new { background: rgba(36, 114, 74, 0.92); color: #fff; }
 .badge-up { background: rgba(176, 64, 44, 0.92); color: #fff; }
 .badge-down { background: rgba(36, 114, 74, 0.92); color: #fff; }
 .badge-src {

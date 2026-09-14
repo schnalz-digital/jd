@@ -591,9 +591,7 @@ function createListingCard(listing, stagger) {
                onerror="this.outerHTML='${htmlAttr(placeholderMediaMarkup)}'">`
         : placeholderMediaMarkup;
 
-    const isFresh = isListingFresh(listing);
     const badges = [];
-    if (isFresh) badges.push('<span class="badge badge-new">New</span>');
     if (listing.price_changed) {
         const up = listing.previous_price && listing.price > listing.previous_price;
         badges.push(`<span class="badge ${up ? 'badge-up' : 'badge-down'}">
@@ -646,7 +644,7 @@ function createListingCard(listing, stagger) {
     const title = resolveTitle(listing);
 
     return `
-        <div class="card ${isFresh ? 'is-new' : ''} ${listing.price_changed ? 'price-changed' : ''}"
+        <div class="card ${listing.price_changed ? 'price-changed' : ''}"
              tabindex="0"
              role="link"
              aria-label="${escapeHtml(title)} — open original listing"
@@ -671,13 +669,6 @@ function createListingCard(listing, stagger) {
                 </div>
             </div>
         </div>`;
-}
-
-function isListingFresh(listing) {
-    if (listing.is_new) return true;
-    const fs = parseUtcIso(listing.first_seen || listing.date_crawled);
-    if (!fs) return false;
-    return (Date.now() - fs.getTime()) < 48 * 3600 * 1000;
 }
 
 function agoText(date) {
