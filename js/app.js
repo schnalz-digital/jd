@@ -11,20 +11,17 @@ let debounceTimer = null;
 
 const sessionKey = 'hk_property_unlocked';
 const FAV_REGION_KEY = 'fav_region';
+const FAV_KEY = 'fav_listings';
+let favOnly = false;
+let lastCrawlTime = null;
+let dupOthers = {};
 
-function parseUtcIso(value) {
-    if (!value) return null;
-    let s = String(value);
-    if (!/[zZ]|[+-]\d{2}:\d{2}$/.test(s)) s += 'Z';
-    return new Date(s);
-}
-
-function imageProxy(url) {
+function imageProxy(url, width = 800) {
     if (!url) return url;
     try {
         const host = (url.split('/')[2] || '').toLowerCase();
         if (host === 'i1.squarefoot.com.hk') return url;
-        return 'https://images.weserv.nl/?url=' + encodeURIComponent(url) + '&output=webp&w=800';
+        return 'https://images.weserv.nl/?url=' + encodeURIComponent(url) + '&output=webp&w=' + width;
     } catch (e) {
         return url;
     }
@@ -34,7 +31,18 @@ function firstImage(listing) {
     return (listing.images || []).find(u => /^https?:\/\//i.test(u));
 }
 
+function parseUtcIso(value) {
+    if (!value) return null;
+    let s = String(value);
+    if (!/[zZ]|[+-]\d{2}:\d{2}$/.test(s)) s += 'Z';
+    return new Date(s);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    syncThemeIcon();
+    if ('serviceWorker' in navigator && location.protocol === 'https:') {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
     if (sessionStorage.getItem(sessionKey) === '1') {
         unlockSite();
     }
@@ -103,6 +111,53 @@ const DISTRICT_LABELS = {
 };
 
 /* --------------------------------------------------------------------------
+   Favorites
+   -------------------------------------------------------------------------- */
+function getFavs() {
+    try { return JSON.parse(localStorage.getItem(FAV_KEY)) || []; } catch (e) { return []; }
+}
+
+function isFav(id) {
+    return getFavs().includes(id);
+}
+
+function toggleFavorite(id, btn) {
+    let favs = getFavs();
+    const on = favs.includes(id);
+    favs = on ? favs.filter(x => x !== id) : favs.concat(id);
+    localStorage.setItem(FAV_KEY, JSON.stringify(favs));
+    if (btn) btn.classList.toggle('active', !on);
+    syncChipActive();
+    if (on && favOnly) applyFilters();
+    showToast(on ? 'Removed from saved.' : 'Saved — tap the star again to remove.', on ? 'info' : 'success');
+}
+
+/* --------------------------------------------------------------------------
+   Duplicate detection across sources
+   -------------------------------------------------------------------------- */
+function buildDupIndex() {
+    dupOthers = {};
+    const map = new Map();
+    for (const l of allListings) {
+        const building = (l.building_name || '').toLowerCase().replace(/\s+/g, ' ').trim();
+        if (building.length < 3) continue;
+        const key = [
+            l.transaction_type, l.district, (l.sub_district || '').toLowerCase().trim(),
+            l.bedrooms ?? '', Math.round(l.sqft) || 0, building
+        ].join('|');
+        if (!map.has(key)) map.set(key, []);
+        map.get(key).push(l);
+    }
+    for (const group of map.values()) {
+        const srcs = [...new Set(group.map(l => l.source))];
+        if (srcs.length < 2) continue;
+        for (const l of group) {
+            dupOthers[l.id] = srcs.filter(s => s !== l.source);
+        }
+    }
+}
+
+/* --------------------------------------------------------------------------
    Events (live filtering)
    -------------------------------------------------------------------------- */
 function setupEventListeners() {
@@ -144,8 +199,11 @@ function setupEventListeners() {
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             hideSortMenu();
+            closeLightbox();
             closeMobileSidebar();
         }
+        if (e.key === 'ArrowLeft') lightboxStep(-1);
+        if (e.key === 'ArrowRight') lightboxStep(1);
     });
 }
 
@@ -165,8 +223,11 @@ async function loadListings() {
         allListings = data.listings || [];
 
         lastDataSig = dataSig(data);
+        lastCrawlTime = data.last_crawl ? new Date(parseUtcIso(data.last_crawl)) : null;
+        buildDupIndex();
         updateStatsHeader(data);
         populateRegions();
+        renderRegionChips();
         applyFilters();
         startAutoRefresh();
     } catch (error) {
@@ -197,7 +258,11 @@ function startAutoRefresh() {
             if (sig === lastDataSig) return;
             lastDataSig = sig;
             allListings = data.listings || [];
+            lastCrawlTime = data.last_crawl ? new Date(parseUtcIso(data.last_crawl)) : null;
+            buildDupIndex();
             updateStatsHeader(data);
+            populateRegions();
+            renderRegionChips();
             applyFilters();
             showToast('Listings refreshed automatically.', 'info');
         } catch (error) {
@@ -295,6 +360,68 @@ function toggleFavouriteRegion() {
 }
 
 /* --------------------------------------------------------------------------
+   Quick chips (regions, saved, new)
+   -------------------------------------------------------------------------- */
+function renderRegionChips() {
+    const box = document.getElementById('regionChips');
+    if (!box) return;
+    const byRegion = {};
+    for (const l of allListings) {
+        const r = (l.sub_district || '').trim();
+        if (r) byRegion[r] = (byRegion[r] || 0) + 1;
+    }
+    const top = Object.entries(byRegion)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .map(([region]) => region);
+
+    let html = '<button class="chip" data-region="" onclick="pickRegion(this)">All</button>';
+    for (const r of top) {
+        html += `<button class="chip" data-region="${escapeHtml(r.toLowerCase())}" onclick="pickRegion(this)">${escapeHtml(r)}<span class="chip-count">${byRegion[r].toLocaleString()}</span></button>`;
+    }
+    html += '<button class="chip chip-toggle" id="chipFav" onclick="toggleFavOnly()">Saved<span class="chip-count" id="chipFavCount"></span></button>';
+    html += '<button class="chip chip-toggle" id="chipNew" onclick="toggleNewOnly()">New today</button>';
+    box.innerHTML = html;
+    syncChipActive();
+}
+
+function syncChipActive() {
+    document.querySelectorAll('#regionChips .chip[data-region]').forEach(b => {
+        b.classList.toggle('active', b.dataset.region === document.getElementById('regionFilter').value);
+    });
+    const chipFav = document.getElementById('chipFav');
+    if (chipFav) chipFav.classList.toggle('active', favOnly);
+    const chipNew = document.getElementById('chipNew');
+    if (chipNew) chipNew.classList.toggle('active', document.getElementById('newOnlyFilter').checked);
+    const favCount = document.getElementById('chipFavCount');
+    if (favCount) favCount.textContent = countFavs();
+}
+
+function countFavs() {
+    const favs = getFavs();
+    if (favs.length === 0) return 0;
+    const ids = new Set(allListings.map(l => l.id));
+    return favs.filter(id => ids.has(id)).length;
+}
+
+function pickRegion(btn) {
+    document.getElementById('regionFilter').value = btn.dataset.region;
+    applyFilters();
+}
+
+function toggleFavOnly() {
+    favOnly = !favOnly;
+    applyFilters();
+    showToast(favOnly ? 'Showing saved listings only.' : 'Showing all listings.', 'info');
+}
+
+function toggleNewOnly() {
+    const cb = document.getElementById('newOnlyFilter');
+    cb.checked = !cb.checked;
+    applyFilters();
+}
+
+/* --------------------------------------------------------------------------
    Filtering / sorting
    -------------------------------------------------------------------------- */
 function applyFilters() {
@@ -308,11 +435,13 @@ function applyFilters() {
         bedrooms: document.querySelector('#bedroomFilter .pill.active')?.dataset.value || '',
         propertyType: document.getElementById('typeFilter').value,
         sortBy: currentSort,
-        newOnly: document.getElementById('newOnlyFilter').checked
+        newOnly: document.getElementById('newOnlyFilter').checked,
+        favOnly: favOnly
     };
 
     filteredListings = allListings.filter(listing => {
         if (!currentFilters.sources.includes(listing.source)) return false;
+        if (currentFilters.favOnly && !isFav(listing.id)) return false;
         if (currentFilters.district && listing.district !== currentFilters.district) return false;
         if (currentFilters.region && (listing.sub_district || '').trim().toLowerCase() !== currentFilters.region) return false;
         if (currentFilters.minPrice && listing.price && listing.price < currentFilters.minPrice) return false;
@@ -373,9 +502,11 @@ function resetFilters() {
     currentSort = 'date_crawled';
     refreshSortMenu();
     document.getElementById('newOnlyFilter').checked = false;
+    favOnly = false;
     document.querySelectorAll('#sourceFilters input').forEach(cb => cb.checked = true);
     document.querySelectorAll('#bedroomFilter .pill').forEach(b => b.classList.toggle('active', b.dataset.value === ''));
     applyFilters();
+    syncChipActive();
 }
 
 function toggleSidebar() {
@@ -425,12 +556,14 @@ function renderListings() {
     const pageListings = filteredListings.slice(start, end);
 
     const countEl = document.getElementById('resultsCount');
+    const updated = lastCrawlTime ? agoText(lastCrawlTime) : '';
+    const updatedHtml = updated ? `<span class="toolbar-updated">· updated ${updated}</span>` : '';
     if (filteredListings.length === 0) {
-        countEl.innerHTML = '<strong>0</strong> properties';
+        countEl.innerHTML = `<strong>0</strong> properties ${updatedHtml}`;
     } else if (currentPage === 1 && end >= filteredListings.length) {
-        countEl.innerHTML = `<strong>${filteredListings.length.toLocaleString()}</strong> properties`;
+        countEl.innerHTML = `<strong>${filteredListings.length.toLocaleString()}</strong> properties ${updatedHtml}`;
     } else {
-        countEl.innerHTML = `<strong>${start + 1}–${end}</strong> of <strong>${filteredListings.length.toLocaleString()}</strong> properties`;
+        countEl.innerHTML = `<strong>${start + 1}–${end}</strong> of <strong>${filteredListings.length.toLocaleString()}</strong> properties ${updatedHtml}`;
     }
 
     if (pageListings.length === 0) {
@@ -458,8 +591,9 @@ function createListingCard(listing, stagger) {
                onerror="this.outerHTML='${htmlAttr(placeholderMediaMarkup)}'">`
         : placeholderMediaMarkup;
 
+    const isFresh = isListingFresh(listing);
     const badges = [];
-    if (listing.is_new) badges.push('<span class="badge badge-new">New</span>');
+    if (isFresh) badges.push('<span class="badge badge-new">New</span>');
     if (listing.price_changed) {
         const up = listing.previous_price && listing.price > listing.previous_price;
         badges.push(`<span class="badge ${up ? 'badge-up' : 'badge-down'}">
@@ -471,6 +605,21 @@ function createListingCard(listing, stagger) {
 
     const priceHtml = listing.price ? priceOverlayHtml(listing) : `
         <div class="price-overlay"><span class="price" style="font-size:1.05rem">On request</span></div>`;
+
+    const isSaved = isFav(listing.id);
+    const mediaActions = `
+        <div class="media-actions">
+            <button class="media-btn fav-star ${isSaved ? 'active' : ''}"
+                    onclick="event.stopPropagation();event.preventDefault();toggleFavorite('${listing.id}', this)"
+                    aria-label="${isSaved ? 'Remove from saved' : 'Save listing'}" title="Save">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.5-1.4 3-3.2 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.8 0-3.4 1-4.5 2.5C11 4 9.4 3 7.5 3A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.1 3 5.5l7 7Z"/></svg>
+            </button>
+            ${img0 ? `
+            <button class="media-btn media-zoom" onclick="event.stopPropagation();event.preventDefault();openLightbox('${listing.id}')"
+                    aria-label="View photos" title="View photos">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/><path d="M8 11h6"/><path d="M11 8v6"/></svg>
+            </button>` : ''}
+        </div>`;
 
     const facts = [];
     if (listing.bedrooms !== null && listing.bedrooms !== undefined) {
@@ -489,31 +638,54 @@ function createListingCard(listing, stagger) {
         ? `<div class="card-loc">${I.pin}${locParts.join(' · ')}</div>`
         : '<div class="card-loc" style="opacity:0.35">Location unavailable</div>';
 
+    const others = dupOthers[listing.id] || [];
+    const alsoOn = others.length
+        ? `<span class="also-on">Also on ${others.slice(0, 3).map(s => `<b>${escapeHtml(SOURCE_LABELS[s] || s)}</b>`).join(', ')}${others.length > 3 ? ` +${others.length - 3}` : ''}</span>`
+        : '';
+
     const title = resolveTitle(listing);
 
-    const posted = listing.date_posted
-        ? listing.date_posted
-        : (listing.date_crawled ? new Date(listing.date_crawled).toLocaleDateString() : '');
-
     return `
-        <div class="card ${listing.is_new ? 'is-new' : ''} ${listing.price_changed ? 'price-changed' : ''}"
+        <div class="card ${isFresh ? 'is-new' : ''} ${listing.price_changed ? 'price-changed' : ''}"
              tabindex="0"
              role="link"
              aria-label="${escapeHtml(title)} — open original listing"
              onclick="openSource('${listing.id}')"
              onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openSource('${listing.id}')}"
              style="animation-delay:${stagger * 55}ms">
-            <div class="card-media">${media}${badgesHtml}${priceHtml}</div>
+            <div class="card-media">${media}${mediaActions}${badgesHtml}${priceHtml}</div>
             <div class="card-body">
                 <h3 class="card-title">${escapeHtml(title)}</h3>
                 ${loc}
                 <div class="card-facts">${facts.join('')}</div>
+                ${alsoOn ? `<div class="also-row">${alsoOn}</div>` : ''}
                 <div class="card-foot">
                     <span class="src">${I.src}${SOURCE_LABELS[listing.source] || listing.source}</span>
-                    <span class="view-link">View original${I.arrow}</span>
+                    <span class="foot-right">
+                        <button class="icon-btn share-btn" title="Share" aria-label="Share"
+                                onclick="event.stopPropagation();event.preventDefault();shareListing('${listing.id}')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg>
+                        </button>
+                        <span class="view-link">View original${I.arrow}</span>
+                    </span>
                 </div>
             </div>
         </div>`;
+}
+
+function isListingFresh(listing) {
+    if (listing.is_new) return true;
+    const fs = parseUtcIso(listing.first_seen || listing.date_crawled);
+    if (!fs) return false;
+    return (Date.now() - fs.getTime()) < 48 * 3600 * 1000;
+}
+
+function agoText(date) {
+    const mins = Math.floor((Date.now() - date.getTime()) / 60000);
+    if (mins < 1) return 'just now';
+    if (mins < 60) return `${mins}m ago`;
+    if (mins < 1440) return `${Math.floor(mins / 60)}h ago`;
+    return date.toLocaleDateString();
 }
 
 const placeholderMediaMarkup = `<div class="card-media-placeholder">${I.home}</div>`;
@@ -648,6 +820,84 @@ function setSort(value) {
     refreshSortMenu();
     hideSortMenu();
     applyFilters();
+}
+
+/* --------------------------------------------------------------------------
+   Lightbox
+   -------------------------------------------------------------------------- */
+let lightboxItems = [];
+let lightboxIndex = 0;
+
+function openLightbox(listingId) {
+    const listing = allListings.find(l => l.id === listingId);
+    if (!listing) return;
+    lightboxItems = (listing.images || []).filter(u => /^https?:\/\//i.test(u));
+    if (lightboxItems.length === 0) {
+        showToast('No photos available for this listing.', 'error');
+        return;
+    }
+    lightboxIndex = 0;
+    lightboxItems.sort((a, b) => (a.split('/')[2] === 'i1.squarefoot.com.hk' ? 1 : 0) - (b.split('/')[2] === 'i1.squarefoot.com.hk' ? 1 : 0));
+    showLightboxImage();
+    document.getElementById('lightbox').hidden = false;
+    document.body.style.overflow = 'hidden';
+}
+
+function showLightboxImage() {
+    const img = document.getElementById('lightboxImg');
+    const caption = document.getElementById('lightboxCaption');
+    img.onerror = () => { caption.textContent = 'Image failed to load.'; };
+    img.src = imageProxy(lightboxItems[lightboxIndex], 1400);
+    caption.textContent = `${lightboxIndex + 1} / ${lightboxItems.length}`;
+    document.getElementById('lightboxPrev').hidden = lightboxItems.length < 2;
+    document.getElementById('lightboxNext').hidden = lightboxItems.length < 2;
+}
+
+function lightboxStep(delta) {
+    const lb = document.getElementById('lightbox');
+    if (!lb || lb.hidden || lightboxItems.length < 2) return;
+    lightboxIndex = (lightboxIndex + delta + lightboxItems.length) % lightboxItems.length;
+    showLightboxImage();
+}
+
+function closeLightbox() {
+    const lb = document.getElementById('lightbox');
+    if (!lb || lb.hidden) return;
+    lb.hidden = true;
+    document.body.style.overflow = '';
+}
+
+/* --------------------------------------------------------------------------
+   Share
+   -------------------------------------------------------------------------- */
+function shareListing(listingId) {
+    const listing = allListings.find(l => l.id === listingId);
+    if (!listing) return;
+    const text = `${resolveTitle(listing)} — ${listing.price ? fullPrice(listing.price) : 'On request'} · ${SOURCE_LABELS[listing.source] || listing.source}`;
+    if (navigator.share) {
+        navigator.share({ title: text, url: listing.source_url }).catch(() => {});
+    } else {
+        window.open('https://wa.me/?text=' + encodeURIComponent(text + ' ' + listing.source_url), '_blank', 'noopener,noreferrer');
+    }
+}
+
+/* --------------------------------------------------------------------------
+   Theme
+   -------------------------------------------------------------------------- */
+function toggleTheme() {
+    const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    document.documentElement.setAttribute('data-theme', dark ? '' : 'dark');
+    localStorage.setItem('theme', dark ? '' : 'dark');
+    syncThemeIcon();
+}
+
+function syncThemeIcon() {
+    const moon = document.getElementById('themeIconMoon');
+    const sun = document.getElementById('themeIconSun');
+    if (!moon || !sun) return;
+    const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    moon.hidden = dark;
+    sun.hidden = !dark;
 }
 
 /* --------------------------------------------------------------------------

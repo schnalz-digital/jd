@@ -536,6 +536,8 @@ class PropertyHkCrawler:
 
         img = tr.select_one("img.media-object.image")
         images = [img["src"]] if img and img.get("src") else []
+        if not images and full_url:
+            images = self._fetch_og_image(full_url)
 
         district = None
         sub_district = None
@@ -629,6 +631,24 @@ class PropertyHkCrawler:
             "price_changed": False,
             "previous_price": None,
         }
+
+    def _fetch_og_image(self, url: str) -> List[str]:
+        soup = self.fetch(url)
+        if not soup:
+            return []
+        html = str(soup)
+        patterns = [
+            r'<meta[^>]+property=["\'](?:og:image|og:image:secure_url|og:image:image|twitter:image)["\'][^>]+content=["\']([^"\']+)["\']',
+            r'<meta[^>]+content=["\']([^"\']+)["\'][^>]*property=["\'](?:og:image|og:image:secure_url|og:image:image|twitter:image)["\']',
+        ]
+        for pattern in patterns:
+            m = re.findall(pattern, html)
+            if m:
+                return [m[0]]
+        jld = re.findall(r'"image"\s*:\s*"([^"]+)"', html)
+        if jld:
+            return [jld[0]]
+        return []
 
 
 def parse_num(text: Optional[str]) -> Optional[float]:
@@ -773,6 +793,7 @@ class OkayCrawler:
             "sub_district": sub_district,
             "address": f"{street}, {sub_district}".strip(", ") if street else sub_district,
             "bedrooms": bedrooms,
+            "bathrooms": bathrooms,
             "sqft": sqft,
             "price_per_sqft": price_per_sqft,
             "property_type": "apartment",
@@ -822,23 +843,33 @@ class CentalineCrawler:
             ("buy", "https://hk.centanet.com/findproperty/en/list/buy/Discovery-Bay_3-LIDHTHXXHT"),
             ("rent", "https://hk.centanet.com/findproperty/en/list/rent/Discovery-Bay_3-LIDHTHXXHT"),
         ]
-        for section, url in areas:
+        for section, base_url in areas:
             print(f"  Crawling Centaline {section} (Discovery Bay)...")
-            soup = self.fetch(url)
-            if not soup:
-                continue
-            cards = soup.select("div.list")
-            n = 0
-            for card in cards:
-                a = card.select_one('a[href*="/findproperty/en/detail/"]')
-                if not a:
-                    continue
-                listing = self._parse_card(card, a, section)
-                if listing:
-                    listings.append(listing)
-                    n += 1
-            print(f"    {url}: {n} items")
-            time.sleep(1.2)
+            seen = set()
+            for page in range(1, 16):
+                url = base_url if page == 1 else f"{base_url}-{page}"
+                soup = self.fetch(url)
+                if not soup:
+                    break
+                cards = soup.select("div.list")
+                n = 0
+                newn = 0
+                for card in cards:
+                    a = card.select_one('a[href*="/findproperty/en/detail/"]')
+                    if not a:
+                        continue
+                    listing = self._parse_card(card, a, section)
+                    if listing:
+                        listings.append(listing)
+                        if listing["id"] not in seen:
+                            seen.add(listing["id"])
+                            newn += 1
+                        n += 1
+                print(f"    page {page}: {n} items ({newn} new)")
+                time.sleep(1.2)
+                if page > 1 and newn == 0:
+                    break
+            print(f"    Centaline {section} total: {len(seen)} unique")
         return listings
 
     def _parse_card(self, card, a, section: str) -> Optional[Dict]:
@@ -958,6 +989,16 @@ def load_existing_listings() -> Dict[str, Dict]:
     return {}
 
 
+def load_previous_stats() -> Dict:
+    if OUTPUT_FILE.exists():
+        try:
+            with open(OUTPUT_FILE, "r", encoding="utf-8") as f:
+                return json.load(f).get("stats", {}) or {}
+        except (json.JSONDecodeError, KeyError):
+            pass
+    return {}
+
+
 def save_listings(listings: List[Dict], stats: Dict):
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         json.dump({
@@ -996,12 +1037,48 @@ def merge_listings(existing: Dict[str, Dict], new_listings: List[Dict]) -> List[
         lid = listing["id"]
         if lid in existing:
             old = existing[lid]
+            listing["first_seen"] = old.get("first_seen") or old.get("date_crawled") or listing["date_crawled"]
             if old.get("price") and listing.get("price") and old["price"] != listing["price"]:
                 listing["price_changed"] = True
                 listing["previous_price"] = old["price"]
             listing["is_new"] = False
+        else:
+            listing["first_seen"] = listing["date_crawled"]
         existing[lid] = listing
     return list(existing.values())
+
+
+def fresh_counts(listings: List[Dict]) -> Dict[str, int]:
+    counts = {}
+    seen = set()
+    for listing in listings:
+        lid = listing.get("id")
+        if lid in seen:
+            continue
+        seen.add(lid)
+        source = listing.get("source", "unknown")
+        counts[source] = counts.get(source, 0) + 1
+    return counts
+
+
+def validate_source_counts(fresh: Dict[str, int], previous: Dict[str, int]) -> int:
+    """Warn and return a non-zero exit code when a source's fresh count drops
+    sharply versus the last crawl (transient blocks, broken selectors...)."""
+    problems = []
+    for source, prev in (previous or {}).items():
+        if prev <= 0:
+            continue
+        current = fresh.get(source, 0)
+        if current == 0:
+            problems.append(f"Source '{source}' returned ZERO fresh listings (was {prev}).")
+        elif current < prev * 0.5:
+            problems.append(f"Source '{source}' dropped to {current} fresh listings (was {prev}).")
+    for problem in problems:
+        print(f"  [VALIDATION] {problem}")
+    if problems:
+        print("  [VALIDATION] Source counts degraded — marking run as failed.")
+        return 1
+    return 0
 
 
 def main():
@@ -1012,6 +1089,7 @@ def main():
     print()
 
     existing = load_existing_listings()
+    previous_stats = load_previous_stats()
     print(f"Existing listings: {len(existing)}")
     print()
 
@@ -1047,6 +1125,7 @@ def main():
         "by_district": by_district,
         "new_this_crawl": len(all_listings),
         "last_crawl": datetime.now(timezone.utc).isoformat(),
+        "last_fresh_by_source": fresh_counts(all_listings),
     }
 
     save_listings(merged, stats)
@@ -1060,7 +1139,16 @@ def main():
     print(f"New this crawl: {stats['new_this_crawl']}")
     print(f"By source: {stats['by_source']}")
     print(f"By district: {stats['by_district']}")
+    print()
+
+    exit_code = validate_source_counts(stats["last_fresh_by_source"], previous_stats.get("last_fresh_by_source"))
+    if exit_code:
+        print("=" * 50)
+        print("Crawl finished with validation warnings — run marked as FAILED.")
+        print("The saved listings were NOT committed; previous data stays live.")
+        print("=" * 50)
+    return exit_code
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
