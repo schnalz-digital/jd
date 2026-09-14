@@ -963,7 +963,7 @@ class CentalineCrawler:
         images, crumbs = self._fetch_detail(full_url)
 
         if not crumbs:
-            sub_district_name = "Discovery Bay"
+            sub_district_name = None
         elif any("discovery" in c.lower() for c in crumbs):
             sub_district_name = "Discovery Bay"
         elif len(crumbs) >= 3:
@@ -1009,9 +1009,9 @@ class CentalineCrawler:
           "New Territories West_4-NW", "Discovery Bay | Islands_23-WS055",
           "Discovery Bay_19-HMA125", "Discovery Bay_3-LIDHTHXXHT",
           "Discovery Bay-Phase 15 Positano_2-..."
-        A listing actually IN Discovery Bay always has "Discovery Bay" in the
-        chain; anything else (e.g. a Wetland Seasons Bay unit) does not, and we
-        use the district-level crumb to re-tag it with its real area."""
+        A listing actually IN Discovery Bay has "discovery" in the chain.
+        When breadcrumbs are unavailable we return None for sub_district —
+        we never assume Discovery Bay without positive proof from the source."""
         for attempt in (1, 2):
             try:
                 response = self.session.get(url)
