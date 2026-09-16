@@ -47,7 +47,8 @@ const I18N = {
         langAria: 'Switch language',
         search: 'Search',
         searchPh: 'Estate, building, address…',
-        priceRange: 'Price range (HK$ M)',
+        priceRangeM: 'Price range (HK$ M)',
+        priceRangeK: 'Price range (HK$ K)',
         min: 'Min',
         max: 'Max',
         bedrooms: 'Bedrooms',
@@ -136,7 +137,8 @@ const I18N = {
         langAria: '切换语言',
         search: '搜索',
         searchPh: '屋苑、大厦、地址…',
-        priceRange: '价格范围（港币百万）',
+        priceRangeM: '价格范围（港币百万）',
+        priceRangeK: '价格范围（港币千元）',
         min: '最低',
         max: '最高',
         bedrooms: '卧室',
@@ -578,13 +580,27 @@ function toggleNewOnly() {
 /* --------------------------------------------------------------------------
    Filtering / sorting
    -------------------------------------------------------------------------- */
+function currentTx() {
+    return document.querySelector('#txFilter .pill.active')?.dataset.value || '';
+}
+
+function priceUnitMultiplier(listing) {
+    return (listing.transaction_type === 'rent') ? 1000 : 1000000;
+}
+
+function updatePriceUnitLabel() {
+    const label = document.getElementById('priceUnitLabel');
+    if (!label) return;
+    label.textContent = currentTx() === 'rent' ? t('priceRangeK') : t('priceRangeM');
+}
+
 function applyFilters() {
     currentFilters = {
         search: document.getElementById('searchInput').value.trim().toLowerCase(),
         sources: Array.from(document.querySelectorAll('#sourceFilters input:checked')).map(cb => cb.value),
-        minPrice: (parseFloat(document.getElementById('minPrice').value) || null) * 1000000,
-        maxPrice: (parseFloat(document.getElementById('maxPrice').value) || null) * 1000000,
-        tx: document.querySelector('#txFilter .pill.active')?.dataset.value || '',
+        minPrice: parseFloat(document.getElementById('minPrice').value) || null,
+        maxPrice: parseFloat(document.getElementById('maxPrice').value) || null,
+        tx: currentTx(),
         bedrooms: document.querySelector('#bedroomFilter .pill.active')?.dataset.value || '',
         propertyType: document.getElementById('typeFilter').value,
         sortBy: currentSort,
@@ -596,8 +612,8 @@ function applyFilters() {
         if (!currentFilters.sources.includes(listing.source)) return false;
         if (currentFilters.favOnly && !isFav(listing.id)) return false;
         if (currentFilters.tx && listing.transaction_type !== currentFilters.tx) return false;
-        if (currentFilters.minPrice && listing.price && listing.price < currentFilters.minPrice) return false;
-        if (currentFilters.maxPrice && listing.price && listing.price > currentFilters.maxPrice) return false;
+        if (currentFilters.minPrice && listing.price && listing.price < currentFilters.minPrice * priceUnitMultiplier(listing)) return false;
+        if (currentFilters.maxPrice && listing.price && listing.price > currentFilters.maxPrice * priceUnitMultiplier(listing)) return false;
 
         if (currentFilters.bedrooms !== '') {
             const bed = parseInt(currentFilters.bedrooms, 10);
@@ -628,6 +644,7 @@ function applyFilters() {
 
     sortListings();
     currentPage = 1;
+    updatePriceUnitLabel();
     renderListings();
     updateFilterBadges();
 }
