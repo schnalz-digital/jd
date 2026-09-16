@@ -47,13 +47,7 @@ const I18N = {
         exportTitle: 'Export CSV',
         langAria: 'Switch language',
         search: 'Search',
-        searchPh: 'District, estate, address…',
-        district: 'District',
-        allDistricts: 'All districts',
-        hkIsland: 'Hong Kong Island',
-        kowloon: 'Kowloon',
-        newTerr: 'New Territories',
-        outlying: 'Outlying Islands',
+        searchPh: 'Estate, building, address…',
         region: 'Region',
         allRegions: 'All regions',
         priceRange: 'Price range (HK$ M)',
@@ -148,13 +142,7 @@ const I18N = {
         exportTitle: '导出 CSV',
         langAria: '切换语言',
         search: '搜索',
-        searchPh: '地区、屋苑、地址…',
-        district: '地区',
-        allDistricts: '所有地区',
-        hkIsland: '香港岛',
-        kowloon: '九龙',
-        newTerr: '新界',
-        outlying: '离岛',
+        searchPh: '屋苑、大厦、地址…',
         region: '区域',
         allRegions: '所有区域',
         priceRange: '价格范围（港币百万）',
@@ -360,11 +348,6 @@ const I = {
 };
 
 const SOURCE_LABELS = {
-    '28hse': '28Hse',
-    'spacious': 'Spacious',
-    'squarefoot': 'Squarefoot',
-    'propertyhk': 'Property.hk',
-    'okay': 'OKAY.com',
     'centaline': 'Centaline',
     'midland': 'Midland'
 };
@@ -434,7 +417,7 @@ function setupEventListeners() {
 
     document.getElementById('searchInput').addEventListener('input', () => debounced(applyFilters));
 
-    for (const id of ['districtFilter', 'regionFilter', 'typeFilter', 'minPrice', 'maxPrice']) {
+    for (const id of ['regionFilter', 'typeFilter', 'minPrice', 'maxPrice']) {
         const el = document.getElementById(id);
         if (id.includes('Price')) {
             el.addEventListener('input', () => debounced(applyFilters));
@@ -486,7 +469,7 @@ async function loadListings() {
         if (!response.ok) throw new Error('No data file');
 
         const data = await response.json();
-        allListings = data.listings || [];
+        allListings = (data.listings || []).filter(isDiscoveryBay);
 
         lastDataSig = dataSig(data);
         lastCrawlTime = data.last_crawl ? new Date(parseUtcIso(data.last_crawl)) : null;
@@ -523,7 +506,7 @@ function startAutoRefresh() {
             const sig = dataSig(data);
             if (sig === lastDataSig) return;
             lastDataSig = sig;
-            allListings = data.listings || [];
+            allListings = (data.listings || []).filter(isDiscoveryBay);
             lastCrawlTime = data.last_crawl ? new Date(parseUtcIso(data.last_crawl)) : null;
             buildDupIndex();
             updateStatsHeader(data);
@@ -560,6 +543,10 @@ function updateStatsHeaderText() {
 }
 
 const DEFAULT_REGION = 'discovery bay';
+
+function isDiscoveryBay(listing) {
+    return (listing.sub_district || '').trim().toLowerCase() === 'discovery bay';
+}
 
 function populateRegions() {
     const select = document.getElementById('regionFilter');
@@ -697,7 +684,6 @@ function applyFilters() {
     currentFilters = {
         search: document.getElementById('searchInput').value.trim().toLowerCase(),
         sources: Array.from(document.querySelectorAll('#sourceFilters input:checked')).map(cb => cb.value),
-        district: document.getElementById('districtFilter').value,
         region: document.getElementById('regionFilter').value,
         minPrice: (parseFloat(document.getElementById('minPrice').value) || null) * 1000000,
         maxPrice: (parseFloat(document.getElementById('maxPrice').value) || null) * 1000000,
@@ -711,7 +697,6 @@ function applyFilters() {
     filteredListings = allListings.filter(listing => {
         if (!currentFilters.sources.includes(listing.source)) return false;
         if (currentFilters.favOnly && !isFav(listing.id)) return false;
-        if (currentFilters.district && listing.district !== currentFilters.district) return false;
         if (currentFilters.region && (listing.sub_district || '').trim().toLowerCase() !== currentFilters.region) return false;
         if (currentFilters.minPrice && listing.price && listing.price < currentFilters.minPrice) return false;
         if (currentFilters.maxPrice && listing.price && listing.price > currentFilters.maxPrice) return false;
@@ -763,7 +748,6 @@ function sortListings() {
 
 function resetFilters() {
     document.getElementById('searchInput').value = '';
-    document.getElementById('districtFilter').value = '';
     document.getElementById('regionFilter').value = '';
     document.getElementById('minPrice').value = '';
     document.getElementById('maxPrice').value = '';
@@ -804,7 +788,6 @@ function updateFilterBadges() {
     const s = currentFilters;
     let count = 0;
     if (s.search) count++;
-    if (s.district) count++;
     if (s.region) count++;
     if (s.minPrice || s.maxPrice) count++;
     if (s.bedrooms !== '') count++;
