@@ -12,9 +12,273 @@ let debounceTimer = null;
 const sessionKey = 'hk_property_unlocked';
 const FAV_REGION_KEY = 'fav_region';
 const FAV_KEY = 'fav_listings';
+const LANG_KEY = 'lang';
 let favOnly = false;
 let lastCrawlTime = null;
 let dupOthers = {};
+
+/* --------------------------------------------------------------------------
+   Internationalisation (en / zh-CN)
+   -------------------------------------------------------------------------- */
+const I18N = {
+    en: {
+        appTitle: 'Latest Properties',
+        metaDesc: 'Curated property listings, refreshed minute by minute.',
+        accessRequired: 'Access Required',
+        loginSubtitle: 'Enter your password to continue',
+        password: 'Password',
+        continue: 'Continue',
+        pleaseEnterPassword: 'Please enter a password.',
+        incorrectPassword: 'Incorrect password.',
+        listings: 'listings',
+        pending: 'pending',
+        justNow: 'just now',
+        minsAgo: '{n}m ago',
+        hoursAgo: '{n}h ago',
+        sortAria: 'Sort listings',
+        sortNewest: 'Newest first',
+        sortPriceAsc: 'Price: low → high',
+        sortPriceDesc: 'Price: high → low',
+        sortSize: 'Size: largest',
+        sortValue: 'Price / sqft: best value',
+        filters: 'Filters',
+        toggleDark: 'Toggle dark mode',
+        export: 'Export',
+        exportTitle: 'Export CSV',
+        langAria: 'Switch language',
+        search: 'Search',
+        searchPh: 'District, estate, address…',
+        district: 'District',
+        allDistricts: 'All districts',
+        hkIsland: 'Hong Kong Island',
+        kowloon: 'Kowloon',
+        newTerr: 'New Territories',
+        outlying: 'Outlying Islands',
+        region: 'Region',
+        allRegions: 'All regions',
+        priceRange: 'Price range (HK$ M)',
+        min: 'Min',
+        max: 'Max',
+        bedrooms: 'Bedrooms',
+        any: 'Any',
+        studio: 'Studio',
+        bed4plus: '4+',
+        type: 'Type',
+        allTypes: 'All types',
+        apartment: 'Apartment',
+        house: 'House',
+        villageHouse: 'Village House',
+        penthouse: 'Penthouse',
+        duplex: 'Duplex',
+        sources: 'Sources',
+        newTodayOnly: 'New today only',
+        resetFilters: 'Reset filters',
+        loading: 'Loading…',
+        loadingListings: 'Loading listings…',
+        properties: 'properties',
+        ofRange: 'of',
+        updatedPrefix: '· updated {x}',
+        emptyNoMatches: 'No matches',
+        emptyNoMatchesText: 'Try widening your filters or resetting them.',
+        noListingsYet: 'No listings yet',
+        noListingsText: 'The automated crawler updates this page every 2 hours.',
+        noListingsToast: 'Listing data unavailable yet — crawler runs every 2 hours.',
+        refreshedToast: 'Listings refreshed automatically.',
+        bedsLabel: '{n} beds',
+        bathsLabel: '{n} baths',
+        sqftLabel: '{n} sqft',
+        locUnavailable: 'Location unavailable',
+        alsoOn: 'Also on {s}',
+        openOriginal: 'open original listing',
+        viewOriginal: 'View original',
+        share: 'Share',
+        saveListing: 'Save listing',
+        removeSaved: 'Remove from saved',
+        favSaved: 'Saved — tap the star again to remove.',
+        favRemoved: 'Removed from saved.',
+        onRequest: 'On request',
+        perSqft: ' / sqft',
+        prev: 'Prev',
+        next: 'Next',
+        noUrlToast: 'No original listing URL available.',
+        noPhotosToast: 'No photos available for this listing.',
+        imgFail: 'Image failed to load.',
+        pickRegionToast: 'Pick a region to set as your default.',
+        regionSetToast: '"{r}" set as your default region.',
+        regionClearedToast: 'Discovery Bay is the default region again.',
+        favTitleDefault: 'Save selected region as default',
+        favTitleHasDefault: 'Default: {r} — tap to clear',
+        favTitleDefaultAll: 'Default region for everyone: {r}',
+        favOnlyOn: 'Showing saved listings only.',
+        favOnlyOff: 'Showing all listings.',
+        all: 'All',
+        saved: 'Saved',
+        newToday: 'New today',
+        exportNone: 'No listings to export.',
+        exportedToast: '{n} listings exported.',
+        bedroomCard: '{n} bedroom',
+        propertyListing: 'Property listing',
+        close: 'Close',
+        prevImage: 'Previous image',
+        nextImage: 'Next image'
+    },
+    zh: {
+        appTitle: '最新楼盘',
+        metaDesc: '精选房源，实时更新。',
+        accessRequired: '需要访问权限',
+        loginSubtitle: '请输入密码以继续',
+        password: '密码',
+        continue: '继续',
+        pleaseEnterPassword: '请输入密码。',
+        incorrectPassword: '密码不正确。',
+        listings: '房源',
+        pending: '待更新',
+        justNow: '刚刚',
+        minsAgo: '{n} 分钟前',
+        hoursAgo: '{n} 小时前',
+        sortAria: '排序',
+        sortNewest: '最新优先',
+        sortPriceAsc: '价格：低 → 高',
+        sortPriceDesc: '价格：高 → 低',
+        sortSize: '面积：最大',
+        sortValue: '单价：性价比最高',
+        filters: '筛选',
+        toggleDark: '切换深色模式',
+        export: '导出',
+        exportTitle: '导出 CSV',
+        langAria: '切换语言',
+        search: '搜索',
+        searchPh: '地区、屋苑、地址…',
+        district: '地区',
+        allDistricts: '所有地区',
+        hkIsland: '香港岛',
+        kowloon: '九龙',
+        newTerr: '新界',
+        outlying: '离岛',
+        region: '区域',
+        allRegions: '所有区域',
+        priceRange: '价格范围（港币百万）',
+        min: '最低',
+        max: '最高',
+        bedrooms: '卧室',
+        any: '不限',
+        studio: '单间',
+        bed4plus: '4+',
+        type: '类型',
+        allTypes: '所有类型',
+        apartment: '公寓',
+        house: '独立屋',
+        villageHouse: '村屋',
+        penthouse: '顶层复式',
+        duplex: '复式',
+        sources: '来源',
+        newTodayOnly: '仅今日新增',
+        resetFilters: '重置筛选',
+        loading: '加载中…',
+        loadingListings: '正在加载房源…',
+        properties: '套房',
+        ofRange: '，共',
+        updatedPrefix: '· 更新于 {x}',
+        emptyNoMatches: '无匹配结果',
+        emptyNoMatchesText: '请放宽筛选条件或重置筛选。',
+        noListingsYet: '暂无房源',
+        noListingsText: '自动化爬虫每 2 小时更新此页面。',
+        noListingsToast: '房源数据暂时不可用 — 爬虫每 2 小时运行一次。',
+        refreshedToast: '房源已自动刷新。',
+        bedsLabel: '{n} 房',
+        bathsLabel: '{n} 卫',
+        sqftLabel: '{n} 平方呎',
+        locUnavailable: '位置未知',
+        alsoOn: '同时发布于 {s}',
+        openOriginal: '打开原始房源',
+        viewOriginal: '查看原文',
+        share: '分享',
+        saveListing: '保存房源',
+        removeSaved: '取消保存',
+        favSaved: '已保存 — 再次点击星标可取消。',
+        favRemoved: '已取消保存。',
+        onRequest: '面议',
+        perSqft: ' ／呎',
+        prev: '上一页',
+        next: '下一页',
+        noUrlToast: '没有可用的原始房源链接。',
+        noPhotosToast: '该房源暂无照片。',
+        imgFail: '图片加载失败。',
+        pickRegionToast: '请选择一个区域作为默认区域。',
+        regionSetToast: '已将“{r}”设为默认区域。',
+        regionClearedToast: '默认区域已恢复为愉景湾。',
+        favTitleDefault: '将所选区域设为默认',
+        favTitleHasDefault: '默认：{r} — 点击清除',
+        favTitleDefaultAll: '默认区域：{r}',
+        favOnlyOn: '仅显示已保存的房源。',
+        favOnlyOff: '显示全部房源。',
+        all: '全部',
+        saved: '已保存',
+        newToday: '今日新增',
+        exportNone: '没有可导出的房源。',
+        exportedToast: '已导出 {n} 套房源。',
+        bedroomCard: '{n} 卧室',
+        propertyListing: '房产房源',
+        close: '关闭',
+        prevImage: '上一张',
+        nextImage: '下一张'
+    }
+};
+
+let currentLang = detectLang();
+
+function detectLang() {
+    try {
+        const saved = localStorage.getItem(LANG_KEY);
+        if (saved === 'en' || saved === 'zh') return saved;
+        const langs = (navigator.languages?.length ? navigator.languages : [navigator.language || 'en']);
+        for (const lg of langs) {
+            const code = String(lg).toLowerCase().replace('_', '-');
+            if (code.startsWith('zh')) return 'zh';
+        }
+    } catch (e) {}
+    return 'en';
+}
+
+function t(key, vars) {
+    const s = (I18N[currentLang] && I18N[currentLang][key]) ?? I18N.en[key] ?? key;
+    if (!vars) return s;
+    return s.replace(/\{(\w+)\}/g, (m, k) => Object.prototype.hasOwnProperty.call(vars, k) ? vars[k] : m);
+}
+
+function applyLangStatic() {
+    document.documentElement.lang = currentLang === 'zh' ? 'zh-CN' : 'en';
+    document.title = t('appTitle');
+    const meta = document.querySelector('meta[name="description"]');
+    if (meta) meta.content = t('metaDesc');
+    document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+    document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
+    document.querySelectorAll('[data-i18n-title]').forEach(el => { el.title = t(el.dataset.i18nTitle); });
+    document.querySelectorAll('[data-i18n-aria]').forEach(el => { el.setAttribute('aria-label', t(el.dataset.i18nAria)); });
+    updateLangBtn();
+}
+
+function refreshDynamicLang() {
+    updateStatsHeaderText();
+    populateRegions();
+    renderRegionChips();
+    if (allListings.length > 0 || document.getElementById('resultsCount').textContent !== t('loading')) applyFilters();
+}
+
+function toggleLang() {
+    currentLang = currentLang === 'zh' ? 'en' : 'zh';
+    try { localStorage.setItem(LANG_KEY, currentLang); } catch (e) {}
+    applyLangStatic();
+    refreshDynamicLang();
+}
+
+function updateLangBtn() {
+    const btn = document.getElementById('langBtn');
+    if (!btn) return;
+    btn.textContent = currentLang === 'zh' ? 'EN' : '中文';
+    btn.title = t('langAria');
+    btn.setAttribute('aria-label', t('langAria'));
+}
 
 function imageProxy(url, width = 800) {
     if (!url) return url;
@@ -39,6 +303,7 @@ function parseUtcIso(value) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    applyLangStatic();
     syncThemeIcon();
     if ('serviceWorker' in navigator && location.protocol === 'https:') {
         navigator.serviceWorker.register('sw.js').catch(() => {});
@@ -57,7 +322,7 @@ function handleLogin(event) {
     const errorEl = document.getElementById('loginError');
 
     if (!input.value) {
-        errorEl.textContent = 'Please enter a password.';
+        errorEl.textContent = t('pleaseEnterPassword');
         return;
     }
 
@@ -67,7 +332,7 @@ function handleLogin(event) {
         errorEl.textContent = '';
         unlockSite();
     } else {
-        errorEl.textContent = 'Incorrect password.';
+        errorEl.textContent = t('incorrectPassword');
         input.value = '';
         input.focus();
     }
@@ -129,7 +394,7 @@ function toggleFavorite(id, btn) {
     if (btn) btn.classList.toggle('active', !on);
     syncChipActive();
     if (on && favOnly) applyFilters();
-    showToast(on ? 'Removed from saved.' : 'Saved — tap the star again to remove.', on ? 'info' : 'success');
+    showToast(on ? t('favRemoved') : t('favSaved'), on ? 'info' : 'success');
 }
 
 /* --------------------------------------------------------------------------
@@ -232,12 +497,12 @@ async function loadListings() {
         startAutoRefresh();
     } catch (error) {
         console.error('Error loading listings:', error);
-        showToast('Listing data unavailable yet — crawler runs every 2 hours.', 'error');
+        showToast(t('noListingsToast'), 'error');
         document.getElementById('listingsGrid').innerHTML = `
             <div class="empty-state">
                 <div class="empty-state-icon">${I.home}</div>
-                <div class="empty-state-title">No listings yet</div>
-                <div class="empty-state-text">The automated crawler updates this page every 2 hours.</div>
+                <div class="empty-state-title">${t('noListingsYet')}</div>
+                <div class="empty-state-text">${t('noListingsText')}</div>
             </div>
         `;
     }
@@ -264,7 +529,7 @@ function startAutoRefresh() {
             populateRegions();
             renderRegionChips();
             applyFilters();
-            showToast('Listings refreshed automatically.', 'info');
+            showToast(t('refreshedToast'), 'info');
         } catch (error) {
             console.error('Auto-refresh failed:', error);
         }
@@ -272,22 +537,25 @@ function startAutoRefresh() {
 }
 
 function updateStatsHeader(data) {
+    lastCrawlTime = data.last_crawl ? new Date(parseUtcIso(data.last_crawl)) : null;
+    updateStatsHeaderText();
+}
+
+function updateStatsHeaderText() {
     const totalEl = document.getElementById('totalListings');
     if (totalEl) totalEl.textContent = allListings.length.toLocaleString();
 
     const crawlEl = document.getElementById('lastCrawl');
-    if (crawlEl) {
-        if (data.last_crawl) {
-            const d = parseUtcIso(data.last_crawl);
-            const mins = Math.floor((Date.now() - d.getTime()) / 60000);
-            if (mins < 1) crawlEl.textContent = 'just now';
-            else if (mins < 60) crawlEl.textContent = `${mins}m ago`;
-            else if (mins < 1440) crawlEl.textContent = `${Math.floor(mins / 60)}h ago`;
-            else crawlEl.textContent = d.toLocaleDateString();
-        } else {
-            crawlEl.textContent = 'pending';
-        }
+    if (!crawlEl) return;
+    if (!lastCrawlTime) {
+        crawlEl.textContent = t('pending');
+        return;
     }
+    const mins = Math.floor((Date.now() - lastCrawlTime.getTime()) / 60000);
+    if (mins < 1) crawlEl.textContent = t('justNow');
+    else if (mins < 60) crawlEl.textContent = t('minsAgo', { n: mins });
+    else if (mins < 1440) crawlEl.textContent = t('hoursAgo', { n: Math.floor(mins / 60) });
+    else crawlEl.textContent = lastCrawlTime.toLocaleDateString();
 }
 
 const DEFAULT_REGION = 'discovery bay';
@@ -298,7 +566,7 @@ function populateRegions() {
     const regions = [...new Set(allListings.map(l => (l.sub_district || '').trim()).filter(Boolean))]
         .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
 
-    select.innerHTML = '<option value="">All regions</option>' +
+    select.innerHTML = `<option value="">${t('allRegions')}</option>` +
         regions.map(r => `<option value="${escapeHtml(r).toLowerCase()}">${escapeHtml(r)}</option>`).join('');
 
     const savedFav = localStorage.getItem(FAV_REGION_KEY);
@@ -317,13 +585,13 @@ function populateRegions() {
         favBtn.setAttribute('aria-pressed', 'true');
         const label = regions.find(r => r.toLowerCase() === fav) || '';
         favBtn.title = savedFav
-            ? `Default: ${label} — tap to clear`
-            : `Default region for everyone: ${label}`;
+            ? t('favTitleHasDefault', { r: label })
+            : t('favTitleDefaultAll', { r: label });
     } else {
         if (regions.some(r => r.toLowerCase() === current)) select.value = current;
         favBtn.classList.remove('active');
         favBtn.setAttribute('aria-pressed', 'false');
-        favBtn.title = 'Save selected region as default';
+        favBtn.title = t('favTitleDefault');
     }
 }
 
@@ -338,15 +606,15 @@ function toggleFavouriteRegion() {
         if (hasDefault) select.value = DEFAULT_REGION;
         favBtn.classList.add('active');
         favBtn.setAttribute('aria-pressed', 'true');
-        favBtn.title = `Default region for everyone: Discovery Bay`;
+        favBtn.title = t('favTitleDefaultAll', { r: 'Discovery Bay' });
         applyFilters();
-        showToast('Discovery Bay is the default region again.', 'info');
+        showToast(t('regionClearedToast'), 'info');
         return;
     }
 
     const region = select.value;
     if (!region) {
-        showToast('Pick a region to set as your default.', 'info');
+        showToast(t('pickRegionToast'), 'info');
         return;
     }
 
@@ -354,8 +622,8 @@ function toggleFavouriteRegion() {
     favBtn.classList.add('active');
     favBtn.setAttribute('aria-pressed', 'true');
     const label = Array.from(select.options).find(o => o.value === region)?.textContent || region;
-    favBtn.title = `Default: ${label} — tap to clear`;
-    showToast(`"${label}" set as your default region.`, 'success');
+    favBtn.title = t('favTitleHasDefault', { r: label });
+    showToast(t('regionSetToast', { r: label }), 'success');
     applyFilters();
 }
 
@@ -375,12 +643,12 @@ function renderRegionChips() {
         .slice(0, 5)
         .map(([region]) => region);
 
-    let html = '<button class="chip" data-region="" onclick="pickRegion(this)">All</button>';
+    let html = `<button class="chip" data-region="" onclick="pickRegion(this)">${t('all')}</button>`;
     for (const r of top) {
         html += `<button class="chip" data-region="${escapeHtml(r.toLowerCase())}" onclick="pickRegion(this)">${escapeHtml(r)}<span class="chip-count">${byRegion[r].toLocaleString()}</span></button>`;
     }
-    html += '<button class="chip chip-toggle" id="chipFav" onclick="toggleFavOnly()">Saved<span class="chip-count" id="chipFavCount"></span></button>';
-    html += '<button class="chip chip-toggle" id="chipNew" onclick="toggleNewOnly()">New today</button>';
+    html += `<button class="chip chip-toggle" id="chipFav" onclick="toggleFavOnly()">${t('saved')}<span class="chip-count" id="chipFavCount"></span></button>`;
+    html += `<button class="chip chip-toggle" id="chipNew" onclick="toggleNewOnly()">${t('newToday')}</button>`;
     box.innerHTML = html;
     syncChipActive();
 }
@@ -412,7 +680,7 @@ function pickRegion(btn) {
 function toggleFavOnly() {
     favOnly = !favOnly;
     applyFilters();
-    showToast(favOnly ? 'Showing saved listings only.' : 'Showing all listings.', 'info');
+    showToast(favOnly ? t('favOnlyOn') : t('favOnlyOff'), 'info');
 }
 
 function toggleNewOnly() {
@@ -557,21 +825,21 @@ function renderListings() {
 
     const countEl = document.getElementById('resultsCount');
     const updated = lastCrawlTime ? agoText(lastCrawlTime) : '';
-    const updatedHtml = updated ? `<span class="toolbar-updated">· updated ${updated}</span>` : '';
+    const updatedHtml = updated ? `<span class="toolbar-updated">${t('updatedPrefix', { x: updated })}</span>` : '';
     if (filteredListings.length === 0) {
-        countEl.innerHTML = `<strong>0</strong> properties ${updatedHtml}`;
+        countEl.innerHTML = `<strong>0</strong> ${t('properties')} ${updatedHtml}`;
     } else if (currentPage === 1 && end >= filteredListings.length) {
-        countEl.innerHTML = `<strong>${filteredListings.length.toLocaleString()}</strong> properties ${updatedHtml}`;
+        countEl.innerHTML = `<strong>${filteredListings.length.toLocaleString()}</strong> ${t('properties')} ${updatedHtml}`;
     } else {
-        countEl.innerHTML = `<strong>${start + 1}–${end}</strong> of <strong>${filteredListings.length.toLocaleString()}</strong> properties ${updatedHtml}`;
+        countEl.innerHTML = `<strong>${start + 1}–${end}</strong> ${t('ofRange')} <strong>${filteredListings.length.toLocaleString()}</strong> ${t('properties')} ${updatedHtml}`;
     }
 
     if (pageListings.length === 0) {
         grid.innerHTML = `
             <div class="empty-state">
                 <div class="empty-state-icon">${I.search}</div>
-                <div class="empty-state-title">No matches</div>
-                <div class="empty-state-text">Try widening your filters or resetting them.</div>
+                <div class="empty-state-title">${t('emptyNoMatches')}</div>
+                <div class="empty-state-text">${t('emptyNoMatchesText')}</div>
             </div>
         `;
         document.getElementById('pagination').innerHTML = '';
@@ -604,38 +872,38 @@ function createListingCard(listing, stagger) {
         : '';
 
     const priceHtml = listing.price ? priceOverlayHtml(listing) : `
-        <div class="price-overlay"><span class="price" style="font-size:1.05rem">On request</span></div>`;
+        <div class="price-overlay"><span class="price" style="font-size:1.05rem">${t('onRequest')}</span></div>`;
 
     const isSaved = isFav(listing.id);
     const mediaActions = `
         <div class="media-actions">
             <button class="media-btn fav-star ${isSaved ? 'active' : ''}"
                     onclick="event.stopPropagation();event.preventDefault();toggleFavorite('${listing.id}', this)"
-                    aria-label="${isSaved ? 'Remove from saved' : 'Save listing'}" title="Save">
+                    aria-label="${isSaved ? t('removeSaved') : t('saveListing')}" title="${isSaved ? t('removeSaved') : t('saveListing')}">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.5-1.4 3-3.2 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.8 0-3.4 1-4.5 2.5C11 4 9.4 3 7.5 3A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.1 3 5.5l7 7Z"/></svg>
             </button>
         </div>`;
 
     const facts = [];
     if (listing.bedrooms !== null && listing.bedrooms !== undefined) {
-        facts.push(`<span class="fact">${I.bed}${listing.bedrooms === 0 ? 'Studio' : `${listing.bedrooms} beds`}</span>`);
+        facts.push(`<span class="fact">${I.bed}${listing.bedrooms === 0 ? t('studio') : t('bedsLabel', { n: listing.bedrooms })}</span>`);
     }
     if (listing.bathrooms) {
-        facts.push(`<span class="fact">${I.bath}${listing.bathrooms} baths</span>`);
+        facts.push(`<span class="fact">${I.bath}${t('bathsLabel', { n: listing.bathrooms })}</span>`);
     }
     if (listing.sqft) {
-        facts.push(`<span class="fact">${I.size}${listing.sqft.toLocaleString()} sqft</span>`);
+        facts.push(`<span class="fact">${I.size}${t('sqftLabel', { n: listing.sqft.toLocaleString() })}</span>`);
     }
 
     const locParts = [listing.sub_district, DISTRICT_LABELS[listing.district]]
         .filter(Boolean);
     const loc = locParts.length
         ? `<div class="card-loc">${I.pin}${locParts.join(' · ')}</div>`
-        : '<div class="card-loc" style="opacity:0.35">Location unavailable</div>';
+        : `<div class="card-loc" style="opacity:0.35">${t('locUnavailable')}</div>`;
 
     const others = dupOthers[listing.id] || [];
     const alsoOn = others.length
-        ? `<span class="also-on">Also on ${others.slice(0, 3).map(s => `<b>${escapeHtml(SOURCE_LABELS[s] || s)}</b>`).join(', ')}${others.length > 3 ? ` +${others.length - 3}` : ''}</span>`
+        ? `<span class="also-on">${t('alsoOn', { s: others.slice(0, 3).map(s => `<b>${escapeHtml(SOURCE_LABELS[s] || s)}</b>`).join(', ') })}${others.length > 3 ? ` +${others.length - 3}` : ''}</span>`
         : '';
 
     const title = resolveTitle(listing);
@@ -644,7 +912,7 @@ function createListingCard(listing, stagger) {
         <div class="card ${listing.price_changed ? 'price-changed' : ''}"
              tabindex="0"
              role="link"
-             aria-label="${escapeHtml(title)} — open original listing"
+             aria-label="${escapeHtml(title)} — ${t('openOriginal')}"
              onclick="openSource('${listing.id}')"
              onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openSource('${listing.id}')}"
              style="animation-delay:${stagger * 55}ms">
@@ -657,11 +925,11 @@ function createListingCard(listing, stagger) {
                 <div class="card-foot">
                     <span class="src">${I.src}${SOURCE_LABELS[listing.source] || listing.source}</span>
                     <span class="foot-right">
-                        <button class="icon-btn share-btn" title="Share" aria-label="Share"
+                        <button class="icon-btn share-btn" title="${t('share')}" aria-label="${t('share')}"
                                 onclick="event.stopPropagation();event.preventDefault();shareListing('${listing.id}')">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg>
                         </button>
-                        <span class="view-link">View original${I.arrow}</span>
+                        <span class="view-link">${t('viewOriginal')}${I.arrow}</span>
                     </span>
                 </div>
             </div>
@@ -670,9 +938,9 @@ function createListingCard(listing, stagger) {
 
 function agoText(date) {
     const mins = Math.floor((Date.now() - date.getTime()) / 60000);
-    if (mins < 1) return 'just now';
-    if (mins < 60) return `${mins}m ago`;
-    if (mins < 1440) return `${Math.floor(mins / 60)}h ago`;
+    if (mins < 1) return t('justNow');
+    if (mins < 60) return t('minsAgo', { n: mins });
+    if (mins < 1440) return t('hoursAgo', { n: Math.floor(mins / 60) });
     return date.toLocaleDateString();
 }
 
@@ -685,15 +953,15 @@ function resolveTitle(listing) {
     }
     const bits = [];
     if (listing.bedrooms !== null && listing.bedrooms !== undefined)
-        bits.push(listing.bedrooms === 0 ? 'Studio' : `${listing.bedrooms} bedroom`);
+        bits.push(listing.bedrooms === 0 ? t('studio') : t('bedroomCard', { n: listing.bedrooms }));
     if (listing.sqft) bits.push(`${listing.sqft.toLocaleString()} sqft`);
-    return bits.join(' · ') || listing.sub_district || 'Property listing';
+    return bits.join(' · ') || listing.sub_district || t('propertyListing');
 }
 
 function priceOverlayHtml(listing) {
     const [value, unit] = compactPriceParts(listing.price);
     const perSqft = listing.price_per_sqft
-        ? `${listing.price_per_sqft.toLocaleString()} / sqft`
+        ? `${listing.price_per_sqft.toLocaleString()}${t('perSqft')}`
         : '';
     return `
         <div class="price-overlay">
@@ -730,7 +998,7 @@ function renderPagination() {
 
     let html = '';
     html += ` <button class="page-btn" onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
-                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>Prev
+                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>${t('prev')}
              </button>`;
 
     const startPage = Math.max(1, currentPage - 2);
@@ -749,7 +1017,7 @@ function renderPagination() {
     }
 
     html += ` <button class="page-btn" onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>
-                 Next<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                 ${t('next')}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
              </button>`;
 
     pagination.innerHTML = html;
@@ -769,7 +1037,7 @@ function goToPage(page) {
 function openSource(listingId) {
     const listing = allListings.find(l => l.id === listingId);
     if (!listing || !listing.source_url) {
-        showToast('No original listing URL available.', 'error');
+        showToast(t('noUrlToast'), 'error');
         return;
     }
     window.open(listing.source_url, '_blank', 'noopener,noreferrer');
@@ -821,7 +1089,7 @@ function openLightbox(listingId) {
     if (!listing) return;
     lightboxItems = (listing.images || []).filter(u => /^https?:\/\//i.test(u));
     if (lightboxItems.length === 0) {
-        showToast('No photos available for this listing.', 'error');
+        showToast(t('noPhotosToast'), 'error');
         return;
     }
     lightboxIndex = 0;
@@ -834,7 +1102,7 @@ function openLightbox(listingId) {
 function showLightboxImage() {
     const img = document.getElementById('lightboxImg');
     const caption = document.getElementById('lightboxCaption');
-    img.onerror = () => { caption.textContent = 'Image failed to load.'; };
+    img.onerror = () => { caption.textContent = t('imgFail'); };
     img.src = imageProxy(lightboxItems[lightboxIndex], 1400);
     caption.textContent = `${lightboxIndex + 1} / ${lightboxItems.length}`;
     document.getElementById('lightboxPrev').hidden = lightboxItems.length < 2;
@@ -861,7 +1129,7 @@ function closeLightbox() {
 function shareListing(listingId) {
     const listing = allListings.find(l => l.id === listingId);
     if (!listing) return;
-    const text = `${resolveTitle(listing)} — ${listing.price ? fullPrice(listing.price) : 'On request'} · ${SOURCE_LABELS[listing.source] || listing.source}`;
+    const text = `${resolveTitle(listing)} — ${listing.price ? fullPrice(listing.price) : t('onRequest')} · ${SOURCE_LABELS[listing.source] || listing.source}`;
     if (navigator.share) {
         navigator.share({ title: text, url: listing.source_url }).catch(() => {});
     } else {
@@ -893,7 +1161,7 @@ function syncThemeIcon() {
    -------------------------------------------------------------------------- */
 function exportCSV() {
     if (filteredListings.length === 0) {
-        showToast('No listings to export.', 'error');
+        showToast(t('exportNone'), 'error');
         return;
     }
 
@@ -919,7 +1187,7 @@ function exportCSV() {
     const d = new Date();
     link.download = `properties-${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}.csv`;
     link.click();
-    showToast(`${filteredListings.length.toLocaleString()} listings exported.`, 'success');
+    showToast(t('exportedToast', { n: filteredListings.length.toLocaleString() }), 'success');
 }
 
 /* --------------------------------------------------------------------------

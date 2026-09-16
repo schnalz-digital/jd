@@ -24,7 +24,7 @@
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231c1a16'/%3E%3Ctext x='16' y='22' font-size='16' text-anchor='middle' fill='%23b78b3e' font-family='Georgia'%3ELP%3C/text%3E%3C/svg%3E">
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-    <link rel="stylesheet" href="css/styles.css?v=44266491">
+    <link rel="stylesheet" href="css/styles.css?v=98c11802">
 </head>
 <body>
 
@@ -32,14 +32,14 @@
     <div class="login-screen" id="loginScreen">
         <div class="login-card">
             <div class="login-monogram"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m21 2-9.6 9.6"/><circle cx="7.5" cy="15.5" r="5.5"/><path d="m15.5 7.5 3 3 3.5-3.5-3-3"/></svg></div>
-            <h1 class="login-title">Access Required</h1>
-            <p class="login-subtitle">Enter your password to continue</p>
+            <h1 class="login-title" data-i18n="accessRequired">Access Required</h1>
+            <p class="login-subtitle" data-i18n="loginSubtitle">Enter your password to continue</p>
             <form id="loginForm" onsubmit="handleLogin(event)">
                 <div class="login-group">
                     <svg class="login-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                    <input type="password" class="login-input" id="passwordInput" placeholder="Password" autofocus autocomplete="current-password">
+                    <input type="password" class="login-input" id="passwordInput" placeholder="Password" data-i18n-ph="password" autofocus autocomplete="current-password">
                 </div>
-                <button type="submit" class="btn btn-primary btn-login">Continue</button>
+                <button type="submit" class="btn btn-primary btn-login" data-i18n="continue">Continue</button>
             </form>
             <p class="login-error" id="loginError"></p>
         </div>
@@ -53,56 +53,60 @@
                 <span class="brand-mark">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h5.5v-5h3v5H19V9.5"/></svg>
                 </span>
-                <span class="brand-name">Latest Properties</span>
+                <span class="brand-name" data-i18n="appTitle">Latest Properties</span>
             </div>
 
             <div class="header-meta">
                 <span class="meta-pill" id="totalPill">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h5.5v-5h3v5H19V9.5"/></svg>
-                    <span><strong id="totalListings">–</strong> listings</span>
+                    <span><strong id="totalListings">–</strong> <span data-i18n="listings">listings</span></span>
                 </span>
                 <span class="meta-pill hide-sm" id="crawlPill">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-                    <span id="lastCrawl">pending</span>
+                    <span id="lastCrawl" data-i18n="pending">pending</span>
                 </span>
             </div>
 
             <div class="header-actions">
                 <div class="sort-menu-wrap">
-                    <button class="btn btn-outline btn-icon btn-sort" id="sortMenuBtn" onclick="toggleSortMenu()" aria-label="Sort listings" aria-haspopup="true" aria-expanded="false">
+                    <button class="btn btn-outline btn-icon btn-sort" id="sortMenuBtn" onclick="toggleSortMenu()" data-i18n-aria="sortAria" aria-haspopup="true" aria-expanded="false">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5h10"/><path d="M11 9h7"/><path d="M11 13h4"/><path d="m3 17 3 3 3-3"/><path d="M6 18V4"/></svg>
                     </button>
                     <div class="sort-menu" id="sortMenu" hidden>
                         <button type="button" class="sort-menu-item" data-sort="date_crawled" onclick="setSort(this.dataset.sort)">
-                            <span>Newest first</span><span class="sort-check">✓</span>
+                            <span data-i18n="sortNewest">Newest first</span><span class="sort-check">✓</span>
                         </button>
                         <button type="button" class="sort-menu-item" data-sort="price_asc" onclick="setSort(this.dataset.sort)">
-                            <span>Price: low → high</span><span class="sort-check">✓</span>
+                            <span data-i18n="sortPriceAsc">Price: low → high</span><span class="sort-check">✓</span>
                         </button>
                         <button type="button" class="sort-menu-item" data-sort="price_desc" onclick="setSort(this.dataset.sort)">
-                            <span>Price: high → low</span><span class="sort-check">✓</span>
+                            <span data-i18n="sortPriceDesc">Price: high → low</span><span class="sort-check">✓</span>
                         </button>
                         <button type="button" class="sort-menu-item" data-sort="sqft_desc" onclick="setSort(this.dataset.sort)">
-                            <span>Size: largest</span><span class="sort-check">✓</span>
+                            <span data-i18n="sortSize">Size: largest</span><span class="sort-check">✓</span>
                         </button>
                         <button type="button" class="sort-menu-item" data-sort="price_per_sqft_asc" onclick="setSort(this.dataset.sort)">
-                            <span>Price / sqft: best value</span><span class="sort-check">✓</span>
+                            <span data-i18n="sortValue">Price / sqft: best value</span><span class="sort-check">✓</span>
                         </button>
                     </div>
                 </div>
                 <button class="btn btn-outline btn-filters-nav" id="filtersNavBtn" onclick="toggleSidebarMobile(this)" aria-expanded="false">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3Z"/></svg>
-                    <span class="btn-label">Filters</span>
+                    <span class="btn-label" data-i18n="filters">Filters</span>
                     <span class="btn-badge" id="filterBadge" hidden></span>
                 </button>
+                <button class="btn btn-outline btn-icon btn-lang" id="langBtn" onclick="toggleLang()"
+                        title="Switch language" data-i18n-aria="langAria">
+                    EN
+                </button>
                 <button class="btn btn-outline btn-icon btn-theme" id="themeBtn" onclick="toggleTheme()"
-                        aria-label="Toggle dark mode" title="Toggle dark mode">
+                        data-i18n-aria="toggleDark" title="Toggle dark mode">
                     <svg id="themeIconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
                     <svg id="themeIconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" hidden><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.9 4.9 1.4 1.4"/><path d="m17.7 17.7 1.4 1.4"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.3 17.7-1.4 1.4"/><path d="m19.1 4.9-1.4 1.4"/></svg>
                 </button>
-                <button class="btn btn-outline btn-export" id="exportBtn" onclick="exportCSV()" title="Export CSV">
+                <button class="btn btn-outline btn-export" id="exportBtn" onclick="exportCSV()" data-i18n-title="exportTitle">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
-                    <span class="btn-label">Export</span>
+                    <span class="btn-label" data-i18n="export">Export</span>
                 </button>
             </div>
         </div>
@@ -114,34 +118,34 @@
         <!-- Filters -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-head">
-                <h2 class="sidebar-title">Filters</h2>
+                <h2 class="sidebar-title" data-i18n="filters">Filters</h2>
             </div>
 
             <div class="filter-section">
-                <label class="filter-label" for="searchInput">Search</label>
+                <label class="filter-label" for="searchInput" data-i18n="search">Search</label>
                 <div class="search-wrap">
                     <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-                    <input type="text" class="search-input" id="searchInput" placeholder="District, estate, address…">
+                    <input type="text" class="search-input" id="searchInput" placeholder="District, estate, address…" data-i18n-ph="searchPh">
                 </div>
             </div>
 
             <div class="filter-section">
-                <label class="filter-label" for="districtFilter">District</label>
+                <label class="filter-label" for="districtFilter" data-i18n="district">District</label>
                 <div class="select-wrap">
                     <select class="filter-select" id="districtFilter">
-                        <option value="">All districts</option>
-                        <option value="hong_kong_island">Hong Kong Island</option>
-                        <option value="kowloon">Kowloon</option>
-                        <option value="new_territories">New Territories</option>
-                        <option value="outlying_islands">Outlying Islands</option>
+                        <option value="" data-i18n="allDistricts">All districts</option>
+                        <option value="hong_kong_island" data-i18n="hkIsland">Hong Kong Island</option>
+                        <option value="kowloon" data-i18n="kowloon">Kowloon</option>
+                        <option value="new_territories" data-i18n="newTerr">New Territories</option>
+                        <option value="outlying_islands" data-i18n="outlying">Outlying Islands</option>
                     </select>
                 </div>
             </div>
 
             <div class="filter-section">
                 <div class="filter-label-row">
-                    <label class="filter-label" for="regionFilter">Region</label>
-                    <button class="fav-btn" id="favBtn" type="button" onclick="toggleFavouriteRegion()" title="Save as default region" aria-pressed="false">
+                    <label class="filter-label" for="regionFilter" data-i18n="region">Region</label>
+                    <button class="fav-btn" id="favBtn" type="button" onclick="toggleFavouriteRegion()" data-i18n-title="favTitleDefault" aria-pressed="false">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14l-5-4.87 6.91-1.01L12 2Z"/></svg>
                     </button>
                 </div>
@@ -153,43 +157,43 @@
             </div>
 
             <div class="filter-section">
-                <span class="filter-label">Price range (HK$ M)</span>
+                <span class="filter-label" data-i18n="priceRange">Price range (HK$ M)</span>
                 <div class="price-inputs">
-                    <input type="number" class="price-input" id="minPrice" placeholder="Min" min="0" step="0.1">
+                    <input type="number" class="price-input" id="minPrice" placeholder="Min" data-i18n-ph="min" min="0" step="0.1">
                     <span class="price-sep">→</span>
-                    <input type="number" class="price-input" id="maxPrice" placeholder="Max" min="0" step="0.1">
+                    <input type="number" class="price-input" id="maxPrice" placeholder="Max" data-i18n-ph="max" min="0" step="0.1">
                 </div>
             </div>
 
             <div class="filter-section">
-                <span class="filter-label">Bedrooms</span>
+                <span class="filter-label" data-i18n="bedrooms">Bedrooms</span>
                 <div class="pill-group" id="bedroomFilter">
-                    <button class="pill active" data-value="">Any</button>
-                    <button class="pill" data-value="0">Studio</button>
+                    <button class="pill active" data-value="" data-i18n="any">Any</button>
+                    <button class="pill" data-value="0" data-i18n="studio">Studio</button>
                     <button class="pill" data-value="1">1</button>
                     <button class="pill" data-value="2">2</button>
                     <button class="pill" data-value="3">3</button>
-                    <button class="pill" data-value="4">4+</button>
+                    <button class="pill" data-value="4" data-i18n="bed4plus">4+</button>
                 </div>
             </div>
 
             <div class="filter-section">
-                <label class="filter-label" for="typeFilter">Type</label>
+                <label class="filter-label" for="typeFilter" data-i18n="type">Type</label>
                 <div class="select-wrap">
                     <select class="filter-select" id="typeFilter">
-                        <option value="">All types</option>
-                        <option value="apartment">Apartment</option>
-                        <option value="house">House</option>
-                        <option value="village_house">Village House</option>
-                        <option value="studio">Studio</option>
-                        <option value="penthouse">Penthouse</option>
-                        <option value="duplex">Duplex</option>
+                        <option value="" data-i18n="allTypes">All types</option>
+                        <option value="apartment" data-i18n="apartment">Apartment</option>
+                        <option value="house" data-i18n="house">House</option>
+                        <option value="village_house" data-i18n="villageHouse">Village House</option>
+                        <option value="studio" data-i18n="studio">Studio</option>
+                        <option value="penthouse" data-i18n="penthouse">Penthouse</option>
+                        <option value="duplex" data-i18n="duplex">Duplex</option>
                     </select>
                 </div>
             </div>
 
             <div class="filter-section">
-                <span class="filter-label">Sources</span>
+                <span class="filter-label" data-i18n="sources">Sources</span>
                 <div class="filter-rows" id="sourceFilters">
                     <label class="filter-row">
                         <input type="checkbox" value="28hse" checked>
@@ -228,14 +232,14 @@
                 <label class="filter-row">
                     <input type="checkbox" id="newOnlyFilter">
                     <span class="cbx"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4 10-10"/></svg></span>
-                    <span>New today only</span>
+                    <span data-i18n="newTodayOnly">New today only</span>
                 </label>
             </div>
 
             <div class="sidebar-foot">
                 <button class="btn btn-ghost btn-reset" onclick="resetFilters()">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
-                    Reset filters
+                    <span data-i18n="resetFilters">Reset filters</span>
                 </button>
             </div>
         </aside>
@@ -243,11 +247,11 @@
         <!-- Results -->
         <section class="content">
             <div class="toolbar">
-                <div class="toolbar-count" id="resultsCount">Loading…</div>
+                <div class="toolbar-count" id="resultsCount" data-i18n="loading">Loading…</div>
                 <div class="toolbar-spacer"></div>
                 <button class="btn btn-outline btn-toggle-sidebar" onclick="toggleSidebar()">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
-                    Filters
+                    <span data-i18n="filters">Filters</span>
                 </button>
             </div>
 
@@ -256,7 +260,7 @@
             <div class="listings-grid" id="listingsGrid">
                 <div class="loading">
                     <div class="loading-ring"></div>
-                    Loading listings…
+                    <span data-i18n="loadingListings">Loading listings…</span>
                 </div>
             </div>
 
@@ -270,16 +274,16 @@
     </div>
 
     <div class="lightbox" id="lightbox">
-        <button class="lightbox-btn lightbox-close" onclick="closeLightbox()" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
-        <button class="lightbox-btn lightbox-prev" id="lightboxPrev" onclick="lightboxStep(-1)" aria-label="Previous image"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
+        <button class="lightbox-btn lightbox-close" onclick="closeLightbox()" data-i18n-aria="close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+        <button class="lightbox-btn lightbox-prev" id="lightboxPrev" onclick="lightboxStep(-1)" data-i18n-aria="prevImage"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
         <figure class="lightbox-stage">
             <img id="lightboxImg" alt="" referrerpolicy="no-referrer">
             <figcaption id="lightboxCaption"></figcaption>
         </figure>
-        <button class="lightbox-btn lightbox-next" id="lightboxNext" onclick="lightboxStep(1)" aria-label="Next image"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button>
+        <button class="lightbox-btn lightbox-next" id="lightboxNext" onclick="lightboxStep(1)" data-i18n-aria="nextImage"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button>
     </div>
 
-    <script src="js/config.js?v=44266491"></script>
-    <script src="js/app.js?v=44266491"></script>
+    <script src="js/config.js?v=98c11802"></script>
+    <script src="js/app.js?v=98c11802"></script>
 </body>
 </html>
