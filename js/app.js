@@ -54,6 +54,9 @@ const I18N = {
         any: 'Any',
         studio: 'Studio',
         bed4plus: '4+',
+        transactionType: 'Transaction',
+        buy: 'Buy',
+        rent: 'Rent',
         type: 'Type',
         allTypes: 'All types',
         apartment: 'Apartment',
@@ -140,6 +143,9 @@ const I18N = {
         any: '不限',
         studio: '单间',
         bed4plus: '4+',
+        transactionType: '交易类型',
+        buy: '买入',
+        rent: '租赁',
         type: '类型',
         allTypes: '所有类型',
         apartment: '公寓',
@@ -425,6 +431,14 @@ function setupEventListeners() {
         });
     });
 
+    document.querySelectorAll('#txFilter .pill').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('#txFilter .pill').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            applyFilters();
+        });
+    });
+
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             hideSortMenu();
@@ -570,6 +584,7 @@ function applyFilters() {
         sources: Array.from(document.querySelectorAll('#sourceFilters input:checked')).map(cb => cb.value),
         minPrice: (parseFloat(document.getElementById('minPrice').value) || null) * 1000000,
         maxPrice: (parseFloat(document.getElementById('maxPrice').value) || null) * 1000000,
+        tx: document.querySelector('#txFilter .pill.active')?.dataset.value || '',
         bedrooms: document.querySelector('#bedroomFilter .pill.active')?.dataset.value || '',
         propertyType: document.getElementById('typeFilter').value,
         sortBy: currentSort,
@@ -580,6 +595,7 @@ function applyFilters() {
     filteredListings = allListings.filter(listing => {
         if (!currentFilters.sources.includes(listing.source)) return false;
         if (currentFilters.favOnly && !isFav(listing.id)) return false;
+        if (currentFilters.tx && listing.transaction_type !== currentFilters.tx) return false;
         if (currentFilters.minPrice && listing.price && listing.price < currentFilters.minPrice) return false;
         if (currentFilters.maxPrice && listing.price && listing.price > currentFilters.maxPrice) return false;
 
@@ -639,6 +655,7 @@ function resetFilters() {
     favOnly = false;
     document.querySelectorAll('#sourceFilters input').forEach(cb => cb.checked = true);
     document.querySelectorAll('#bedroomFilter .pill').forEach(b => b.classList.toggle('active', b.dataset.value === ''));
+    document.querySelectorAll('#txFilter .pill').forEach(b => b.classList.toggle('active', b.dataset.value === ''));
     applyFilters();
     syncChipActive();
 }
@@ -670,6 +687,7 @@ function updateFilterBadges() {
     let count = 0;
     if (s.search) count++;
     if (s.minPrice || s.maxPrice) count++;
+    if (s.tx) count++;
     if (s.bedrooms !== '') count++;
     if (s.propertyType) count++;
     if (s.sources.length < Object.keys(SOURCE_LABELS).length) count++;

@@ -24,7 +24,7 @@
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231c1a16'/%3E%3Ctext x='16' y='22' font-size='16' text-anchor='middle' fill='%23b78b3e' font-family='Georgia'%3ELP%3C/text%3E%3C/svg%3E">
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-    <link rel="stylesheet" href="css/styles.css?v=914d73bf">
+    <link rel="stylesheet" href="css/styles.css?v=610bc8a9">
 </head>
 <body>
 
@@ -151,6 +151,15 @@
             </div>
 
             <div class="filter-section">
+                <span class="filter-label" data-i18n="transactionType">Transaction</span>
+                <div class="pill-group" id="txFilter">
+                    <button class="pill active" data-value="" data-i18n="any">Any</button>
+                    <button class="pill" data-value="buy" data-i18n="buy">Buy</button>
+                    <button class="pill" data-value="rent" data-i18n="rent">Rent</button>
+                </div>
+            </div>
+
+            <div class="filter-section">
                 <label class="filter-label" for="typeFilter" data-i18n="type">Type</label>
                 <div class="select-wrap">
                     <select class="filter-select" id="typeFilter">
@@ -236,7 +245,7 @@
         <button class="lightbox-btn lightbox-next" id="lightboxNext" onclick="lightboxStep(1)" data-i18n-aria="nextImage"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button>
     </div>
 
-    <script src="js/config.js?v=914d73bf"></script>
-    <script src="js/app.js?v=914d73bf"></script>
+    <script src="js/config.js?v=610bc8a9"></script>
+    <script src="js/app.js?v=610bc8a9"></script>
 </body>
 </html>
