@@ -10,7 +10,6 @@ let currentFilters = {};
 let debounceTimer = null;
 
 const sessionKey = 'hk_property_unlocked';
-const FAV_REGION_KEY = 'fav_region';
 const FAV_KEY = 'fav_listings';
 const LANG_KEY = 'lang';
 let favOnly = false;
@@ -48,8 +47,6 @@ const I18N = {
         langAria: 'Switch language',
         search: 'Search',
         searchPh: 'Estate, building, address…',
-        region: 'Region',
-        allRegions: 'All regions',
         priceRange: 'Price range (HK$ M)',
         min: 'Min',
         max: 'Max',
@@ -97,15 +94,8 @@ const I18N = {
         noUrlToast: 'No original listing URL available.',
         noPhotosToast: 'No photos available for this listing.',
         imgFail: 'Image failed to load.',
-        pickRegionToast: 'Pick a region to set as your default.',
-        regionSetToast: '"{r}" set as your default region.',
-        regionClearedToast: 'Discovery Bay is the default region again.',
-        favTitleDefault: 'Save selected region as default',
-        favTitleHasDefault: 'Default: {r} — tap to clear',
-        favTitleDefaultAll: 'Default region for everyone: {r}',
         favOnlyOn: 'Showing saved listings only.',
         favOnlyOff: 'Showing all listings.',
-        all: 'All',
         saved: 'Saved',
         newToday: 'New today',
         exportNone: 'No listings to export.',
@@ -143,8 +133,6 @@ const I18N = {
         langAria: '切换语言',
         search: '搜索',
         searchPh: '屋苑、大厦、地址…',
-        region: '区域',
-        allRegions: '所有区域',
         priceRange: '价格范围（港币百万）',
         min: '最低',
         max: '最高',
@@ -192,15 +180,8 @@ const I18N = {
         noUrlToast: '没有可用的原始房源链接。',
         noPhotosToast: '该房源暂无照片。',
         imgFail: '图片加载失败。',
-        pickRegionToast: '请选择一个区域作为默认区域。',
-        regionSetToast: '已将“{r}”设为默认区域。',
-        regionClearedToast: '默认区域已恢复为愉景湾。',
-        favTitleDefault: '将所选区域设为默认',
-        favTitleHasDefault: '默认：{r} — 点击清除',
-        favTitleDefaultAll: '默认区域：{r}',
         favOnlyOn: '仅显示已保存的房源。',
         favOnlyOff: '显示全部房源。',
-        all: '全部',
         saved: '已保存',
         newToday: '今日新增',
         exportNone: '没有可导出的房源。',
@@ -248,7 +229,6 @@ function applyLangStatic() {
 
 function refreshDynamicLang() {
     updateStatsHeaderText();
-    populateRegions();
     renderRegionChips();
     if (allListings.length > 0 || document.getElementById('resultsCount').textContent !== t('loading')) applyFilters();
 }
@@ -417,7 +397,7 @@ function setupEventListeners() {
 
     document.getElementById('searchInput').addEventListener('input', () => debounced(applyFilters));
 
-    for (const id of ['regionFilter', 'typeFilter', 'minPrice', 'maxPrice']) {
+    for (const id of ['typeFilter', 'minPrice', 'maxPrice']) {
         const el = document.getElementById(id);
         if (id.includes('Price')) {
             el.addEventListener('input', () => debounced(applyFilters));
@@ -475,7 +455,6 @@ async function loadListings() {
         lastCrawlTime = data.last_crawl ? new Date(parseUtcIso(data.last_crawl)) : null;
         buildDupIndex();
         updateStatsHeader(data);
-        populateRegions();
         renderRegionChips();
         applyFilters();
         startAutoRefresh();
@@ -510,7 +489,6 @@ function startAutoRefresh() {
             lastCrawlTime = data.last_crawl ? new Date(parseUtcIso(data.last_crawl)) : null;
             buildDupIndex();
             updateStatsHeader(data);
-            populateRegions();
             renderRegionChips();
             applyFilters();
             showToast(t('refreshedToast'), 'info');
@@ -542,109 +520,20 @@ function updateStatsHeaderText() {
     else crawlEl.textContent = lastCrawlTime.toLocaleDateString();
 }
 
-const DEFAULT_REGION = 'discovery bay';
-
 function isDiscoveryBay(listing) {
     return (listing.sub_district || '').trim().toLowerCase() === 'discovery bay';
 }
 
-function populateRegions() {
-    const select = document.getElementById('regionFilter');
-    const current = select.value;
-    const regions = [...new Set(allListings.map(l => (l.sub_district || '').trim()).filter(Boolean))]
-        .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
-
-    select.innerHTML = `<option value="">${t('allRegions')}</option>` +
-        regions.map(r => `<option value="${escapeHtml(r).toLowerCase()}">${escapeHtml(r)}</option>`).join('');
-
-    const savedFav = localStorage.getItem(FAV_REGION_KEY);
-    let fav = '';
-    if (savedFav && regions.some(r => r.toLowerCase() === savedFav.toLowerCase())) {
-        fav = savedFav.toLowerCase();
-    } else {
-        if (savedFav) localStorage.removeItem(FAV_REGION_KEY);
-        if (regions.some(r => r.toLowerCase() === DEFAULT_REGION)) fav = DEFAULT_REGION;
-    }
-
-    const favBtn = document.getElementById('favBtn');
-    if (fav) {
-        select.value = fav;
-        favBtn.classList.add('active');
-        favBtn.setAttribute('aria-pressed', 'true');
-        const label = regions.find(r => r.toLowerCase() === fav) || '';
-        favBtn.title = savedFav
-            ? t('favTitleHasDefault', { r: label })
-            : t('favTitleDefaultAll', { r: label });
-    } else {
-        if (regions.some(r => r.toLowerCase() === current)) select.value = current;
-        favBtn.classList.remove('active');
-        favBtn.setAttribute('aria-pressed', 'false');
-        favBtn.title = t('favTitleDefault');
-    }
-}
-
-function toggleFavouriteRegion() {
-    const select = document.getElementById('regionFilter');
-    const favBtn = document.getElementById('favBtn');
-    const savedFav = localStorage.getItem(FAV_REGION_KEY);
-
-    if (savedFav) {
-        localStorage.removeItem(FAV_REGION_KEY);
-        const hasDefault = Array.from(select.options).some(o => o.value === DEFAULT_REGION);
-        if (hasDefault) select.value = DEFAULT_REGION;
-        favBtn.classList.add('active');
-        favBtn.setAttribute('aria-pressed', 'true');
-        favBtn.title = t('favTitleDefaultAll', { r: 'Discovery Bay' });
-        applyFilters();
-        showToast(t('regionClearedToast'), 'info');
-        return;
-    }
-
-    const region = select.value;
-    if (!region) {
-        showToast(t('pickRegionToast'), 'info');
-        return;
-    }
-
-    localStorage.setItem(FAV_REGION_KEY, region);
-    favBtn.classList.add('active');
-    favBtn.setAttribute('aria-pressed', 'true');
-    const label = Array.from(select.options).find(o => o.value === region)?.textContent || region;
-    favBtn.title = t('favTitleHasDefault', { r: label });
-    showToast(t('regionSetToast', { r: label }), 'success');
-    applyFilters();
-}
-
-/* --------------------------------------------------------------------------
-   Quick chips (regions, saved, new)
-   -------------------------------------------------------------------------- */
 function renderRegionChips() {
     const box = document.getElementById('regionChips');
     if (!box) return;
-    const byRegion = {};
-    for (const l of allListings) {
-        const r = (l.sub_district || '').trim();
-        if (r) byRegion[r] = (byRegion[r] || 0) + 1;
-    }
-    const top = Object.entries(byRegion)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 5)
-        .map(([region]) => region);
-
-    let html = `<button class="chip" data-region="" onclick="pickRegion(this)">${t('all')}</button>`;
-    for (const r of top) {
-        html += `<button class="chip" data-region="${escapeHtml(r.toLowerCase())}" onclick="pickRegion(this)">${escapeHtml(r)}<span class="chip-count">${byRegion[r].toLocaleString()}</span></button>`;
-    }
-    html += `<button class="chip chip-toggle" id="chipFav" onclick="toggleFavOnly()">${t('saved')}<span class="chip-count" id="chipFavCount"></span></button>`;
-    html += `<button class="chip chip-toggle" id="chipNew" onclick="toggleNewOnly()">${t('newToday')}</button>`;
-    box.innerHTML = html;
+    box.innerHTML =
+        `<button class="chip chip-toggle" id="chipFav" onclick="toggleFavOnly()">${t('saved')}<span class="chip-count" id="chipFavCount"></span></button>` +
+        `<button class="chip chip-toggle" id="chipNew" onclick="toggleNewOnly()">${t('newToday')}</button>`;
     syncChipActive();
 }
 
 function syncChipActive() {
-    document.querySelectorAll('#regionChips .chip[data-region]').forEach(b => {
-        b.classList.toggle('active', b.dataset.region === document.getElementById('regionFilter').value);
-    });
     const chipFav = document.getElementById('chipFav');
     if (chipFav) chipFav.classList.toggle('active', favOnly);
     const chipNew = document.getElementById('chipNew');
@@ -658,11 +547,6 @@ function countFavs() {
     if (favs.length === 0) return 0;
     const ids = new Set(allListings.map(l => l.id));
     return favs.filter(id => ids.has(id)).length;
-}
-
-function pickRegion(btn) {
-    document.getElementById('regionFilter').value = btn.dataset.region;
-    applyFilters();
 }
 
 function toggleFavOnly() {
@@ -684,7 +568,6 @@ function applyFilters() {
     currentFilters = {
         search: document.getElementById('searchInput').value.trim().toLowerCase(),
         sources: Array.from(document.querySelectorAll('#sourceFilters input:checked')).map(cb => cb.value),
-        region: document.getElementById('regionFilter').value,
         minPrice: (parseFloat(document.getElementById('minPrice').value) || null) * 1000000,
         maxPrice: (parseFloat(document.getElementById('maxPrice').value) || null) * 1000000,
         bedrooms: document.querySelector('#bedroomFilter .pill.active')?.dataset.value || '',
@@ -697,7 +580,6 @@ function applyFilters() {
     filteredListings = allListings.filter(listing => {
         if (!currentFilters.sources.includes(listing.source)) return false;
         if (currentFilters.favOnly && !isFav(listing.id)) return false;
-        if (currentFilters.region && (listing.sub_district || '').trim().toLowerCase() !== currentFilters.region) return false;
         if (currentFilters.minPrice && listing.price && listing.price < currentFilters.minPrice) return false;
         if (currentFilters.maxPrice && listing.price && listing.price > currentFilters.maxPrice) return false;
 
@@ -748,7 +630,6 @@ function sortListings() {
 
 function resetFilters() {
     document.getElementById('searchInput').value = '';
-    document.getElementById('regionFilter').value = '';
     document.getElementById('minPrice').value = '';
     document.getElementById('maxPrice').value = '';
     document.getElementById('typeFilter').value = '';
@@ -788,7 +669,6 @@ function updateFilterBadges() {
     const s = currentFilters;
     let count = 0;
     if (s.search) count++;
-    if (s.region) count++;
     if (s.minPrice || s.maxPrice) count++;
     if (s.bedrooms !== '') count++;
     if (s.propertyType) count++;
