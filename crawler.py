@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
 Hong Kong Property Listing Crawler
-Crawls 28Hse.com, Squarefoot.com.hk and Property.hk and outputs to listings.json
+Crawls 28Hse.com, Squarefoot.com.hk, Property.hk, OKAY.com, Centaline
+and Midland and outputs to listings.json
 """
 
 import json
@@ -1038,6 +1039,223 @@ class CentalineCrawler:
 
 
 
+class MidlandCrawler:
+    """Midland Realty (midland.com.hk) Discovery Bay listings.
+
+    Uses Midland's public search API (data.midland.com.hk/search/v2/properties),
+    which requires a bearer token. Midland embeds the current token in the SSR
+    pages (runtimeConfig.BUILD_TOKEN inside __NEXT_DATA__), so we pull a fresh
+    one every crawl and scope results to the Discovery Bay estate (E00029).
+    Estate-scoped responses are authoritative — no breadcrumb guessing needed."""
+
+    ESTATE_ID = "E00029"  # Discovery Bay
+    LIST_PAGE = "https://www.midland.com.hk/en/list/buy/Discovery-Bay-E-E00029"
+    API_URL = "https://data.midland.com.hk/search/v2/properties"
+    TX_CODES = {"buy": "S", "rent": "L"}  # S = sale, L = let/rent
+
+    def __init__(self):
+        self.session = cffi.Session(impersonate="chrome124", timeout=25)
+        self.token = None
+
+    def close(self):
+        self.session.close()
+
+    def _fetch_token(self) -> Optional[str]:
+        try:
+            response = self.session.get(self.LIST_PAGE)
+        except Exception as e:
+            print(f"    Error fetching Midland token page: {e}")
+            return None
+        if response.status_code != 200:
+            print(f"    Midland token page returned HTTP {response.status_code}")
+            return None
+        m = re.search(
+            r'<script id="__NEXT_DATA__" type="application/json"[^>]*>(.*?)</script>',
+            response.text,
+            re.DOTALL,
+        )
+        if not m:
+            print("    Midland: no __NEXT_DATA__ on list page")
+            return None
+        try:
+            data = json.loads(m.group(1))
+            token = (data.get("runtimeConfig") or {}).get("BUILD_TOKEN")
+        except (json.JSONDecodeError, AttributeError):
+            token = None
+        if not token:
+            print("    Midland: no BUILD_TOKEN in runtimeConfig")
+        return token
+
+    def _api(self, tx_type: str, page: int, limit: int = 50) -> List[Dict]:
+        """One page of Midland search results; refreshes the token on 401."""
+        if not self.token:
+            return []
+        for attempt in range(1, 3):
+            try:
+                response = self.session.get(
+                    self.API_URL,
+                    params={
+                        "est_ids": self.ESTATE_ID,
+                        "tx_type": tx_type,
+                        "limit": limit,
+                        "page": page,
+                        "lang": "en",
+                    },
+                    headers={"Authorization": f"Bearer {self.token}"},
+                )
+            except Exception as e:
+                print(f"    Midland API error: {e}")
+                time.sleep(3)
+                continue
+            if response.status_code == 401:
+                print("    Midland API 401 — refreshing token")
+                self.token = self._fetch_token()
+                if not self.token:
+                    return []
+                time.sleep(1.5)
+                continue
+            if response.status_code != 200:
+                print(f"    Midland API HTTP {response.status_code}")
+                time.sleep(3)
+                continue
+            try:
+                data = response.json()
+            except Exception:
+                print("    Midland API invalid JSON")
+                return []
+            return data.get("result") or []
+        return []
+
+    def crawl(self) -> List[Dict]:
+        listings = []
+        self.token = self._fetch_token()
+        if not self.token:
+            return listings
+        seen_ids = set()
+        for section, tx in self.TX_CODES.items():
+            print(f"  Crawling Midland {section} (Discovery Bay)...")
+            page = 1
+            total = 0
+            while page <= 10:
+                result = self._api(tx, page)
+                if not result:
+                    break
+                newn = 0
+                for item in result:
+                    listing = self._parse_item(item, section)
+                    if listing and listing["id"] not in seen_ids:
+                        seen_ids.add(listing["id"])
+                        listings.append(listing)
+                        newn += 1
+                total += newn
+                print(f"    page {page}: {newn} items")
+                time.sleep(1)
+                if len(result) < 50:
+                    break
+                page += 1
+            print(f"    Midland {section} total: {total}")
+        return listings
+
+    def _parse_item(self, item: Dict, section: str) -> Optional[Dict]:
+        estate = item.get("estate") or {}
+        phase = item.get("phase") or {}
+        building = item.get("building") or {}
+        district = item.get("district") or {}
+        sm_district = item.get("sm_district") or {}
+
+        scope = f"{estate.get('name', '')} {district.get('name', '')} {sm_district.get('name', '')}".lower()
+        if "discovery bay" not in scope:
+            return None
+
+        url = (item.get("url_desc") or "").strip()
+        if not url:
+            return None
+
+        if section == "rent":
+            price = item.get("rent_hkd") or item.get("rent") or None
+        else:
+            price = item.get("price_hkd") or item.get("price") or None
+
+        sqft = item.get("area")
+        price_per_sqft = item.get("price_over_area")
+
+        floor_level = None
+        fl = item.get("floor_level")
+        if isinstance(fl, dict):
+            floor_level = fl.get("name")
+
+        phase_name = phase.get("name") or ""
+        building_name = building.get("name") or phase_name or estate.get("name") or None
+        title = building_name or "Discovery Bay"
+        address = ", ".join(
+            p for p in [building.get("address") or "", "Discovery Bay"] if p
+        )
+
+        images = []
+        for p in item.get("outlook_photos") or []:
+            u = p.get("wan_doc_path") or ""
+            if u and "vimeocdn" not in u:
+                images.append(u)
+        cover = item.get("outlook_wan_doc_path")
+        if not images and isinstance(cover, str) and cover and "vimeocdn" not in cover:
+            images.append(cover)
+
+        date_posted = None
+        ud = item.get("update_date")
+        if isinstance(ud, str):
+            m = re.match(r"\d{4}-\d{2}-\d{2}", ud)
+            if m:
+                date_posted = m.group(0)
+
+        features = []
+        for tag in item.get("tags") or []:
+            features.append(str(tag))
+        section_key = "rent" if section == "rent" else "sell"
+        for f in (item.get("misc") or {}).get(section_key) or []:
+            if f.get("name"):
+                features.append(f["name"])
+
+        agent_company = "Midland Realty"
+        agent = item.get("agent")
+        if isinstance(agent, dict):
+            agent_name = agent.get("name") or {}
+            if isinstance(agent_name, dict):
+                agent_company = agent_name.get("eng") or agent_name.get("chi")
+            elif agent_name:
+                agent_company = agent_name
+
+        return {
+            "id": generate_id(url),
+            "title": title,
+            "price": price,
+            "currency": "HKD",
+            "transaction_type": section,
+            "district": detect_district(
+                f"Discovery Bay {title} {phase_name}"
+            ) or "new_territories",
+            "sub_district": "Discovery Bay",
+            "address": address or "Discovery Bay",
+            "bedrooms": item.get("bedroom"),
+            "bathrooms": item.get("bathroom"),
+            "sqft": float(sqft) if sqft else None,
+            "price_per_sqft": float(price_per_sqft) if price_per_sqft else None,
+            "property_type": "apartment",
+            "floor_level": floor_level,
+            "building_name": building_name,
+            "source": "midland",
+            "source_url": url,
+            "agent_company": "Midland Realty" if not agent else agent_company,
+            "images": images,
+            "description": f"{title} - {address or 'Discovery Bay'}",
+            "features": list(dict.fromkeys(features)),
+            "date_crawled": datetime.now(timezone.utc).isoformat(),
+            "date_posted": date_posted,
+            "is_new": True,
+            "price_changed": False,
+            "previous_price": None,
+        }
+
+
 def load_existing_listings() -> Dict[str, Dict]:
     if OUTPUT_FILE.exists():
         try:
@@ -1154,7 +1372,7 @@ def main():
     print()
 
     all_listings = []
-    for crawler in (Hse28Crawler(), SquarefootCrawler(), PropertyHkCrawler(), OkayCrawler(), CentalineCrawler()):
+    for crawler in (Hse28Crawler(), SquarefootCrawler(), PropertyHkCrawler(), OkayCrawler(), CentalineCrawler(), MidlandCrawler()):
         try:
             all_listings.extend(crawler.crawl())
         finally:

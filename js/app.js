@@ -365,7 +365,8 @@ const SOURCE_LABELS = {
     'squarefoot': 'Squarefoot',
     'propertyhk': 'Property.hk',
     'okay': 'OKAY.com',
-    'centaline': 'Centaline'
+    'centaline': 'Centaline',
+    'midland': 'Midland'
 };
 
 const DISTRICT_LABELS = {
