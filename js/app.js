@@ -280,6 +280,8 @@ function parseUtcIso(value) {
 
 document.addEventListener('DOMContentLoaded', () => {
     applyLangStatic();
+    syncThemeWithSystem();
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', syncThemeWithSystem);
     syncThemeIcon();
     if ('serviceWorker' in navigator && location.protocol === 'https:') {
         navigator.serviceWorker.register('sw.js').catch(() => {});
@@ -1043,6 +1045,13 @@ function toggleTheme() {
     const dark = document.documentElement.getAttribute('data-theme') === 'dark';
     document.documentElement.setAttribute('data-theme', dark ? '' : 'dark');
     localStorage.setItem('theme', dark ? '' : 'dark');
+    syncThemeIcon();
+}
+
+function syncThemeWithSystem() {
+    if (localStorage.getItem('theme')) return;
+    const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', dark ? 'dark' : '');
     syncThemeIcon();
 }
 
