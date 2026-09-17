@@ -443,10 +443,7 @@ let currentSort = 'date_crawled';
 
 async function loadListings() {
     try {
-        const response = await fetch(`listings.json?t=${Date.now()}`);
-        if (!response.ok) throw new Error('No data file');
-
-        const data = await response.json();
+        const data = JSON.parse(await fetchListingsText());
         allListings = (data.listings || []).filter(isDiscoveryBay);
 
         lastDataSig = dataSig(data);
@@ -468,17 +465,47 @@ async function loadListings() {
     }
 }
 
+async function fetchListingsText() {
+    let lastErr;
+    for (const file of ['listings.json.br', 'listings.json.gz', 'listings.json']) {
+        try {
+            const res = await fetch(file);
+            if (!res.ok) continue;
+            const buf = await res.arrayBuffer();
+            const enc = (res.headers.get('content-encoding') || '').toLowerCase();
+            if (enc.includes('br')) return new TextDecoder().decode(buf);
+            if (enc.includes('gzip')) return new TextDecoder().decode(buf);
+            if (file.endsWith('.br')) continue;
+            const bytes = new Uint8Array(buf);
+            if (bytes[0] === 0x1f && bytes[1] === 0x8b) {
+                if (typeof DecompressionStream !== 'undefined') {
+                    return await new Response(bytes).body.pipeThrough(new DecompressionStream('gzip')).text();
+                }
+                continue;
+            }
+            return new TextDecoder().decode(buf);
+        } catch (e) {
+            lastErr = e;
+        }
+    }
+    throw (lastErr || new Error('No data file'));
+}
+
 function dataSig(data) {
-    return `${data.stats && data.stats.total}|${data.last_crawl || ''}`;
+    const total = data.total ?? (data.stats && data.stats.total);
+    return `${total}|${data.last_crawl || ''}`;
 }
 
 function startAutoRefresh() {
     if (autoRefreshTimer) return;
     autoRefreshTimer = setInterval(async () => {
+        if (document.visibilityState !== 'visible') return;
         try {
-            const response = await fetch(`listings.json?t=${Date.now()}`);
+            const response = await fetch(`stats.json?t=${Date.now()}`);
             if (!response.ok) return;
-            const data = await response.json();
+            const meta = await response.json();
+            if (dataSig(meta) === lastDataSig) return;
+            const data = JSON.parse(await fetchListingsText());
             const sig = dataSig(data);
             if (sig === lastDataSig) return;
             lastDataSig = sig;
@@ -689,15 +716,16 @@ function renderListings() {
     }
 
     grid.innerHTML = pageListings.map((listing, i) =>
-        createListingCard(listing, Math.min(i, 8))).join('');
+        createListingCard(listing, i)).join('');
 
     renderPagination();
 }
 
-function createListingCard(listing, stagger) {
+function createListingCard(listing, index) {
     const img0 = firstImage(listing);
+    const fp = index === 0 ? 'high' : 'low';
     const media = img0
-        ? `<img src="${imageProxy(img0)}" alt="" loading="lazy" referrerpolicy="no-referrer"
+        ? `<img src="${imageProxy(img0)}" alt="" loading="lazy" fetchpriority="${fp}" referrerpolicy="no-referrer"
                onload="this.classList.add('loaded')"
                onclick="event.stopPropagation();event.preventDefault();openLightbox('${listing.id}')"
                onerror="this.outerHTML='${htmlAttr(placeholderMediaMarkup)}'">`

@@ -5,6 +5,7 @@ Crawls 28Hse.com, Squarefoot.com.hk, Property.hk, OKAY.com, Centaline
 and Midland and outputs to listings.json
 """
 
+import gzip
 import json
 import re
 import hashlib
@@ -17,8 +18,23 @@ import httpx
 from bs4 import BeautifulSoup
 from curl_cffi import requests as cffi
 
+try:
+    import brotli
+except ImportError:
+    brotli = None
+
 
 OUTPUT_FILE = Path(__file__).parent / "listings.json"
+STATS_FILE = Path(__file__).parent / "stats.json"
+
+VISIBLE_SOURCES = ("centaline", "midland")
+
+FRONTEND_FIELDS = (
+    "id", "title", "address", "building_name", "sub_district", "district",
+    "description", "source", "source_url", "price", "price_per_sqft",
+    "previous_price", "price_changed", "bedrooms", "bathrooms", "sqft",
+    "transaction_type", "property_type", "is_new", "images", "date_crawled",
+)
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -1295,12 +1311,43 @@ def load_previous_stats() -> Dict:
 
 
 def save_listings(listings: List[Dict], stats: Dict):
-    with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
-        json.dump({
-            "last_crawl": datetime.now(timezone.utc).isoformat(),
-            "stats": stats,
-            "listings": listings
-        }, f, indent=2, ensure_ascii=False)
+    now = datetime.now(timezone.utc).isoformat()
+
+    def prune(item: Dict) -> Dict:
+        return {k: item.get(k) for k in FRONTEND_FIELDS if k in item}
+
+    payload = {
+        "last_crawl": now,
+        "stats": {
+            "total": len(listings),
+            "by_source": stats.get("by_source", {}),
+            "last_fresh_by_source": stats.get("last_fresh_by_source", {}),
+        },
+        "listings": [prune(item) for item in listings],
+    }
+    text = json.dumps(payload, separators=(",", ":"), ensure_ascii=False)
+
+    OUTPUT_FILE.write_text(text, encoding="utf-8")
+
+    gz_path = OUTPUT_FILE.with_suffix(".json.gz")
+    gz_path.write_bytes(gzip.compress(text.encode("utf-8"), mtime=0))
+
+    if brotli is not None:
+        br_path = OUTPUT_FILE.with_suffix(".json.br")
+        br_path.write_bytes(brotli.compress(text.encode("utf-8")))
+
+    stats_payload = {
+        "last_crawl": now,
+        "total": len(listings),
+        "by_source": stats.get("by_source", {}),
+    }
+    STATS_FILE.write_text(
+        json.dumps(stats_payload, separators=(",", ":"), ensure_ascii=False),
+        encoding="utf-8",
+    )
+
+    print(f"  payload: {len(text)} bytes plain | {gz_path.stat().st_size} gzip"
+          + (f" | {br_path.stat().st_size} brotli" if brotli is not None else ""))
 
 
 def strip_region_from_title(title: str, sub_district: Optional[str]) -> str:
@@ -1419,8 +1466,15 @@ def main():
         if district:
             by_district[district] = by_district.get(district, 0) + 1
 
+    visible = [
+        listing for listing in merged
+        if listing.get("source") in VISIBLE_SOURCES
+        and (listing.get("sub_district") or "").strip().lower() == "discovery bay"
+    ]
+    print(f"Visible to site ({VISIBLE_SOURCES} · Discovery Bay): {len(visible)}")
+
     stats = {
-        "total": len(merged),
+        "total": len(visible),
         "by_source": by_source,
         "by_district": by_district,
         "new_this_crawl": len(all_listings),
@@ -1428,14 +1482,14 @@ def main():
         "last_fresh_by_source": fresh_counts(all_listings),
     }
 
-    save_listings(merged, stats)
+    save_listings(visible, stats)
 
-    print(f"Saved {len(merged)} listings to {OUTPUT_FILE.name}")
+    print(f"Saved {len(visible)} listings to {OUTPUT_FILE.name} (plus gzip/brotli/stats)")
     print()
     print("=" * 50)
     print("Crawl Complete!")
     print("=" * 50)
-    print(f"Total listings: {stats['total']}")
+    print(f"Total visible listings: {stats['total']}")
     print(f"New this crawl: {stats['new_this_crawl']}")
     print(f"By source: {stats['by_source']}")
     print(f"By district: {stats['by_district']}")
