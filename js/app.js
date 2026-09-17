@@ -466,25 +466,9 @@ async function loadListings() {
 }
 
 async function fetchListingsText() {
-    let lastErr;
-    for (const file of ['listings.json.gz', 'listings.json']) {
-        try {
-            const res = await fetch(file);
-            if (!res.ok) continue;
-            const bytes = new Uint8Array(await res.arrayBuffer());
-            let text;
-            if (bytes[0] === 0x1f && bytes[1] === 0x8b) {
-                if (typeof DecompressionStream === 'undefined') continue;
-                text = await new Response(bytes).body.pipeThrough(new DecompressionStream('gzip')).text();
-            } else {
-                text = new TextDecoder().decode(bytes);
-            }
-            if (text.trimStart().startsWith('{')) return text;
-        } catch (e) {
-            lastErr = e;
-        }
-    }
-    throw (lastErr || new Error('No data file'));
+    const res = await fetch('listings.json');
+    if (!res.ok) throw new Error('No data file');
+    return await res.text();
 }
 
 function dataSig(data) {

@@ -5,7 +5,6 @@ Crawls 28Hse.com, Squarefoot.com.hk, Property.hk, OKAY.com, Centaline
 and Midland and outputs to listings.json
 """
 
-import gzip
 import json
 import re
 import hashlib
@@ -1324,9 +1323,6 @@ def save_listings(listings: List[Dict], stats: Dict):
 
     OUTPUT_FILE.write_text(text, encoding="utf-8")
 
-    gz_path = OUTPUT_FILE.with_suffix(".json.gz")
-    gz_path.write_bytes(gzip.compress(text.encode("utf-8"), mtime=0))
-
     stats_payload = {
         "last_crawl": now,
         "total": len(listings),
@@ -1337,7 +1333,7 @@ def save_listings(listings: List[Dict], stats: Dict):
         encoding="utf-8",
     )
 
-    print(f"  payload: {len(text)} bytes plain | {gz_path.stat().st_size} gzip")
+    print(f"  payload: {len(text)} bytes plain")
 
 
 def strip_region_from_title(title: str, sub_district: Optional[str]) -> str:
@@ -1474,7 +1470,7 @@ def main():
 
     save_listings(visible, stats)
 
-    print(f"Saved {len(visible)} listings to {OUTPUT_FILE.name} (plus gzip/stats)")
+    print(f"Saved {len(visible)} listings to {OUTPUT_FILE.name} (plus stats)")
     print()
     print("=" * 50)
     print("Crawl Complete!")
