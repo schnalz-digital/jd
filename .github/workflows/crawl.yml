@@ -43,14 +43,14 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add listings.json stats.json index.html img/
+          git add listings.json stats.json index.html
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
             git commit -m "Update data [skip ci]"
             git pull --rebase origin main --no-edit || {
-              git checkout --theirs listings.json stats.json index.html img/
-              git add listings.json stats.json index.html img/
+              git checkout --theirs listings.json stats.json index.html
+              git add listings.json stats.json index.html
               git -c core.editor=true rebase --continue || git rebase --abort
             }
             git push

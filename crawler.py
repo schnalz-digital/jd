@@ -20,7 +20,6 @@ from curl_cffi import requests as cffi
 
 OUTPUT_FILE = Path(__file__).parent / "listings.json"
 STATS_FILE = Path(__file__).parent / "stats.json"
-THUMB_DIR = Path(__file__).parent / "img"
 
 VISIBLE_SOURCES = ("centaline", "midland")
 
@@ -1337,63 +1336,6 @@ def save_listings(listings: List[Dict], stats: Dict):
     print(f"  payload: {len(text)} bytes plain")
 
 
-def download_thumbs(listings: List[Dict]) -> Tuple[int, int]:
-    """Download the cover image of every visible listing into img/ so the site
-    never depends on a source CDN being hotlink-friendly. Midland's image CDN
-    returns 403 to off-site clients, so we pin covers at crawl time. On any
-    failure the cover URL is left untouched and the frontend shows a
-    placeholder card instead."""
-    THUMB_DIR.mkdir(exist_ok=True)
-    session = cffi.Session(impersonate="chrome124", timeout=25)
-    headers = dict(HEADERS)
-    headers["Referer"] = "https://www.midland.com.hk/"
-    headers["Accept"] = "image/avif,image/webp,image/jpeg,*/*;q=0.8"
-    ok = fail = skip = 0
-    try:
-        for listing in listings:
-            if listing.get("source") != "midland":
-                continue
-            images = listing.get("images") or []
-            if not images:
-                skip += 1
-                continue
-            first = images[0]
-            if not isinstance(first, str) or not first.startswith("https://") or first.startswith("img/"):
-                skip += 1
-                continue
-            out_path = THUMB_DIR / f"{listing['id']}.jpg"
-            try:
-                response = session.get(first, headers=headers)
-                body = response.content
-                if response.status_code == 200 and body[:3] == b"\xff\xd8\xff":
-                    out_path.write_bytes(body)
-                    images[0] = f"img/{listing['id']}.jpg"
-                    ok += 1
-                else:
-                    fail += 1
-            except TypeError:
-                fail += 1
-            except Exception:
-                fail += 1
-    finally:
-        session.close()
-
-    wanted = {
-        f"img/{listing['id']}.jpg"
-        for listing in listings
-        if listing.get("source") == "midland" and (listing.get("images") or [])[:1] == [f"img/{listing['id']}.jpg"]
-    }
-    try:
-        for p in THUMB_DIR.glob("*.jpg"):
-            if f"img/{p.name}" not in wanted:
-                p.unlink()
-    except OSError:
-        pass
-
-    print(f"  thumbnails: {ok} saved, {fail} failed, {skip} skipped")
-    return ok, fail
-
-
 def strip_region_from_title(title: str, sub_district: Optional[str]) -> str:
     """Remove the region/sub-district name from a title when it appears as a
     standalone token (never inside a CJK compound word, e.g. the Chinese
@@ -1525,11 +1467,6 @@ def main():
         "last_crawl": datetime.now(timezone.utc).isoformat(),
         "last_fresh_by_source": fresh_counts(all_listings),
     }
-
-    try:
-        download_thumbs(visible)
-    except Exception as e:
-        print(f"  [WARNING] thumbnail download failed: {e}")
 
     save_listings(visible, stats)
 
