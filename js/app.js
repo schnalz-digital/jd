@@ -765,7 +765,7 @@ function createListingCard(listing, index) {
              aria-label="${escapeHtml(title)} — ${t('openOriginal')}"
              onclick="openSource('${listing.id}')"
              onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openSource('${listing.id}')}"
-             style="animation-delay:${stagger * 55}ms">
+             style="animation-delay:${Math.min(index, 6) * 55}ms">
             <div class="card-media">${media}${mediaActions}${badgesHtml}${priceHtml}</div>
             <div class="card-body">
                 <h3 class="card-title">${escapeHtml(title)}</h3>
