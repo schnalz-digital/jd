@@ -250,7 +250,7 @@ function updateLangBtn() {
 }
 
 function imageProxy(url, width = 800) {
-    if (!url) return url;
+    if (!url || !/^https?:\/\//i.test(url)) return url;
     try {
         const host = (url.split('/')[2] || '').toLowerCase();
         if (host === 'i1.squarefoot.com.hk' || host === 'wm-cdn.midland.com.hk') return url;
@@ -261,7 +261,7 @@ function imageProxy(url, width = 800) {
 }
 
 function firstImage(listing) {
-    return (listing.images || []).find(u => /^https?:\/\//i.test(u));
+    return (listing.images || []).find(u => typeof u === 'string' && u.trim());
 }
 
 function parseUtcIso(value) {
