@@ -29,7 +29,6 @@ const I18N = {
         continue: 'Continue',
         pleaseEnterPassword: 'Please enter a password.',
         incorrectPassword: 'Incorrect password.',
-        pending: 'pending',
         justNow: 'just now',
         minsAgo: '{n}m ago',
         hoursAgo: '{n}h ago',
@@ -45,7 +44,7 @@ const I18N = {
         exportTitle: 'Export CSV',
         langAria: 'Switch language',
         search: 'Search',
-        searchPh: 'Estate, building, address…',
+        searchPh: 'Estate, address…',
         priceRangeM: 'Price range (HK$ M)',
         priceRangeK: 'Price range (HK$ K)',
         min: 'Min',
@@ -118,7 +117,6 @@ const I18N = {
         continue: '继续',
         pleaseEnterPassword: '请输入密码。',
         incorrectPassword: '密码不正确。',
-        pending: '待更新',
         justNow: '刚刚',
         minsAgo: '{n} 分钟前',
         hoursAgo: '{n} 小时前',
@@ -134,7 +132,7 @@ const I18N = {
         exportTitle: '导出 CSV',
         langAria: '切换语言',
         search: '搜索',
-        searchPh: '屋苑、大厦、地址…',
+        searchPh: '屋苑、地址…',
         priceRangeM: '价格范围（港币百万）',
         priceRangeK: '价格范围（港币千元）',
         min: '最低',
@@ -234,7 +232,6 @@ function applyLangStatic() {
 }
 
 function refreshDynamicLang() {
-    updateStatsHeaderText();
     renderRegionChips();
     if (allListings.length > 0 || document.getElementById('resultsCount').textContent !== t('loading')) applyFilters();
 }
@@ -470,7 +467,6 @@ async function loadListings() {
         lastDataSig = dataSig(data);
         lastCrawlTime = data.last_crawl ? new Date(parseUtcIso(data.last_crawl)) : null;
         buildDupIndex();
-        updateStatsHeader(data);
         renderRegionChips();
         applyFilters();
         startAutoRefresh();
@@ -504,7 +500,6 @@ function startAutoRefresh() {
             allListings = (data.listings || []).filter(isDiscoveryBay);
             lastCrawlTime = data.last_crawl ? new Date(parseUtcIso(data.last_crawl)) : null;
             buildDupIndex();
-            updateStatsHeader(data);
             renderRegionChips();
             applyFilters();
             showToast(t('refreshedToast'), 'info');
@@ -512,25 +507,6 @@ function startAutoRefresh() {
             console.error('Auto-refresh failed:', error);
         }
     }, 3 * 60 * 1000);
-}
-
-function updateStatsHeader(data) {
-    lastCrawlTime = data.last_crawl ? new Date(parseUtcIso(data.last_crawl)) : null;
-    updateStatsHeaderText();
-}
-
-function updateStatsHeaderText() {
-    const crawlEl = document.getElementById('lastCrawl');
-    if (!crawlEl) return;
-    if (!lastCrawlTime) {
-        crawlEl.textContent = t('pending');
-        return;
-    }
-    const mins = Math.floor((Date.now() - lastCrawlTime.getTime()) / 60000);
-    if (mins < 1) crawlEl.textContent = t('justNow');
-    else if (mins < 60) crawlEl.textContent = t('minsAgo', { n: mins });
-    else if (mins < 1440) crawlEl.textContent = t('hoursAgo', { n: Math.floor(mins / 60) });
-    else crawlEl.textContent = lastCrawlTime.toLocaleDateString();
 }
 
 function isDiscoveryBay(listing) {
