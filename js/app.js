@@ -467,23 +467,19 @@ async function loadListings() {
 
 async function fetchListingsText() {
     let lastErr;
-    for (const file of ['listings.json.br', 'listings.json.gz', 'listings.json']) {
+    for (const file of ['listings.json.gz', 'listings.json']) {
         try {
             const res = await fetch(file);
             if (!res.ok) continue;
-            const buf = await res.arrayBuffer();
-            const enc = (res.headers.get('content-encoding') || '').toLowerCase();
-            if (enc.includes('br')) return new TextDecoder().decode(buf);
-            if (enc.includes('gzip')) return new TextDecoder().decode(buf);
-            if (file.endsWith('.br')) continue;
-            const bytes = new Uint8Array(buf);
+            const bytes = new Uint8Array(await res.arrayBuffer());
+            let text;
             if (bytes[0] === 0x1f && bytes[1] === 0x8b) {
-                if (typeof DecompressionStream !== 'undefined') {
-                    return await new Response(bytes).body.pipeThrough(new DecompressionStream('gzip')).text();
-                }
-                continue;
+                if (typeof DecompressionStream === 'undefined') continue;
+                text = await new Response(bytes).body.pipeThrough(new DecompressionStream('gzip')).text();
+            } else {
+                text = new TextDecoder().decode(bytes);
             }
-            return new TextDecoder().decode(buf);
+            if (text.trimStart().startsWith('{')) return text;
         } catch (e) {
             lastErr = e;
         }

@@ -18,11 +18,6 @@ import httpx
 from bs4 import BeautifulSoup
 from curl_cffi import requests as cffi
 
-try:
-    import brotli
-except ImportError:
-    brotli = None
-
 
 OUTPUT_FILE = Path(__file__).parent / "listings.json"
 STATS_FILE = Path(__file__).parent / "stats.json"
@@ -1332,10 +1327,6 @@ def save_listings(listings: List[Dict], stats: Dict):
     gz_path = OUTPUT_FILE.with_suffix(".json.gz")
     gz_path.write_bytes(gzip.compress(text.encode("utf-8"), mtime=0))
 
-    if brotli is not None:
-        br_path = OUTPUT_FILE.with_suffix(".json.br")
-        br_path.write_bytes(brotli.compress(text.encode("utf-8")))
-
     stats_payload = {
         "last_crawl": now,
         "total": len(listings),
@@ -1346,8 +1337,7 @@ def save_listings(listings: List[Dict], stats: Dict):
         encoding="utf-8",
     )
 
-    print(f"  payload: {len(text)} bytes plain | {gz_path.stat().st_size} gzip"
-          + (f" | {br_path.stat().st_size} brotli" if brotli is not None else ""))
+    print(f"  payload: {len(text)} bytes plain | {gz_path.stat().st_size} gzip")
 
 
 def strip_region_from_title(title: str, sub_district: Optional[str]) -> str:
@@ -1484,7 +1474,7 @@ def main():
 
     save_listings(visible, stats)
 
-    print(f"Saved {len(visible)} listings to {OUTPUT_FILE.name} (plus gzip/brotli/stats)")
+    print(f"Saved {len(visible)} listings to {OUTPUT_FILE.name} (plus gzip/stats)")
     print()
     print("=" * 50)
     print("Crawl Complete!")
