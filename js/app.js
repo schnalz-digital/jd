@@ -253,7 +253,7 @@ function imageProxy(url, width = 800) {
     if (!url) return url;
     try {
         const host = (url.split('/')[2] || '').toLowerCase();
-        if (host === 'i1.squarefoot.com.hk') return url;
+        if (host === 'i1.squarefoot.com.hk' || host === 'wm-cdn.midland.com.hk') return url;
         return 'https://images.weserv.nl/?url=' + encodeURIComponent(url) + '&output=webp&w=' + width;
     } catch (e) {
         return url;
