@@ -99,7 +99,6 @@ const I18N = {
         favOnlyOn: 'Showing saved listings only.',
         favOnlyOff: 'Showing all listings.',
         saved: 'Saved',
-        newToday: 'New today',
         exportNone: 'No listings to export.',
         exportedToast: '{n} listings exported.',
         bedroomCard: '{n} bedroom',
@@ -187,7 +186,6 @@ const I18N = {
         favOnlyOn: '仅显示已保存的房源。',
         favOnlyOff: '显示全部房源。',
         saved: '已保存',
-        newToday: '今日新增',
         exportNone: '没有可导出的房源。',
         exportedToast: '已导出 {n} 套房源。',
         bedroomCard: '{n} 卧室',
@@ -517,16 +515,13 @@ function renderRegionChips() {
     const box = document.getElementById('regionChips');
     if (!box) return;
     box.innerHTML =
-        `<button class="chip chip-toggle" id="chipFav" onclick="toggleFavOnly()">${t('saved')}<span class="chip-count" id="chipFavCount"></span></button>` +
-        `<button class="chip chip-toggle" id="chipNew" onclick="toggleNewOnly()">${t('newToday')}</button>`;
+        `<button class="chip chip-toggle" id="chipFav" onclick="toggleFavOnly()">${t('saved')}<span class="chip-count" id="chipFavCount"></span></button>`;
     syncChipActive();
 }
 
 function syncChipActive() {
     const chipFav = document.getElementById('chipFav');
     if (chipFav) chipFav.classList.toggle('active', favOnly);
-    const chipNew = document.getElementById('chipNew');
-    if (chipNew) chipNew.classList.toggle('active', document.getElementById('newOnlyFilter').checked);
     const favCount = document.getElementById('chipFavCount');
     if (favCount) favCount.textContent = countFavs();
 }
@@ -542,12 +537,6 @@ function toggleFavOnly() {
     favOnly = !favOnly;
     applyFilters();
     showToast(favOnly ? t('favOnlyOn') : t('favOnlyOff'), 'info');
-}
-
-function toggleNewOnly() {
-    const cb = document.getElementById('newOnlyFilter');
-    cb.checked = !cb.checked;
-    applyFilters();
 }
 
 /* --------------------------------------------------------------------------
