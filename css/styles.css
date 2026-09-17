@@ -288,11 +288,6 @@ input, select { font-family: inherit; }
   border-bottom: 1px solid var(--line);
 }
 
-.header-top {
-  height: 3px;
-  background: linear-gradient(90deg, var(--gold), #e4cd9c 50%, var(--gold));
-}
-
 .header-content {
   max-width: 1480px;
   margin: 0 auto;
