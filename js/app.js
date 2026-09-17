@@ -45,8 +45,7 @@ const I18N = {
         langAria: 'Switch language',
         search: 'Search',
         searchPh: 'Estate, address…',
-        priceRangeM: 'Price range (HK$ M)',
-        priceRangeK: 'Price range (HK$ K)',
+        priceRange: 'Price range (HK$)',
         min: 'Min',
         max: 'Max',
         bedrooms: 'Bedrooms',
@@ -133,8 +132,7 @@ const I18N = {
         langAria: '切换语言',
         search: '搜索',
         searchPh: '屋苑、地址…',
-        priceRangeM: '价格范围（港币百万）',
-        priceRangeK: '价格范围（港币千元）',
+        priceRange: '价格范围（港币）',
         min: '最低',
         max: '最高',
         bedrooms: '卧室',
@@ -531,19 +529,9 @@ function currentTx() {
     return document.getElementById('txFilter').value || '';
 }
 
-function priceUnitMultiplier(listing) {
-    return (listing.transaction_type === 'rent') ? 1000 : 1000000;
-}
-
 function selectedSources() {
     const v = document.getElementById('sourceFilter').value;
     return v ? [v] : Object.keys(SOURCE_LABELS);
-}
-
-function updatePriceUnitLabel() {
-    const label = document.getElementById('priceUnitLabel');
-    if (!label) return;
-    label.textContent = currentTx() === 'rent' ? t('priceRangeK') : t('priceRangeM');
 }
 
 function applyFilters() {
@@ -564,8 +552,8 @@ function applyFilters() {
         if (!currentFilters.sources.includes(listing.source)) return false;
         if (currentFilters.favOnly && !isFav(listing.id)) return false;
         if (currentFilters.tx && listing.transaction_type !== currentFilters.tx) return false;
-        if (currentFilters.minPrice && listing.price && listing.price < currentFilters.minPrice * priceUnitMultiplier(listing)) return false;
-        if (currentFilters.maxPrice && listing.price && listing.price > currentFilters.maxPrice * priceUnitMultiplier(listing)) return false;
+        if (currentFilters.minPrice && listing.price && listing.price < currentFilters.minPrice) return false;
+        if (currentFilters.maxPrice && listing.price && listing.price > currentFilters.maxPrice) return false;
 
         if (currentFilters.bedrooms !== '') {
             const bed = parseInt(currentFilters.bedrooms, 10);
@@ -596,7 +584,6 @@ function applyFilters() {
 
     sortListings();
     currentPage = 1;
-    updatePriceUnitLabel();
     renderListings();
     updateFilterBadges();
 }
