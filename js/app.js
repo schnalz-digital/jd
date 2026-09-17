@@ -29,7 +29,6 @@ const I18N = {
         continue: 'Continue',
         pleaseEnterPassword: 'Please enter a password.',
         incorrectPassword: 'Incorrect password.',
-        listings: 'listings',
         pending: 'pending',
         justNow: 'just now',
         minsAgo: '{n}m ago',
@@ -119,7 +118,6 @@ const I18N = {
         continue: '继续',
         pleaseEnterPassword: '请输入密码。',
         incorrectPassword: '密码不正确。',
-        listings: '房源',
         pending: '待更新',
         justNow: '刚刚',
         minsAgo: '{n} 分钟前',
@@ -522,9 +520,6 @@ function updateStatsHeader(data) {
 }
 
 function updateStatsHeaderText() {
-    const totalEl = document.getElementById('totalListings');
-    if (totalEl) totalEl.textContent = allListings.length.toLocaleString();
-
     const crawlEl = document.getElementById('lastCrawl');
     if (!crawlEl) return;
     if (!lastCrawlTime) {
