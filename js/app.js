@@ -415,6 +415,10 @@ function setupEventListeners() {
             const wrap = document.querySelector('.sort-menu-wrap');
             if (!wrap || !wrap.contains(e.target)) hideSortMenu();
         });
+        window.addEventListener('resize', () => {
+            const menu = document.getElementById('sortMenu');
+            if (menu && !menu.hidden) positionSortMenu();
+        });
     }
 
     document.getElementById('newOnlyFilter').addEventListener('change', applyFilters);
@@ -890,9 +894,22 @@ function toggleSortMenu() {
     if (menu.hidden) {
         refreshSortMenu();
         menu.hidden = false;
+        positionSortMenu();
         btn.setAttribute('aria-expanded', 'true');
     } else {
         hideSortMenu();
+    }
+}
+
+function positionSortMenu() {
+    const menu = document.getElementById('sortMenu');
+    menu.style.left = '';
+    const rect = menu.getBoundingClientRect();
+    const vw = window.innerWidth;
+    if (rect.right > vw) {
+        menu.style.left = `${Math.min(0, vw - rect.right)}px`;
+    } else if (rect.left < 0) {
+        menu.style.left = `${-rect.left}px`;
     }
 }
 
