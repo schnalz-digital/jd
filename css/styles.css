@@ -475,35 +475,7 @@ input, select { font-family: inherit; }
 .price-input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 4px rgba(183, 139, 62, 0.14); }
 .price-sep { color: var(--faint); font-size: 0.85rem; }
 
-/* Bedroom pills */
-.pill-group {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(88px, 1fr));
-  gap: 0.35rem;
-}
-.pill {
-  min-width: 0;
-  white-space: nowrap;
-  padding: 0.5rem 0.4rem;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: var(--surface);
-  font-size: 0.82rem;
-  font-weight: 500;
-  color: var(--muted);
-  cursor: pointer;
-  transition: all 0.2s var(--ease-out);
-}
-.pill:hover { border-color: var(--gold); color: var(--gold-dark); }
-.pill.active {
-  background: var(--gold);
-  border-color: var(--gold);
-  color: #fff;
-  box-shadow: 0 4px 10px rgba(183, 139, 62, 0.28);
-}
-
 /* Checkbox / toggle rows */
-.filter-rows { display: flex; flex-direction: column; gap: 0.45rem; }
 .filter-row {
   display: flex;
   align-items: center;

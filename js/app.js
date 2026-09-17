@@ -64,6 +64,7 @@ const I18N = {
         penthouse: 'Penthouse',
         duplex: 'Duplex',
         sources: 'Sources',
+        allSources: 'All sources',
         newTodayOnly: 'New today only',
         resetFilters: 'Reset filters',
         loading: 'Loading…',
@@ -151,6 +152,7 @@ const I18N = {
         penthouse: '顶层复式',
         duplex: '复式',
         sources: '来源',
+        allSources: '所有来源',
         newTodayOnly: '仅今日新增',
         resetFilters: '重置筛选',
         loading: '加载中…',
@@ -400,7 +402,7 @@ function setupEventListeners() {
 
     document.getElementById('searchInput').addEventListener('input', () => debounced(applyFilters));
 
-    for (const id of ['typeFilter', 'minPrice', 'maxPrice']) {
+    for (const id of ['typeFilter', 'bedroomFilter', 'txFilter', 'sourceFilter', 'minPrice', 'maxPrice']) {
         const el = document.getElementById(id);
         if (id.includes('Price')) {
             el.addEventListener('input', () => debounced(applyFilters));
@@ -418,23 +420,6 @@ function setupEventListeners() {
     }
 
     document.getElementById('newOnlyFilter').addEventListener('change', applyFilters);
-    document.getElementById('sourceFilters').addEventListener('change', applyFilters);
-
-    document.querySelectorAll('#bedroomFilter .pill').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('#bedroomFilter .pill').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            applyFilters();
-        });
-    });
-
-    document.querySelectorAll('#txFilter .pill').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('#txFilter .pill').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            applyFilters();
-        });
-    });
 
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
@@ -543,11 +528,16 @@ function toggleFavOnly() {
    Filtering / sorting
    -------------------------------------------------------------------------- */
 function currentTx() {
-    return document.querySelector('#txFilter .pill.active')?.dataset.value || '';
+    return document.getElementById('txFilter').value || '';
 }
 
 function priceUnitMultiplier(listing) {
     return (listing.transaction_type === 'rent') ? 1000 : 1000000;
+}
+
+function selectedSources() {
+    const v = document.getElementById('sourceFilter').value;
+    return v ? [v] : Object.keys(SOURCE_LABELS);
 }
 
 function updatePriceUnitLabel() {
@@ -559,11 +549,11 @@ function updatePriceUnitLabel() {
 function applyFilters() {
     currentFilters = {
         search: document.getElementById('searchInput').value.trim().toLowerCase(),
-        sources: Array.from(document.querySelectorAll('#sourceFilters input:checked')).map(cb => cb.value),
+        sources: selectedSources(),
         minPrice: parseFloat(document.getElementById('minPrice').value) || null,
         maxPrice: parseFloat(document.getElementById('maxPrice').value) || null,
         tx: currentTx(),
-        bedrooms: document.querySelector('#bedroomFilter .pill.active')?.dataset.value || '',
+        bedrooms: document.getElementById('bedroomFilter').value,
         propertyType: document.getElementById('typeFilter').value,
         sortBy: currentSort,
         newOnly: document.getElementById('newOnlyFilter').checked,
@@ -632,9 +622,9 @@ function resetFilters() {
     refreshSortMenu();
     document.getElementById('newOnlyFilter').checked = false;
     favOnly = false;
-    document.querySelectorAll('#sourceFilters input').forEach(cb => cb.checked = true);
-    document.querySelectorAll('#bedroomFilter .pill').forEach(b => b.classList.toggle('active', b.dataset.value === ''));
-    document.querySelectorAll('#txFilter .pill').forEach(b => b.classList.toggle('active', b.dataset.value === ''));
+    document.getElementById('sourceFilter').value = '';
+    document.getElementById('bedroomFilter').value = '';
+    document.getElementById('txFilter').value = '';
     applyFilters();
     syncChipActive();
 }
