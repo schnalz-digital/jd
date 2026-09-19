@@ -972,7 +972,7 @@ class CentalineCrawler:
         full_url = f"https://hk.centanet.com{href}" if href.startswith("/") else href
         display_title = title if title != "Discovery Bay" else f"Discovery Bay - {section}"
 
-        images, crumbs = self._fetch_detail(full_url)
+        images, crumbs, detail_date = self._fetch_detail(full_url)
 
         if not crumbs:
             sub_district_name = "Discovery Bay"
@@ -1008,14 +1008,14 @@ class CentalineCrawler:
             "description": title,
             "features": [],
             "date_crawled": datetime.now(timezone.utc).isoformat(),
-            "date_posted": None,
+            "date_posted": detail_date,
             "is_new": True,
             "price_changed": False,
             "previous_price": None,
         }
 
-    def _fetch_detail(self, url: str) -> Tuple[List[str], List[str]]:
-        """Centaline detail page: returns (og:images, breadcrumb path slugs).
+    def _fetch_detail(self, url: str) -> Tuple[List[str], List[str], Optional[str]]:
+        """Centaline detail page: returns (og:images, breadcrumb path slugs, update date).
 
         The breadcrumb encodes the location chain, e.g.
           "New Territories West_4-NW", "Discovery Bay | Islands_23-WS055",
@@ -1047,8 +1047,12 @@ class CentalineCrawler:
             candidates = [u for u in m if "/_nuxt/" not in u]
             images = [candidates[-1]] if candidates else []
             crumbs = re.findall(r'path:"([^"]+)"', html)
-            return images, crumbs
-        return [], []
+            update_date = None
+            pm = re.search(r'updateDate\s*:\s*"(\d{4}-\d{2}-\d{2})', html)
+            if pm:
+                update_date = pm.group(1)
+            return images, crumbs, update_date
+        return [], [], None
 
 
 
@@ -1229,11 +1233,13 @@ class MidlandCrawler:
             images.append(cover)
 
         date_posted = None
-        ud = item.get("update_date")
-        if isinstance(ud, str):
-            m = re.match(r"\d{4}-\d{2}-\d{2}", ud)
-            if m:
-                date_posted = m.group(0)
+        for k in ("update_date", "updated_date", "post_date", "posted_date", "last_update_date"):
+            ud = item.get(k)
+            if isinstance(ud, str):
+                m = re.search(r"\d{4}-\d{2}-\d{2}", ud)
+                if m:
+                    date_posted = m.group(0)
+                    break
 
         features = []
         for tag in item.get("tags") or []:

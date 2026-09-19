@@ -86,7 +86,6 @@ const I18N = {
         alsoOn: 'Also on {s}',
         openOriginal: 'open original listing',
         viewOn: 'View on {source}',
-        cardPosted: 'Posted {date}',
         cardUpdated: 'Updated {date}',
         saveListing: 'Save listing',
         removeSaved: 'Remove from saved',
@@ -174,7 +173,6 @@ const I18N = {
         alsoOn: '同时发布于 {s}',
         openOriginal: '打开原始房源',
         viewOn: '在 {source} 查看',
-        cardPosted: '上架于 {date}',
         cardUpdated: '更新于 {date}',
         saveListing: '保存房源',
         removeSaved: '取消保存',
@@ -773,7 +771,7 @@ function createListingCard(listing, index) {
     const rawDate = listing.date_posted || listing.date_crawled;
     const dateText = rawDate ? shortDate(rawDate) : '';
     const cardDateHtml = dateText
-        ? `${I.calendar}${t(listing.date_posted ? 'cardPosted' : 'cardUpdated', { date: dateText })}`
+        ? `${I.calendar}${t('cardUpdated', { date: dateText })}`
         : '';
 
     return `
