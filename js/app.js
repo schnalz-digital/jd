@@ -10,6 +10,8 @@ let currentFilters = {};
 let debounceTimer = null;
 
 const sessionKey = 'hk_property_unlocked';
+const REMEMBER_KEY = 'hk_property_login_until';
+const REMEMBER_DAYS = 30;
 const FAV_KEY = 'fav_listings';
 const LANG_KEY = 'lang';
 let favOnly = false;
@@ -279,7 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if ('serviceWorker' in navigator && location.protocol === 'https:') {
         navigator.serviceWorker.register('sw.js').catch(() => {});
     }
-    if (sessionStorage.getItem(sessionKey) === '1') {
+    if (sessionStorage.getItem(sessionKey) === '1' || rememberUnlocked()) {
         unlockSite();
     }
 });
@@ -287,6 +289,13 @@ document.addEventListener('DOMContentLoaded', () => {
 /* --------------------------------------------------------------------------
    Auth
    -------------------------------------------------------------------------- */
+function rememberUnlocked() {
+    const until = parseInt(localStorage.getItem(REMEMBER_KEY) || '', 10);
+    if (!until) return false;
+    if (until > Date.now()) return true;
+    localStorage.removeItem(REMEMBER_KEY);
+    return false;
+}
 function handleLogin(event) {
     event.preventDefault();
     const input = document.getElementById('passwordInput');
@@ -300,6 +309,7 @@ function handleLogin(event) {
     const hash = sha256(input.value);
     if (hash === SITE_CONFIG.passwordHash) {
         sessionStorage.setItem(sessionKey, '1');
+        localStorage.setItem(REMEMBER_KEY, String(Date.now() + REMEMBER_DAYS * 86400000));
         errorEl.textContent = '';
         unlockSite();
     } else {
