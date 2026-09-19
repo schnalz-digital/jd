@@ -914,7 +914,7 @@ input, select { font-family: inherit; }
   align-items: center;
   gap: 0.6rem;
   padding: 0.85rem 1.3rem;
-  background: var(--ink);
+  background: #1c1a16;
   color: #f3eee4;
   border-radius: 999px;
   font-size: 0.88rem;
