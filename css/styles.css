@@ -816,8 +816,8 @@ input, select { font-family: inherit; }
   font-size: 0.78rem;
   color: var(--faint);
 }
-.card-foot .src { display: inline-flex; align-items: center; gap: 0.35rem; font-weight: 600; color: var(--muted); }
-.card-foot .src svg { width: 12px; height: 12px; color: var(--gold); }
+.card-foot .card-date { display: inline-flex; align-items: center; gap: 0.35rem; font-weight: 500; color: var(--muted); }
+.card-foot .card-date svg { width: 12px; height: 12px; color: var(--gold); }
 .view-link {
   display: inline-flex;
   align-items: center;
@@ -1018,22 +1018,6 @@ input, select { font-family: inherit; }
 }
 .also-on b { color: var(--gold-dark); font-weight: 600; }
 [data-theme='dark'] .also-on b { color: var(--gold); }
-
-.foot-right { display: inline-flex; align-items: center; gap: 0.55rem; }
-.icon-btn {
-  display: inline-grid;
-  place-items: center;
-  width: 28px;
-  height: 28px;
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  background: var(--surface-2);
-  color: var(--muted);
-  cursor: pointer;
-  transition: all 0.2s var(--ease-out);
-}
-.icon-btn svg { width: 13px; height: 13px; }
-.icon-btn:hover { border-color: var(--gold); color: var(--gold-dark); }
 
 /* --------------------------------------------------------------------------
    Lightbox

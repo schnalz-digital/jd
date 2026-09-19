@@ -85,8 +85,9 @@ const I18N = {
         locUnavailable: 'Location unavailable',
         alsoOn: 'Also on {s}',
         openOriginal: 'open original listing',
-        viewOriginal: 'View original',
-        share: 'Share',
+        viewOn: 'View on {source}',
+        cardPosted: 'Posted {date}',
+        cardUpdated: 'Updated {date}',
         saveListing: 'Save listing',
         removeSaved: 'Remove from saved',
         favSaved: 'Saved — tap the star again to remove.',
@@ -172,8 +173,9 @@ const I18N = {
         locUnavailable: '位置未知',
         alsoOn: '同时发布于 {s}',
         openOriginal: '打开原始房源',
-        viewOriginal: '查看原文',
-        share: '分享',
+        viewOn: '在 {source} 查看',
+        cardPosted: '上架于 {date}',
+        cardUpdated: '更新于 {date}',
         saveListing: '保存房源',
         removeSaved: '取消保存',
         favSaved: '已保存 — 再次点击星标可取消。',
@@ -333,11 +335,11 @@ const I = {
     bath: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6 6.5 3.5a1.5 1.5 0 0 0-1-.5C4.68 3 4 3.68 4 4.5V17a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2H7"/><path d="M10 5 8 7"/><path d="M9 11h6"/><path d="M7 21v-1"/><path d="M17 21v-1"/></svg>',
     size: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3l6 6-12 12H3v-6L15 3Z"/><path d="M9 9l4 4"/><path d="m15 9 2 2"/><path d="m5 14 2 2"/></svg>',
     pin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>',
-    src: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18Z"/><path d="M3 12h18"/></svg>',
     arrow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></svg>',
     home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h5.5v-5h3v5H19V9.5"/></svg>',
     award: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="6"/><path d="m8.5 14-2 7 5.5-3 5.5 3-2-7"/></svg>',
-    search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:26px;height:26px"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>'
+    search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:26px;height:26px"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>',
+    calendar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 9.5h18"/></svg>'
 };
 
 const SOURCE_LABELS = {
@@ -768,6 +770,12 @@ function createListingCard(listing, index) {
 
     const title = resolveTitle(listing);
 
+    const rawDate = listing.date_posted || listing.date_crawled;
+    const dateText = rawDate ? shortDate(rawDate) : '';
+    const cardDateHtml = dateText
+        ? `${I.calendar}${t(listing.date_posted ? 'cardPosted' : 'cardUpdated', { date: dateText })}`
+        : '';
+
     return `
         <div class="card ${listing.price_changed ? 'price-changed' : ''}"
              tabindex="0"
@@ -783,14 +791,9 @@ function createListingCard(listing, index) {
                 <div class="card-facts">${facts.join('')}</div>
                 ${alsoOn ? `<div class="also-row">${alsoOn}</div>` : ''}
                 <div class="card-foot">
-                    <span class="src">${I.src}${SOURCE_LABELS[listing.source] || listing.source}</span>
-                    <span class="foot-right">
-                        <button class="icon-btn share-btn" title="${t('share')}" aria-label="${t('share')}"
-                                onclick="event.stopPropagation();event.preventDefault();shareListing('${listing.id}')">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg>
-                        </button>
-                        <span class="view-link">${t('viewOriginal')}${I.arrow}</span>
-                    </span>
+                    <span class="card-date">${cardDateHtml}</span>
+                    <a class="view-link" href="${escapeHtml(listing.source_url || '')}" target="_blank" rel="noopener noreferrer"
+                       onclick="event.stopPropagation()">${t('viewOn', { source: escapeHtml(SOURCE_LABELS[listing.source] || listing.source) })}${I.arrow}</a>
                 </div>
             </div>
         </div>`;
@@ -802,6 +805,17 @@ function agoText(date) {
     if (mins < 60) return t('minsAgo', { n: mins });
     if (mins < 1440) return t('hoursAgo', { n: Math.floor(mins / 60) });
     return date.toLocaleDateString();
+}
+
+function shortDate(value) {
+    if (!value) return '';
+    try {
+        const d = new Date(value);
+        if (isNaN(d.getTime())) return '';
+        return d.toLocaleDateString(currentLang === 'zh' ? 'zh-CN' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    } catch (e) {
+        return '';
+    }
 }
 
 const placeholderMediaMarkup = `<div class="card-media-placeholder">${I.home}</div>`;
@@ -999,17 +1013,6 @@ function closeLightbox() {
 /* --------------------------------------------------------------------------
    Share
    -------------------------------------------------------------------------- */
-function shareListing(listingId) {
-    const listing = allListings.find(l => l.id === listingId);
-    if (!listing) return;
-    const text = `${resolveTitle(listing)} — ${listing.price ? fullPrice(listing.price) : t('onRequest')} · ${SOURCE_LABELS[listing.source] || listing.source}`;
-    if (navigator.share) {
-        navigator.share({ title: text, url: listing.source_url }).catch(() => {});
-    } else {
-        window.open('https://wa.me/?text=' + encodeURIComponent(text + ' ' + listing.source_url), '_blank', 'noopener,noreferrer');
-    }
-}
-
 /* --------------------------------------------------------------------------
    Theme
    -------------------------------------------------------------------------- */

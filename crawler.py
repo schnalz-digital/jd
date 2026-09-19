@@ -28,6 +28,7 @@ FRONTEND_FIELDS = (
     "description", "source", "source_url", "price", "price_per_sqft",
     "previous_price", "price_changed", "bedrooms", "bathrooms", "sqft",
     "transaction_type", "property_type", "is_new", "images", "date_crawled",
+    "date_posted",
 )
 
 HEADERS = {
