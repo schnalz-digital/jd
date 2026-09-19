@@ -14,8 +14,11 @@
     <script>
         (function () {
             try {
-                if (localStorage.getItem('theme') === 'dark' ||
-                    (!localStorage.getItem('theme') && matchMedia('(prefers-color-scheme: dark)').matches)) {
+                var t = sessionStorage.getItem('theme');
+                if (t === null) {
+                    t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : '';
+                }
+                if (t === 'dark') {
                     document.documentElement.setAttribute('data-theme', 'dark');
                 }
             } catch (e) {}
