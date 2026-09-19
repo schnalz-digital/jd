@@ -314,9 +314,13 @@ input, select { font-family: inherit; }
   border-radius: 11px;
   display: grid;
   place-items: center;
+  background: linear-gradient(145deg, #fbf7ec, #efe4cc);
+  color: var(--gold-dark);
+  flex-shrink: 0;
+}
+[data-theme='dark'] .brand-mark {
   background: linear-gradient(145deg, #1c1a16, #3a362e);
   color: var(--gold);
-  flex-shrink: 0;
 }
 .brand-mark svg { width: 18px; height: 18px; }
 .brand-name {
