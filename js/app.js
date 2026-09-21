@@ -609,6 +609,9 @@ function applyFilters() {
     updateFilterBadges();
 }
 
+function effectiveDate(listing) {
+    return listing.date_posted || listing.date_crawled || '';
+}
 function sortListings() {
     filteredListings.sort((a, b) => {
         switch (currentFilters.sortBy) {
@@ -616,7 +619,7 @@ function sortListings() {
             case 'price_desc': return (b.price ?? 0) - (a.price ?? 0);
             case 'sqft_desc': return (b.sqft ?? 0) - (a.sqft ?? 0);
             case 'price_per_sqft_asc': return (a.price_per_sqft ?? Infinity) - (b.price_per_sqft ?? Infinity);
-            default: return (b.date_crawled || '').localeCompare(a.date_crawled || '');
+            default: return effectiveDate(b).localeCompare(effectiveDate(a));
         }
     });
 }
@@ -768,7 +771,7 @@ function createListingCard(listing, index) {
 
     const title = resolveTitle(listing);
 
-    const rawDate = listing.date_posted || listing.date_crawled;
+    const rawDate = effectiveDate(listing);
     const dateText = rawDate ? shortDate(rawDate) : '';
     const cardDateHtml = dateText
         ? `${I.calendar}${t('cardUpdated', { date: dateText })}`
