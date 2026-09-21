@@ -917,6 +917,7 @@ class CentalineCrawler:
                             seen.add(listing["id"])
                             newn += 1
                         n += 1
+                    time.sleep(0.4)
                 print(f"    page {page}: {n} items ({newn} new)")
                 time.sleep(1.2)
                 if page > 1 and newn == 0:
@@ -1026,13 +1027,14 @@ class CentalineCrawler:
         \"Discovery Bay\" because the crawl is scoped to Centaline's Discovery
         Bay feed; any non-DB developments are re-tagged later by
         enforce_non_db_areas."""
-        for attempt in (1, 2):
+        for attempt in (1, 2, 3):
             try:
                 response = self.session.get(url)
             except Exception:
                 response = None
             if not response or response.status_code != 200:
-                time.sleep(1.5)
+                print(f"    detail retry {attempt}/3: HTTP {getattr(response, 'status_code', 'ERR')} {url}")
+                time.sleep(2.5 * attempt)
                 continue
             html = response.text
             m = re.findall(
@@ -1377,6 +1379,10 @@ def merge_listings(existing: Dict[str, Dict], new_listings: List[Dict]) -> List[
                 listing["price_changed"] = True
                 listing["previous_price"] = old["price"]
             listing["is_new"] = False
+            if not listing.get("images") and old.get("images"):
+                listing["images"] = old["images"]
+            if not listing.get("date_posted") and old.get("date_posted"):
+                listing["date_posted"] = old["date_posted"]
         else:
             listing["first_seen"] = listing["date_crawled"]
         existing[lid] = listing
