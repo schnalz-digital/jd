@@ -1369,6 +1369,36 @@ def strip_region_from_title(title: str, sub_district: Optional[str]) -> str:
     return stripped or title
 
 
+def repair_missing_centaline_images(listings: List[Dict]) -> None:
+    """Re-fetch detail pages for Centaline listings that ended up without an
+    image (a burst-rate-limit hit, or the listing dropped off the paginated
+    lists and never got re-fetched). Kept separate so a single bad run can
+    never wipe good data."""
+    missing = [
+        listing for listing in listings
+        if listing.get("source") == "centaline" and not listing.get("images")
+    ]
+    if not missing:
+        return
+    print(f"  Repairing images for {len(missing)} Centaline listings...")
+    crawler = CentalineCrawler()
+    repaired = 0
+    try:
+        for listing in missing:
+            url = listing.get("source_url")
+            if not url:
+                continue
+            images, _crumbs, _date = crawler._fetch_detail(url)
+            if images:
+                listing["images"] = images
+                repaired += 1
+            time.sleep(0.5)
+    finally:
+        crawler.close()
+    if repaired:
+        print(f"    Repaired {repaired}/{len(missing)} listings.")
+
+
 def merge_listings(existing: Dict[str, Dict], new_listings: List[Dict]) -> List[Dict]:
     for listing in new_listings:
         lid = listing["id"]
@@ -1456,6 +1486,8 @@ def main():
         enforce_non_db_areas(listing)
         if listing.get("source") == "centaline" and not listing.get("sub_district"):
             listing["sub_district"] = "Discovery Bay"
+
+    repair_missing_centaline_images(merged)
 
     by_source = {}
     by_district = {}
