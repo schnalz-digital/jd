@@ -1085,6 +1085,82 @@ input, select { font-family: inherit; }
 .lightbox-next { right: 1.4rem; top: 50%; transform: translateY(-50%); }
 
 /* --------------------------------------------------------------------------
+   UX details — sort label, search-clear, share, chips, focus rings
+   -------------------------------------------------------------------------- */
+.btn-sort-label { display: none; }
+.btn-sort { gap: 0.45rem; }
+
+.search-wrap { padding-right: 0; }
+.search-clear {
+  position: absolute;
+  right: 0.55rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 50%;
+  background: var(--line-2);
+  color: var(--muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.search-clear svg { width: 11px; height: 11px; }
+.search-clear:hover { background: var(--gold-soft); color: var(--gold-dark); }
+.search-clear:focus-visible { outline: 2px solid var(--gold); }
+.search-clear[hidden] { display: none; }
+.search-input { padding-right: 2.5rem; }
+
+.sidebar-head { display: none; }
+.sidebar-backdrop { display: none; }
+
+/* Removable filter tokens */
+.chip-token {
+  background: var(--surface-2);
+  color: var(--ink-2);
+}
+.chip-token:hover {
+  border-color: var(--red);
+  color: var(--red);
+  background: var(--red-soft);
+}
+.chip-token .chip-x {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  margin-left: 0.15rem;
+  border-radius: 50%;
+  background: rgba(28, 26, 22, 0.12);
+}
+.chip-token .chip-x svg { width: 9px; height: 9px; }
+[data-theme='dark'] .chip-token .chip-x { background: rgba(255, 255, 255, 0.14); }
+.chip-token:hover .chip-x { background: rgba(176, 64, 44, 0.16); }
+.chip.active .chip-x { color: rgba(255, 255, 255, 0.85); }
+
+/* Two-line card titles */
+.card-title { -webkit-line-clamp: 2; min-height: 2.7em; }
+
+/* Focus rings for interactive controls */
+.btn:focus-visible,
+.sort-menu-item:focus-visible,
+.chip:focus-visible,
+.page-btn:focus-visible,
+.media-btn:focus-visible,
+.lightbox-btn:focus-visible,
+.view-link:focus-visible {
+  outline: 3px solid rgba(183, 139, 62, 0.55);
+  outline-offset: 2px;
+}
+
+@media (min-width: 769px) {
+  .btn-sort-label { display: inline; }
+}
+
+/* --------------------------------------------------------------------------
    Responsive
    -------------------------------------------------------------------------- */
 @media (max-width: 1100px) {
@@ -1105,18 +1181,64 @@ input, select { font-family: inherit; }
   input, select, textarea { font-size: 16px !important; }
   .btn-filters-nav { display: inline-flex; }
   .btn-toggle-sidebar { display: none; }
-  .sidebar { display: none; }
-  .sidebar.mobile-open {
+  .sidebar-backdrop:not([hidden]) {
     display: block;
-    animation: sidebarSlide 0.32s var(--ease-out) both;
+    position: fixed;
+    inset: 0;
+    z-index: 1290;
+    background: rgba(12, 11, 9, 0.55);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    animation: backdropIn 0.3s var(--ease-out) both;
   }
+  .sidebar-backdrop[hidden] { display: none; }
+  .sidebar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: auto;
+    z-index: 1300;
+    width: min(340px, 88vw);
+    margin: 0;
+    padding: 0 1.4rem 1.2rem;
+    border: none;
+    border-radius: 0;
+    background: var(--surface);
+    box-shadow: var(--shadow-lg);
+    transform: translateX(105%);
+    visibility: hidden;
+    transition: transform 0.36s var(--ease-out), visibility 0.36s;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .sidebar.mobile-open { transform: translateX(0); visibility: visible; }
+  .sidebar-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    margin: 0 -1.4rem 1rem;
+    padding: 1rem 1.15rem 0.85rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--line-2);
+  }
+  .sidebar-title {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .sidebar-close { padding: 0.4rem; margin-right: -0.4rem; }
   .main { gap: 1rem; padding: 1rem 1rem 3rem; }
   .toolbar { margin-bottom: 1rem; }
 }
 
-@keyframes sidebarSlide {
-  from { opacity: 0; transform: translateY(-8px); }
-  to { opacity: 1; transform: none; }
+@keyframes backdropIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @media (max-width: 640px) {

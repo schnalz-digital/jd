@@ -17,6 +17,7 @@ const LANG_KEY = 'lang';
 let favOnly = false;
 let lastCrawlTime = null;
 let dupOthers = {};
+let pendingPage = 0;
 
 /* --------------------------------------------------------------------------
    Internationalisation (en / zh-CN)
@@ -107,7 +108,15 @@ const I18N = {
         propertyListing: 'Property listing',
         close: 'Close',
         prevImage: 'Previous image',
-        nextImage: 'Next image'
+        nextImage: 'Next image',
+        priceUp: 'Price up',
+        priceDown: 'Price down',
+        share: 'Share',
+        shareTitle: 'Copy link to this view',
+        linkCopied: 'Link copied — filters and sort included.',
+        clearSearch: 'Clear search',
+        toggled: 'Filter applied',
+        activeFilterLabel: 'Active filter: {f}'
     },
     zh: {
         appTitle: '最新楼盘',
@@ -194,7 +203,15 @@ const I18N = {
         propertyListing: '房产房源',
         close: '关闭',
         prevImage: '上一张',
-        nextImage: '下一张'
+        nextImage: '下一张',
+        priceUp: '涨价',
+        priceDown: '降价',
+        share: '分享',
+        shareTitle: '复制当前视图链接',
+        linkCopied: '链接已复制 — 包含筛选和排序。',
+        clearSearch: '清除搜索',
+        toggled: '筛选已应用',
+        activeFilterLabel: '有效筛选：{f}'
     }
 };
 
@@ -232,7 +249,7 @@ function applyLangStatic() {
 }
 
 function refreshDynamicLang() {
-    renderRegionChips();
+    refreshSortMenu();
     if (allListings.length > 0 || document.getElementById('resultsCount').textContent !== t('loading')) applyFilters();
 }
 
@@ -321,7 +338,9 @@ function handleLogin(event) {
 
 function unlockSite() {
     document.getElementById('loginScreen').classList.add('hidden');
+    applyUrlToUi();
     setupEventListeners();
+    refreshSortMenu();
     loadListings();
 }
 
@@ -408,7 +427,11 @@ function setupEventListeners() {
         debounceTimer = setTimeout(fn, ms);
     };
 
-    document.getElementById('searchInput').addEventListener('input', () => debounced(applyFilters));
+    document.getElementById('searchInput').addEventListener('input', () => {
+        toggleSearchClear();
+        debounced(applyFilters);
+    });
+    document.getElementById('searchClear').addEventListener('click', clearSearch);
 
     for (const id of ['typeFilter', 'bedroomFilter', 'txFilter', 'sourceFilter', 'minPrice', 'maxPrice']) {
         const el = document.getElementById(id);
@@ -433,11 +456,42 @@ function setupEventListeners() {
 
     document.getElementById('newOnlyFilter').addEventListener('change', applyFilters);
 
+    const backdrop = document.getElementById('sidebarBackdrop');
+    if (backdrop) backdrop.addEventListener('click', closeMobileSidebar);
+    const lightboxEl = document.getElementById('lightbox');
+    if (lightboxEl) lightboxEl.addEventListener('keydown', (e) => {
+        if (e.key !== 'Tab' || !lightboxEl.classList.contains('open')) return;
+        const close = document.getElementById('lightboxCloseBtn');
+        const next = document.getElementById('lightboxNext');
+        const prev = document.getElementById('lightboxPrev');
+        if (e.shiftKey && document.activeElement === close && prev && !prev.hidden) {
+            e.preventDefault();
+            prev.focus();
+        } else if (!e.shiftKey && document.activeElement === next && next && !next.hidden) {
+            e.preventDefault();
+            close.focus();
+        }
+    });
+
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
+            const srch = document.getElementById('searchInput');
+            if (srch && srch.value.trim() && document.activeElement !== srch && !document.getElementById('lightbox').classList.contains('open')) {
+                srch.value = '';
+                toggleSearchClear();
+                applyFilters();
+                return;
+            }
             hideSortMenu();
             closeLightbox();
             closeMobileSidebar();
+        }
+        if (e.key === '/' &&
+            !['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName) && !e.metaKey && !e.ctrlKey) {
+            e.preventDefault();
+            const srch = document.getElementById('searchInput');
+            srch.focus();
+            if (navigator.userAgent.match(/Mac|iPhone|iPad/i)) srch.select();
         }
         if (e.key === 'ArrowLeft') lightboxStep(-1);
         if (e.key === 'ArrowRight') lightboxStep(1);
@@ -459,7 +513,7 @@ async function loadListings() {
         lastDataSig = dataSig(data);
         lastCrawlTime = data.last_crawl ? new Date(parseUtcIso(data.last_crawl)) : null;
         buildDupIndex();
-        renderRegionChips();
+        renderQuickChips();
         applyFilters();
         startAutoRefresh();
     } catch (error) {
@@ -502,7 +556,7 @@ function startAutoRefresh() {
             allListings = (data.listings || []).filter(isDiscoveryBay);
             lastCrawlTime = data.last_crawl ? new Date(parseUtcIso(data.last_crawl)) : null;
             buildDupIndex();
-            renderRegionChips();
+            renderQuickChips();
             applyFilters();
             showToast(t('refreshedToast'), 'info');
         } catch (error) {
@@ -515,12 +569,72 @@ function isDiscoveryBay(listing) {
     return (listing.sub_district || '').trim().toLowerCase() === 'discovery bay';
 }
 
-function renderRegionChips() {
+function renderQuickChips() {
     const box = document.getElementById('regionChips');
     if (!box) return;
-    box.innerHTML =
-        `<button class="chip chip-toggle" id="chipFav" onclick="toggleFavOnly()">${t('saved')}<span class="chip-count" id="chipFavCount"></span></button>`;
-    syncChipActive();
+    const fav = `<button class="chip chip-toggle ${favOnly ? 'active' : ''}" id="chipFav" onclick="toggleFavOnly()" aria-pressed="${favOnly}">${t('saved')}<span class="chip-count" id="chipFavCount">${countFavs()}</span></button>`;
+    box.innerHTML = fav + activeFilterChips();
+}
+
+function activeFilterChips() {
+    const s = currentFilters || {};
+    if (!s.sources) return '';
+    const parts = [];
+    const token = (key, label) =>
+        `<button class="chip chip-token" data-remove="${key}" aria-label="${t('activeFilterLabel', { f: htmlAttr(label) })}" title="${t('activeFilterLabel', { f: htmlAttr(label) })}" onclick="removeChip('${key}')">${escapeHtml(label)}<span class="chip-x" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></span></button>`;
+    if (s.search) parts.push(token('search', `“${s.search}”`));
+    if (s.minPrice || s.maxPrice) {
+        const lo = s.minPrice ? `$${s.minPrice.toLocaleString()}` : '$0';
+        const hi = s.maxPrice ? `$${s.maxPrice.toLocaleString()}` : '–';
+        parts.push(token('price', `HK${lo}–${hi}`));
+    }
+    if (s.bedrooms !== '') parts.push(token('bedrooms', selectText('bedroomFilter')));
+    if (s.tx) parts.push(token('tx', selectText('txFilter')));
+    if (s.propertyType) parts.push(token('propertyType', selectText('typeFilter')));
+    if (s.sources.length < Object.keys(SOURCE_LABELS).length) parts.push(token('sources', selectText('sourceFilter')));
+    if (s.newOnly) parts.push(token('newOnly', t('newTodayOnly')));
+    return parts.join('');
+}
+
+function selectText(id) {
+    const sel = document.getElementById(id);
+    return sel && sel.selectedIndex >= 0 ? sel.options[sel.selectedIndex].textContent : '';
+}
+
+function removeChip(key) {
+    const controls = {
+        price: ['minPrice', 'maxPrice'],
+        bedrooms: ['bedroomFilter'],
+        tx: ['txFilter'],
+        propertyType: ['typeFilter'],
+        sources: ['sourceFilter'],
+        newOnly: ['newOnlyFilter']
+    };
+    if (key === 'search') { clearSearch(); return; }
+    const ids = controls[key];
+    if (!ids) return;
+    for (const id of ids) {
+        const el = document.getElementById(id);
+        if (el) {
+            if (el.type === 'checkbox') el.checked = false;
+            else el.value = '';
+        }
+    }
+    applyFilters();
+}
+
+function clearSearch() {
+    const srch = document.getElementById('searchInput');
+    srch.value = '';
+    toggleSearchClear();
+    applyFilters();
+    srch.focus();
+}
+
+function toggleSearchClear() {
+    const btn = document.getElementById('searchClear');
+    if (!btn) return;
+    btn.hidden = !document.getElementById('searchInput').value.trim();
 }
 
 function syncChipActive() {
@@ -553,6 +667,82 @@ function currentTx() {
 function selectedSources() {
     const v = document.getElementById('sourceFilter').value;
     return v ? [v] : Object.keys(SOURCE_LABELS);
+}
+
+/* --------------------------------------------------------------------------
+   URL state (shareable, refresh-safe views)
+   -------------------------------------------------------------------------- */
+const URL_FILTER_MAP = {
+    tx: 'txFilter', bed: 'bedroomFilter', type: 'typeFilter',
+    src: 'sourceFilter', min: 'minPrice', max: 'maxPrice'
+};
+const SORT_KEYS = ['date_crawled', 'price_asc', 'price_desc', 'sqft_desc', 'price_per_sqft_asc'];
+
+function stateParams() {
+    const p = new URLSearchParams();
+    const q = document.getElementById('searchInput').value.trim();
+    if (q) p.set('q', q);
+    if (currentSort !== 'date_crawled') p.set('sort', currentSort);
+    for (const [key, id] of Object.entries(URL_FILTER_MAP)) {
+        const v = document.getElementById(id).value;
+        if (v !== '') p.set(key, v);
+    }
+    if (document.getElementById('newOnlyFilter').checked) p.set('new', '1');
+    if (currentPage > 1) p.set('page', String(currentPage));
+    return p;
+}
+
+function syncUrl() {
+    try {
+        const qs = stateParams().toString();
+        history.replaceState(null, '', qs ? `?${qs}` : location.pathname);
+    } catch (e) { /* history API unavailable — state simply won't sync */ }
+}
+
+function applyUrlToUi() {
+    try {
+        const p = new URLSearchParams(location.search);
+        const q = (p.get('q') || '').trim();
+        if (q) document.getElementById('searchInput').value = q;
+        toggleSearchClear();
+        const sort = p.get('sort');
+        if (sort && SORT_KEYS.includes(sort)) {
+            currentSort = sort;
+            refreshSortMenu();
+        }
+        for (const [key, id] of Object.entries(URL_FILTER_MAP)) {
+            const v = p.get(key);
+            if (v !== null) document.getElementById(id).value = v;
+        }
+        if (p.get('new') === '1') document.getElementById('newOnlyFilter').checked = true;
+        const page = parseInt(p.get('page'), 10);
+        if (Number.isInteger(page) && page > 1) pendingPage = page;
+    } catch (e) { /* malformed URL — default view wins */ }
+}
+
+function copyShareLink() {
+    const url = new URL(location.href.split('#')[0]);
+    url.search = stateParams().toString();
+    const text = url.toString();
+    const done = () => showToast(t('linkCopied'), 'success');
+    const fallback = () => {
+        try {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            ta.remove();
+            done();
+        } catch (e) { showToast(text, 'info'); }
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done).catch(fallback);
+    } else {
+        fallback();
+    }
 }
 
 function applyFilters() {
@@ -604,9 +794,17 @@ function applyFilters() {
     });
 
     sortListings();
-    currentPage = 1;
+    currentPage = consumePendingPage();
     renderListings();
     updateFilterBadges();
+    renderQuickChips();
+    syncUrl();
+}
+
+function consumePendingPage() {
+    const p = pendingPage;
+    pendingPage = 0;
+    return p >= 1 ? p : 1;
 }
 
 function effectiveDate(listing) {
@@ -646,8 +844,8 @@ function resetFilters() {
     document.getElementById('sourceFilter').value = '';
     document.getElementById('bedroomFilter').value = '';
     document.getElementById('txFilter').value = '';
+    toggleSearchClear();
     applyFilters();
-    syncChipActive();
 }
 
 function toggleSidebar() {
@@ -655,9 +853,13 @@ function toggleSidebar() {
 }
 
 function toggleSidebarMobile(btn) {
-    const isOpen = document.getElementById('sidebar').classList.toggle('mobile-open');
+    const sidebar = document.getElementById('sidebar');
+    const isOpen = sidebar.classList.toggle('mobile-open');
     btn.classList.toggle('active', isOpen);
     btn.setAttribute('aria-expanded', String(isOpen));
+    const backdrop = document.getElementById('sidebarBackdrop');
+    if (backdrop) backdrop.hidden = !isOpen;
+    document.body.style.overflow = isOpen ? 'hidden' : '';
 }
 
 function closeMobileSidebar() {
@@ -667,6 +869,9 @@ function closeMobileSidebar() {
         const btn = document.getElementById('filtersNavBtn');
         btn.classList.remove('active');
         btn.setAttribute('aria-expanded', 'false');
+        const backdrop = document.getElementById('sidebarBackdrop');
+        if (backdrop) backdrop.hidden = true;
+        document.body.style.overflow = '';
     }
 }
 
@@ -728,7 +933,7 @@ function createListingCard(listing, index) {
     const img0 = firstImage(listing);
     const fp = index === 0 ? 'high' : 'low';
     const media = img0
-        ? `<img src="${imageProxy(img0)}" alt="" loading="lazy" fetchpriority="${fp}" referrerpolicy="no-referrer"
+        ? `<img src="${imageProxy(img0, 800)}" srcset="${imageProxy(img0, 1600)} 2x" alt="" loading="lazy" fetchpriority="${fp}" referrerpolicy="no-referrer"
                onload="this.classList.add('loaded')"
                onclick="event.stopPropagation();event.preventDefault();openLightbox('${listing.id}')"
                onerror="this.outerHTML='${htmlAttr(placeholderMediaMarkup)}'">`
@@ -738,7 +943,7 @@ function createListingCard(listing, index) {
     if (listing.price_changed) {
         const up = listing.previous_price && listing.price > listing.previous_price;
         badges.push(`<span class="badge ${up ? 'badge-up' : 'badge-down'}">
-            ${up ? '▲' : '▼'}&nbsp;${up ? 'Price up' : 'Price down'}</span>`);
+            ${up ? '▲' : '▼'}&nbsp;${up ? t('priceUp') : t('priceDown')}</span>`);
     }
     const badgesHtml = badges.length
         ? `<div class="badge-row">${badges.join('')}</div>`
@@ -797,7 +1002,7 @@ function createListingCard(listing, index) {
              style="animation-delay:${Math.min(index, 6) * 55}ms">
             <div class="card-media">${media}${mediaActions}${badgesHtml}${priceHtml}</div>
             <div class="card-body">
-                <h3 class="card-title">${escapeHtml(title)}</h3>
+                <h3 class="card-title" title="${escapeHtml(title)}">${escapeHtml(title)}</h3>
                 ${loc}
                 <div class="card-facts">${facts.join('')}</div>
                 ${alsoOn ? `<div class="also-row">${alsoOn}</div>` : ''}
@@ -967,7 +1172,14 @@ function refreshSortMenu() {
     document.querySelectorAll('#sortMenu .sort-menu-item').forEach(b => {
         b.classList.toggle('active', b.dataset.sort === currentSort);
     });
+    const labelEl = document.getElementById('sortLabel');
+    if (labelEl) labelEl.textContent = t(SORT_LABEL_KEYS[currentSort] || 'sortNewest');
 }
+
+const SORT_LABEL_KEYS = {
+    date_crawled: 'sortNewest', price_asc: 'sortPriceAsc', price_desc: 'sortPriceDesc',
+    sqft_desc: 'sortSize', price_per_sqft_asc: 'sortValue'
+};
 
 function setSort(value) {
     currentSort = value;
@@ -981,6 +1193,8 @@ function setSort(value) {
    -------------------------------------------------------------------------- */
 let lightboxItems = [];
 let lightboxIndex = 0;
+let lightboxReturnFocus = null;
+let lightboxPointerX = null;
 
 function openLightbox(listingId) {
     const listing = allListings.find(l => l.id === listingId);
@@ -990,11 +1204,13 @@ function openLightbox(listingId) {
         showToast(t('noPhotosToast'), 'error');
         return;
     }
+    lightboxReturnFocus = document.activeElement;
     lightboxIndex = 0;
     lightboxItems.sort((a, b) => (a.split('/')[2] === 'i1.squarefoot.com.hk' ? 1 : 0) - (b.split('/')[2] === 'i1.squarefoot.com.hk' ? 1 : 0));
     showLightboxImage();
     document.getElementById('lightbox').classList.add('open');
     document.body.style.overflow = 'hidden';
+    document.getElementById('lightboxCloseBtn').focus();
 }
 
 function showLightboxImage() {
@@ -1019,11 +1235,26 @@ function closeLightbox() {
     if (!lb.classList.contains('open')) return;
     lb.classList.remove('open');
     document.body.style.overflow = '';
+    if (lightboxReturnFocus && lightboxReturnFocus.focus) {
+        try { lightboxReturnFocus.focus({ preventScroll: true }); } catch (e) { lightboxReturnFocus.focus(); }
+    }
+    lightboxReturnFocus = null;
 }
 
-/* --------------------------------------------------------------------------
-   Share
-   -------------------------------------------------------------------------- */
+/* Touch swipe navigation for the lightbox */
+(function initLightboxSwipe() {
+    const lb = document.getElementById('lightbox');
+    if (!lb) return;
+    lb.addEventListener('pointerdown', (e) => { lightboxPointerX = e.clientX; });
+    lb.addEventListener('pointerup', (e) => {
+        if (lightboxPointerX === null) return;
+        const dx = e.clientX - lightboxPointerX;
+        lightboxPointerX = null;
+        if (Math.abs(dx) < 45) return;
+        lightboxStep(dx < 0 ? 1 : -1);
+    });
+})();
+
 /* --------------------------------------------------------------------------
    Theme
    -------------------------------------------------------------------------- */
