@@ -29,11 +29,7 @@
     <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
     <link rel="preconnect" href="https://images.weserv.nl" crossorigin>
     <link rel="dns-prefetch" href="https://images.weserv.nl">
-<link rel="stylesheet" href="css/styles.css?v=3589a9ae">
-    <noscript>
-        <style>.noscript{position:fixed;inset:0;z-index:5000;display:grid;place-items:center;background:#f6f4ef;color:#1c1a16;font-family:Inter,-apple-system,'Segoe UI',sans-serif;text-align:center;padding:2rem}.noscript-box{max-width:420px}.noscript h1{font-family:Fraunces,Georgia,serif;font-weight:600;font-size:1.4rem;margin-bottom:.6rem}.noscript p{color:#79736a;font-size:.92rem;line-height:1.6}</style>
-        <div class="noscript"><div class="noscript-box"><h1>JavaScript required</h1><p>This property portal needs JavaScript to display listings. Please enable it or switch to a modern browser to continue.</p></div></div>
-    </noscript>
+    <link rel="stylesheet" href="css/styles.css?v=3d7ca222">
 </head>
 <body>
 
@@ -66,9 +62,8 @@
 
             <div class="header-actions">
                 <div class="sort-menu-wrap">
-                    <button class="btn btn-outline btn-sort" id="sortMenuBtn" onclick="toggleSortMenu()" data-i18n-aria="sortAria" aria-haspopup="true" aria-expanded="false" aria-controls="sortMenu">
+                    <button class="btn btn-outline btn-icon btn-sort" id="sortMenuBtn" onclick="toggleSortMenu()" data-i18n-aria="sortAria" aria-haspopup="true" aria-expanded="false">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5h10"/><path d="M11 9h7"/><path d="M11 13h4"/><path d="m3 17 3 3 3-3"/><path d="M6 18V4"/></svg>
-                        <span class="btn-label btn-sort-label" id="sortLabel">Newest first</span>
                     </button>
                     <div class="sort-menu" id="sortMenu" hidden>
                         <button type="button" class="sort-menu-item" data-sort="date_crawled" onclick="setSort(this.dataset.sort)">
@@ -88,7 +83,7 @@
                         </button>
                     </div>
                 </div>
-                <button class="btn btn-outline btn-filters-nav" id="filtersNavBtn" onclick="toggleSidebarMobile(this)" aria-expanded="false" aria-controls="sidebar">
+                <button class="btn btn-outline btn-filters-nav" id="filtersNavBtn" onclick="toggleSidebarMobile(this)" aria-expanded="false">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3Z"/></svg>
                     <span class="btn-label" data-i18n="filters">Filters</span>
                     <span class="btn-badge" id="filterBadge" hidden></span>
@@ -114,20 +109,11 @@
 
         <!-- Filters -->
         <aside class="sidebar" id="sidebar">
-            <div class="sidebar-head">
-                <span class="sidebar-title" data-i18n="filters">Filters</span>
-                <button class="btn btn-ghost btn-icon sidebar-close" onclick="closeMobileSidebar()" data-i18n-aria="close" aria-label="Close">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-                </button>
-            </div>
             <div class="filter-section">
                 <label class="filter-label" for="searchInput" data-i18n="search">Search</label>
                 <div class="search-wrap">
                     <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-                    <input type="text" class="search-input" id="searchInput" placeholder="District, estate, address…" data-i18n-ph="searchPh" autocomplete="off">
-                    <button class="search-clear" id="searchClear" aria-label="Clear search" hidden>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-                    </button>
+                    <input type="text" class="search-input" id="searchInput" placeholder="District, estate, address…" data-i18n-ph="searchPh">
                 </div>
             </div>
 
@@ -206,17 +192,12 @@
                 </button>
             </div>
         </aside>
-        <div class="sidebar-backdrop" id="sidebarBackdrop" hidden></div>
 
         <!-- Results -->
         <section class="content">
             <div class="toolbar">
                 <div class="toolbar-count" id="resultsCount" data-i18n="loading">Loading…</div>
                 <div class="toolbar-spacer"></div>
-                <button class="btn btn-outline btn-share" id="shareBtn" onclick="copyShareLink()" data-i18n-title="shareTitle" title="Copy link to this view">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>
-                    <span class="btn-label" data-i18n="share">Share</span>
-                </button>
                 <button class="btn btn-outline btn-toggle-sidebar" onclick="toggleSidebar()">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
                     <span data-i18n="filters">Filters</span>
@@ -241,8 +222,8 @@
         <span id="toastMsg"></span>
     </div>
 
-    <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer">
-        <button class="lightbox-btn lightbox-close" id="lightboxCloseBtn" onclick="closeLightbox()" data-i18n-aria="close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+    <div class="lightbox" id="lightbox">
+        <button class="lightbox-btn lightbox-close" onclick="closeLightbox()" data-i18n-aria="close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
         <button class="lightbox-btn lightbox-prev" id="lightboxPrev" onclick="lightboxStep(-1)" data-i18n-aria="prevImage"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
         <figure class="lightbox-stage">
             <img id="lightboxImg" alt="" referrerpolicy="no-referrer">
@@ -251,7 +232,7 @@
         <button class="lightbox-btn lightbox-next" id="lightboxNext" onclick="lightboxStep(1)" data-i18n-aria="nextImage"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button>
     </div>
 
-<script src="js/config.js?v=3589a9ae" defer></script>
-    <script src="js/app.js?v=3589a9ae" defer></script>
+    <script src="js/config.js?v=3d7ca222" defer></script>
+    <script src="js/app.js?v=3d7ca222" defer></script>
 </body>
 </html>
