@@ -586,7 +586,7 @@ function applyFilters() {
         }
 
         if (currentFilters.propertyType && listing.property_type !== currentFilters.propertyType) return false;
-        if (currentFilters.newOnly && !listing.is_new) return false;
+        if (currentFilters.newOnly && !isNewToday(listing)) return false;
 
         if (currentFilters.search) {
             const haystack = [
@@ -611,6 +611,16 @@ function applyFilters() {
 
 function effectiveDate(listing) {
     return listing.date_posted || listing.date_crawled || '';
+}
+function isNewToday(listing) {
+    const iso = effectiveDate(listing);
+    if (!iso) return false;
+    const d = parseUtcIso(iso);
+    if (!d || isNaN(d.getTime())) return false;
+    const now = new Date();
+    return d.getFullYear() === now.getFullYear() &&
+           d.getMonth() === now.getMonth() &&
+           d.getDate() === now.getDate();
 }
 function sortListings() {
     filteredListings.sort((a, b) => {
