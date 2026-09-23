@@ -1350,8 +1350,14 @@ input, select { font-family: inherit; }
     letter-spacing: -0.01em;
   }
   .sidebar-close { display: inline-flex; padding: 0.4rem; margin-right: -0.4rem; }
-  .main { gap: 1rem; padding: 1rem 1rem 3rem; }
-  .toolbar { margin-bottom: 1rem; }
+  .main { gap: 1rem; padding: 0.6rem 1rem 3rem; }
+  .toolbar { margin-bottom: 0.4rem; gap: 0.5rem; }
+  .toolbar-count { font-size: 0.76rem; color: var(--faint); gap: 0.3rem; }
+  .toolbar-count strong { font-size: 0.9rem; }
+  .toolbar-spacer { display: none; }
+  .toolbar-updated { padding: 0.14rem 0.5rem; font-size: 0.64rem; gap: 0.35rem; }
+  .chip-row { margin-bottom: 1rem; gap: 0.4rem; }
+  .chip { padding: 0.38rem 0.84rem; gap: 0.35rem; font-size: 0.78rem; }
 }
 
 @keyframes backdropIn {
@@ -1360,9 +1366,9 @@ input, select { font-family: inherit; }
 }
 
 @media (max-width: 640px) {
-  .header-content { padding: 0.6rem 0.9rem; gap: 0.6rem; }
+  .header-content { padding: 0.55rem 0.9rem; gap: 0.6rem; }
   .brand-name { font-size: 1rem; }
-  .main { padding: 0.9rem 0.9rem 3rem; gap: 1rem; }
+  .main { padding: 0.5rem 0.9rem 3rem; gap: 1rem; }
   .header-actions .btn { padding: 0.55rem 0.75rem; }
   .listings-grid { grid-template-columns: 1fr; gap: 1.1rem; }
   .login-card { padding: 2.4rem 1.6rem 2rem; }
@@ -1370,8 +1376,8 @@ input, select { font-family: inherit; }
     flex-wrap: nowrap;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    padding-bottom: 0.3rem;
-    margin-bottom: 1.1rem;
+    padding-bottom: 0.2rem;
+    margin-bottom: 0.95rem;
     scrollbar-width: none;
   }
   .chip-row::-webkit-scrollbar { display: none; }
