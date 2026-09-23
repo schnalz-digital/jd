@@ -49,7 +49,9 @@ jobs:
           else
             git commit -m "Update data [skip ci]"
             git pull --rebase origin main --no-edit || {
-              git checkout --theirs listings.json stats.json index.html
+              git checkout --theirs listings.json stats.json
+              git checkout --ours index.html
+              node tools/version.mjs
               git add listings.json stats.json index.html
               git -c core.editor=true rebase --continue || git rebase --abort
             }
