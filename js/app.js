@@ -496,6 +496,13 @@ function setupEventListeners() {
         if (e.key === 'ArrowLeft') lightboxStep(-1);
         if (e.key === 'ArrowRight') lightboxStep(1);
     });
+
+    const headerEl = document.getElementById('header');
+    if (headerEl) {
+        const onHeaderScroll = () => headerEl.classList.toggle('scrolled', window.scrollY > 8);
+        window.addEventListener('scroll', onHeaderScroll, { passive: true });
+        onHeaderScroll();
+    }
 }
 
 /* --------------------------------------------------------------------------
