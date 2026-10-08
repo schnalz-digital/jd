@@ -111,9 +111,6 @@ const I18N = {
         nextImage: 'Next image',
         priceUp: 'Price up',
         priceDown: 'Price down',
-        share: 'Share',
-        shareTitle: 'Copy link to this view',
-        linkCopied: 'Link copied — filters and sort included.',
         clearSearch: 'Clear search',
         toggled: 'Filter applied',
         activeFilterLabel: 'Active filter: {f}'
@@ -206,9 +203,6 @@ const I18N = {
         nextImage: '下一张',
         priceUp: '涨价',
         priceDown: '降价',
-        share: '分享',
-        shareTitle: '复制当前视图链接',
-        linkCopied: '链接已复制 — 包含筛选和排序。',
         clearSearch: '清除搜索',
         toggled: '筛选已应用',
         activeFilterLabel: '有效筛选：{f}'
@@ -725,31 +719,6 @@ function applyUrlToUi() {
         const page = parseInt(p.get('page'), 10);
         if (Number.isInteger(page) && page > 1) pendingPage = page;
     } catch (e) { /* malformed URL — default view wins */ }
-}
-
-function copyShareLink() {
-    const url = new URL(location.href.split('#')[0]);
-    url.search = stateParams().toString();
-    const text = url.toString();
-    const done = () => showToast(t('linkCopied'), 'success');
-    const fallback = () => {
-        try {
-            const ta = document.createElement('textarea');
-            ta.value = text;
-            ta.style.position = 'fixed';
-            ta.style.opacity = '0';
-            document.body.appendChild(ta);
-            ta.select();
-            document.execCommand('copy');
-            ta.remove();
-            done();
-        } catch (e) { showToast(text, 'info'); }
-    };
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(done).catch(fallback);
-    } else {
-        fallback();
-    }
 }
 
 function applyFilters() {

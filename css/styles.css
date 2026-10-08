@@ -1197,7 +1197,7 @@ input, select { font-family: inherit; }
 .lightbox-next { right: 1.4rem; top: 50%; transform: translateY(-50%); }
 
 /* --------------------------------------------------------------------------
-   UX details — sort label, search-clear, share, chips, focus rings
+   UX details — sort label, search-clear, chips, focus rings
    -------------------------------------------------------------------------- */
 .btn-sort-label { display: none; }
 .btn-sort { gap: 0.45rem; }
